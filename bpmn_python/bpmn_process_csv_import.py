@@ -261,9 +261,9 @@ def add_outgoing_flow(node_id, successor_node_id, bpmn_diagram):
     :param successor_node_id:
     :param bpmn_diagram:
     """
-    if bpmn_diagram.diagram_graph.node[node_id].get(consts.Consts.outgoing_flow) is None:
-        bpmn_diagram.diagram_graph.node[node_id][consts.Consts.outgoing_flow] = []
-    bpmn_diagram.diagram_graph.node[node_id][consts.Consts.outgoing_flow].append(get_flow_id(node_id, successor_node_id))
+    if bpmn_diagram.diagram_graph.nodes[node_id].get(consts.Consts.outgoing_flow) is None:
+        bpmn_diagram.diagram_graph.nodes[node_id][consts.Consts.outgoing_flow] = []
+    bpmn_diagram.diagram_graph.nodes[node_id][consts.Consts.outgoing_flow].append(get_flow_id(node_id, successor_node_id))
 
 
 def add_incoming_flow(node_id, from_node_id, bpmn_diagram):
@@ -273,9 +273,9 @@ def add_incoming_flow(node_id, from_node_id, bpmn_diagram):
     :param from_node_id:
     :param bpmn_diagram:
     """
-    if bpmn_diagram.diagram_graph.node[node_id].get(consts.Consts.incoming_flow) is None:
-        bpmn_diagram.diagram_graph.node[node_id][consts.Consts.incoming_flow] = []
-    bpmn_diagram.diagram_graph.node[node_id][consts.Consts.incoming_flow].append(get_flow_id(from_node_id, node_id))
+    if bpmn_diagram.diagram_graph.nodes[node_id].get(consts.Consts.incoming_flow) is None:
+        bpmn_diagram.diagram_graph.nodes[node_id][consts.Consts.incoming_flow] = []
+    bpmn_diagram.diagram_graph.nodes[node_id][consts.Consts.incoming_flow].append(get_flow_id(from_node_id, node_id))
 
 
 def get_connection_condition_if_present(to_node_id, process_dict):
@@ -433,7 +433,7 @@ def get_merge_node_type(merge_successor_id, bpmn_diagram):
         prefix = result.group(1)
         split_node_id = prefix + str(prev_prev_number) + "_split"
         if bool(bpmn_diagram.diagram_graph.has_node(split_node_id)):
-            node_type = bpmn_diagram.diagram_graph.node[split_node_id][consts.Consts.type]
+            node_type = bpmn_diagram.diagram_graph.nodes[split_node_id][consts.Consts.type]
             if bool(node_type):
                 return node_type
         return consts.Consts.inclusive_gateway
@@ -466,7 +466,7 @@ def fill_graph_connections(process_dict, bpmn_diagram, sequence_flows):
     :param bpmn_diagram:
     :param sequence_flows:
     """
-    nodes_ids = list(bpmn_diagram.diagram_graph.node.keys())
+    nodes_ids = list(bpmn_diagram.diagram_graph.nodes.keys())
     nodes_ids_to_process = copy.deepcopy(nodes_ids)
     while bool(nodes_ids_to_process):
         node_id = str(nodes_ids_to_process.pop(0))
@@ -503,9 +503,9 @@ def remove_outgoing_connection(base_node, bpmn_diagram, sequence_flows):
     :param sequence_flows:
     :return:
     """
-    outgoing_flow_id = bpmn_diagram.diagram_graph.node[base_node][consts.Consts.outgoing_flow][0]
+    outgoing_flow_id = bpmn_diagram.diagram_graph.nodes[base_node][consts.Consts.outgoing_flow][0]
     neighbour_node = sequence_flows[outgoing_flow_id][consts.Consts.target_ref]
-    bpmn_diagram.diagram_graph.node[neighbour_node][consts.Consts.incoming_flow].remove(outgoing_flow_id)
+    bpmn_diagram.diagram_graph.nodes[neighbour_node][consts.Consts.incoming_flow].remove(outgoing_flow_id)
     del sequence_flows[outgoing_flow_id]
     bpmn_diagram.diagram_graph.remove_edge(base_node, neighbour_node)
     return neighbour_node
@@ -519,9 +519,9 @@ def remove_incoming_connection(base_node, bpmn_diagram, sequence_flows):
     :param sequence_flows:
     :return:
     """
-    incoming_flow_id = bpmn_diagram.diagram_graph.node[base_node][consts.Consts.incoming_flow][0]
+    incoming_flow_id = bpmn_diagram.diagram_graph.nodes[base_node][consts.Consts.incoming_flow][0]
     neighbour_node = sequence_flows[incoming_flow_id][consts.Consts.source_ref]
-    bpmn_diagram.diagram_graph.node[neighbour_node][consts.Consts.outgoing_flow].remove(incoming_flow_id)
+    bpmn_diagram.diagram_graph.nodes[neighbour_node][consts.Consts.outgoing_flow].remove(incoming_flow_id)
     del sequence_flows[incoming_flow_id]
     bpmn_diagram.diagram_graph.remove_edge(neighbour_node, base_node)
     return neighbour_node

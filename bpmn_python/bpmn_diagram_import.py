@@ -106,8 +106,8 @@ class BpmnDiagramGraphImport(object):
         process_ref = participant_element.getAttribute(consts.Consts.process_ref)
         if participant_element.getAttribute(consts.Consts.process_ref) == '':
             diagram_graph.add_node(participant_id)
-            diagram_graph.node[participant_id][consts.Consts.type] = consts.Consts.participant
-            diagram_graph.node[participant_id][consts.Consts.process] = participant_id
+            diagram_graph.nodes[participant_id][consts.Consts.type] = consts.Consts.participant
+            diagram_graph.nodes[participant_id][consts.Consts.process] = participant_id
         participants_dictionary[participant_id] = {consts.Consts.name: name, consts.Consts.process_ref: process_ref}
 
     @staticmethod
@@ -347,14 +347,14 @@ class BpmnDiagramGraphImport(object):
         """
         element_id = flow_node_element.getAttribute(consts.Consts.id)
         bpmn_graph.add_node(element_id)
-        bpmn_graph.node[element_id][consts.Consts.id] = element_id
-        bpmn_graph.node[element_id][consts.Consts.type] = \
+        bpmn_graph.nodes[element_id][consts.Consts.id] = element_id
+        bpmn_graph.nodes[element_id][consts.Consts.type] = \
             utils.BpmnImportUtils.remove_namespace_from_tag_name(flow_node_element.tagName)
-        bpmn_graph.node[element_id][consts.Consts.node_name] = \
+        bpmn_graph.nodes[element_id][consts.Consts.node_name] = \
             flow_node_element.getAttribute(consts.Consts.name) \
                 if flow_node_element.hasAttribute(consts.Consts.name) \
                 else ""
-        bpmn_graph.node[element_id][consts.Consts.process] = process_id
+        bpmn_graph.nodes[element_id][consts.Consts.process] = process_id
         process_attributes[consts.Consts.node_ids].append(element_id)
 
         # add incoming flow node list
@@ -365,7 +365,7 @@ class BpmnDiagramGraphImport(object):
                 if tag_name == consts.Consts.incoming_flow:
                     incoming_value = tmp_element.firstChild.nodeValue
                     incoming_list.append(incoming_value)
-        bpmn_graph.node[element_id][consts.Consts.incoming_flow] = incoming_list
+        bpmn_graph.nodes[element_id][consts.Consts.incoming_flow] = incoming_list
 
         # add outgoing flow node list
         outgoing_list = []
@@ -375,7 +375,7 @@ class BpmnDiagramGraphImport(object):
                 if tag_name == consts.Consts.outgoing_flow:
                     outgoing_value = tmp_element.firstChild.nodeValue
                     outgoing_list.append(outgoing_value)
-        bpmn_graph.node[element_id][consts.Consts.outgoing_flow] = outgoing_list
+        bpmn_graph.nodes[element_id][consts.Consts.outgoing_flow] = outgoing_list
 
     @staticmethod
     def import_task_to_graph(diagram_graph, process_id, process_attributes, task_element):
@@ -410,11 +410,11 @@ class BpmnDiagramGraphImport(object):
                                                         subprocess_element)
 
         subprocess_id = subprocess_element.getAttribute(consts.Consts.id)
-        diagram_graph.node[subprocess_id][consts.Consts.triggered_by_event] = \
+        diagram_graph.nodes[subprocess_id][consts.Consts.triggered_by_event] = \
             subprocess_element.getAttribute(consts.Consts.triggered_by_event) \
                 if subprocess_element.hasAttribute(consts.Consts.triggered_by_event) else "false"
 
-        subprocess_attributes = diagram_graph.node[subprocess_id]
+        subprocess_attributes = diagram_graph.nodes[subprocess_id]
         subprocess_attributes[consts.Consts.node_ids] = []
         for element in utils.BpmnImportUtils.iterate_elements(subprocess_element):
             if element.nodeType != element.TEXT_NODE:
@@ -444,7 +444,7 @@ class BpmnDiagramGraphImport(object):
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, process_attributes,
                                                          data_object_element)
         data_object_id = data_object_element.getAttribute(consts.Consts.id)
-        diagram_graph.node[data_object_id][consts.Consts.is_collection] = \
+        diagram_graph.nodes[data_object_id][consts.Consts.is_collection] = \
             data_object_element.getAttribute(consts.Consts.is_collection) \
                 if data_object_element.hasAttribute(consts.Consts.is_collection) else "false"
 
@@ -464,7 +464,7 @@ class BpmnDiagramGraphImport(object):
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, process_attributes, element)
 
         element_id = element.getAttribute(consts.Consts.id)
-        diagram_graph.node[element_id][consts.Consts.default] = element.getAttribute(consts.Consts.default) \
+        diagram_graph.nodes[element_id][consts.Consts.default] = element.getAttribute(consts.Consts.default) \
             if element.hasAttribute(consts.Consts.default) else None
 
     @staticmethod
@@ -482,7 +482,7 @@ class BpmnDiagramGraphImport(object):
         """
         element_id = element.getAttribute(consts.Consts.id)
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, process_attributes, element)
-        diagram_graph.node[element_id][consts.Consts.gateway_direction] = \
+        diagram_graph.nodes[element_id][consts.Consts.gateway_direction] = \
             element.getAttribute(consts.Consts.gateway_direction) \
                 if element.hasAttribute(consts.Consts.gateway_direction) else "Unspecified"
 
@@ -501,7 +501,7 @@ class BpmnDiagramGraphImport(object):
         """
         element_id = element.getAttribute(consts.Consts.id)
         BpmnDiagramGraphImport.import_gateway_to_graph(diagram_graph, process_id, process_attributes, element)
-        diagram_graph.node[element_id][consts.Consts.default] = element.getAttribute(consts.Consts.default) \
+        diagram_graph.nodes[element_id][consts.Consts.default] = element.getAttribute(consts.Consts.default) \
             if element.hasAttribute(consts.Consts.default) else None
         # TODO sequence of conditions
         # Can't get any working example of Complex gateway, so I'm not sure how exactly those conditions are kept
@@ -522,9 +522,9 @@ class BpmnDiagramGraphImport(object):
         """
         element_id = element.getAttribute(consts.Consts.id)
         BpmnDiagramGraphImport.import_gateway_to_graph(diagram_graph, process_id, process_attributes, element)
-        diagram_graph.node[element_id][consts.Consts.instantiate] = element.getAttribute(consts.Consts.instantiate) \
+        diagram_graph.nodes[element_id][consts.Consts.instantiate] = element.getAttribute(consts.Consts.instantiate) \
             if element.hasAttribute(consts.Consts.instantiate) else "false"
-        diagram_graph.node[element_id][consts.Consts.event_gateway_type] = \
+        diagram_graph.nodes[element_id][consts.Consts.event_gateway_type] = \
             element.getAttribute(consts.Consts.event_gateway_type) \
                 if element.hasAttribute(consts.Consts.event_gateway_type) else "Exclusive"
 
@@ -543,7 +543,7 @@ class BpmnDiagramGraphImport(object):
         """
         element_id = element.getAttribute(consts.Consts.id)
         BpmnDiagramGraphImport.import_gateway_to_graph(diagram_graph, process_id, process_attributes, element)
-        diagram_graph.node[element_id][consts.Consts.default] = element.getAttribute(consts.Consts.default) \
+        diagram_graph.nodes[element_id][consts.Consts.default] = element.getAttribute(consts.Consts.default) \
             if element.hasAttribute(consts.Consts.default) else None
 
     @staticmethod
@@ -578,7 +578,7 @@ class BpmnDiagramGraphImport(object):
                 event_def_tmp = {consts.Consts.id: event_def_xml[index].getAttribute(consts.Consts.id),
                                  consts.Consts.definition_type: definition_type}
                 event_def_list.append(event_def_tmp)
-        diagram_graph.node[element_id][consts.Consts.event_definitions] = event_def_list
+        diagram_graph.nodes[element_id][consts.Consts.event_definitions] = event_def_list
 
     @staticmethod
     def import_start_event_to_graph(diagram_graph, process_id, process_attributes, element):
@@ -599,10 +599,10 @@ class BpmnDiagramGraphImport(object):
         start_event_definitions = {'messageEventDefinition', 'timerEventDefinition', 'conditionalEventDefinition',
                                    'escalationEventDefinition', 'signalEventDefinition'}
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, process_attributes, element)
-        diagram_graph.node[element_id][consts.Consts.parallel_multiple] = \
+        diagram_graph.nodes[element_id][consts.Consts.parallel_multiple] = \
             element.getAttribute(consts.Consts.parallel_multiple) \
                 if element.hasAttribute(consts.Consts.parallel_multiple) else "false"
-        diagram_graph.node[element_id][consts.Consts.is_interrupting] = \
+        diagram_graph.nodes[element_id][consts.Consts.is_interrupting] = \
             element.getAttribute(consts.Consts.is_interrupting) \
                 if element.hasAttribute(consts.Consts.is_interrupting) else "true"
         BpmnDiagramGraphImport.import_event_definition_elements(diagram_graph, element, start_event_definitions)
@@ -627,7 +627,7 @@ class BpmnDiagramGraphImport(object):
                                                 'signalEventDefinition', 'conditionalEventDefinition',
                                                 'escalationEventDefinition'}
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, process_attributes, element)
-        diagram_graph.node[element_id][consts.Consts.parallel_multiple] = \
+        diagram_graph.nodes[element_id][consts.Consts.parallel_multiple] = \
             element.getAttribute(consts.Consts.parallel_multiple) \
                 if element.hasAttribute(consts.Consts.parallel_multiple) else "false"
         BpmnDiagramGraphImport.import_event_definition_elements(diagram_graph, element,
@@ -691,13 +691,13 @@ class BpmnDiagramGraphImport(object):
                                       'conditionalEventDefinition', 'escalationEventDefinition', 'errorEventDefinition'}
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, process_attributes, element)
 
-        diagram_graph.node[element_id][consts.Consts.parallel_multiple] = \
+        diagram_graph.nodes[element_id][consts.Consts.parallel_multiple] = \
             element.getAttribute(consts.Consts.parallel_multiple) \
                 if element.hasAttribute(consts.Consts.parallel_multiple) else "false"
-        diagram_graph.node[element_id][consts.Consts.cancel_activity] = \
+        diagram_graph.nodes[element_id][consts.Consts.cancel_activity] = \
             element.getAttribute(consts.Consts.cancel_activity) \
                 if element.hasAttribute(consts.Consts.cancel_activity) else "true"
-        diagram_graph.node[element_id][consts.Consts.attached_to_ref] = \
+        diagram_graph.nodes[element_id][consts.Consts.attached_to_ref] = \
             element.getAttribute(consts.Consts.attached_to_ref)
 
         BpmnDiagramGraphImport.import_event_definition_elements(diagram_graph, element,
@@ -749,15 +749,15 @@ class BpmnDiagramGraphImport(object):
         added when processing nodes, but listing incoming / outgoing nodes under node element is optional - this way
         we can make sure this info will be imported.
         '''
-        if consts.Consts.outgoing_flow not in diagram_graph.node[source_ref]:
-            diagram_graph.node[source_ref][consts.Consts.outgoing_flow] = []
-        outgoing_list = diagram_graph.node[source_ref][consts.Consts.outgoing_flow]
+        if consts.Consts.outgoing_flow not in diagram_graph.nodes[source_ref]:
+            diagram_graph.nodes[source_ref][consts.Consts.outgoing_flow] = []
+        outgoing_list = diagram_graph.nodes[source_ref][consts.Consts.outgoing_flow]
         if flow_id not in outgoing_list:
             outgoing_list.append(flow_id)
 
-        if consts.Consts.incoming_flow not in diagram_graph.node[target_ref]:
-            diagram_graph.node[target_ref][consts.Consts.incoming_flow] = []
-        incoming_list = diagram_graph.node[target_ref][consts.Consts.incoming_flow]
+        if consts.Consts.incoming_flow not in diagram_graph.nodes[target_ref]:
+            diagram_graph.nodes[target_ref][consts.Consts.incoming_flow] = []
+        incoming_list = diagram_graph.nodes[target_ref][consts.Consts.incoming_flow]
         if flow_id not in incoming_list:
             incoming_list.append(flow_id)
 
@@ -797,15 +797,15 @@ class BpmnDiagramGraphImport(object):
         added when processing nodes, but listing incoming / outgoing nodes under node element is optional - this way
         we can make sure this info will be imported.
         '''
-        if consts.Consts.outgoing_flow not in diagram_graph.node[source_ref]:
-            diagram_graph.node[source_ref][consts.Consts.outgoing_flow] = []
-        outgoing_list = diagram_graph.node[source_ref][consts.Consts.outgoing_flow]
+        if consts.Consts.outgoing_flow not in diagram_graph.nodes[source_ref]:
+            diagram_graph.nodes[source_ref][consts.Consts.outgoing_flow] = []
+        outgoing_list = diagram_graph.nodes[source_ref][consts.Consts.outgoing_flow]
         if flow_id not in outgoing_list:
             outgoing_list.append(flow_id)
 
-        if consts.Consts.incoming_flow not in diagram_graph.node[target_ref]:
-            diagram_graph.node[target_ref][consts.Consts.incoming_flow] = []
-        incoming_list = diagram_graph.node[target_ref][consts.Consts.incoming_flow]
+        if consts.Consts.incoming_flow not in diagram_graph.nodes[target_ref]:
+            diagram_graph.nodes[target_ref][consts.Consts.incoming_flow] = []
+        incoming_list = diagram_graph.nodes[target_ref][consts.Consts.incoming_flow]
         if flow_id not in incoming_list:
             incoming_list.append(flow_id)
 
@@ -828,7 +828,7 @@ class BpmnDiagramGraphImport(object):
         element_id = shape_element.getAttribute(consts.Consts.bpmn_element)
         bounds = shape_element.getElementsByTagNameNS("*", "Bounds")[0]
         if diagram_graph.has_node(element_id):
-            node = diagram_graph.node[element_id]
+            node = diagram_graph.nodes[element_id]
             node[consts.Consts.width] = bounds.getAttribute(consts.Consts.width)
             node[consts.Consts.height] = bounds.getAttribute(consts.Consts.height)
 
