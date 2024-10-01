@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "bpmn-python"
+version = "0.1.0"
+description = ""
+authors = ["Antoine Déchappe <dechantoine@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pytest = "^8.3.3"
+matplotlib = "^3.9.2"
+networkx = "^3.3"
+pydotplus = "^2.0.2"
+pandas = "^2.2.3"
+pydot = "^3.0.2"
+loguru = "^0.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
