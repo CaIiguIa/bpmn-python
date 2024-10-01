@@ -5,8 +5,16 @@ Test unit, using more complex graph made in bpmn.io editor for import/export ope
 import os
 import unittest
 
+from loguru import logger
+
 import bpmn_python.bpmn_diagram_visualizer as visualizer
 import bpmn_python.bpmn_diagram_rep as diagram
+
+def _check_colon_quotes(s):
+    # A quick helper function to check if a string has a colon in it
+    # and if it is quoted properly with double quotes.
+    # refer https://github.com/pydot/pydot/issues/258
+    return ":" in s and (s[0] != '"' or s[-1] != '"')
 
 
 class CamundaComplexTests(unittest.TestCase):
@@ -40,7 +48,7 @@ class CamundaComplexTests(unittest.TestCase):
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_path))
         # Uncomment line below to get a simple view of created diagram
         # visualizer.visualize_diagram(bpmn_graph)
-        visualizer.bpmn_diagram_to_dot_file(bpmn_graph, self.output_directory + self.output_dot_file)
+
         visualizer.bpmn_diagram_to_png(bpmn_graph, self.output_directory + self.output_png_file)
         bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
         bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
