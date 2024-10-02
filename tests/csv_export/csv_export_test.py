@@ -54,13 +54,13 @@ class CsvExportTests(unittest.TestCase):
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_start_event_to_diagram(process_id, start_event_name="Start event",
-                                                              start_event_definition="timer")
+                                                              start_event_definition=diagram.StartEventDefinitions.TIMER)
         [task1_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 1")
         [subprocess1_id, _] = bpmn_graph.add_subprocess_to_diagram(process_id, subprocess_name="Subprocess 1")
         [subprocess2_id, _] = bpmn_graph.add_subprocess_to_diagram(process_id, subprocess_name="Subprocess 2")
         [task2_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 2")
         [end_id, _] = bpmn_graph.add_end_event_to_diagram(process_id, end_event_name="End event",
-                                                          end_event_definition="message")
+                                                          end_event_definition=diagram.EndEventDefinitions.MESSAGE)
 
         bpmn_graph.add_sequence_flow_to_diagram(process_id, start_id, task1_id,
                                                 sequence_flow_name="start_to_task_one")
@@ -81,26 +81,30 @@ class CsvExportTests(unittest.TestCase):
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_start_event_to_diagram(process_id, start_event_name="Start event",
-                                                              start_event_definition="timer")
+                                                              start_event_definition=diagram.StartEventDefinitions.TIMER)
         [task1_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 1")
 
-        [exclusive_gate_fork_id, _] = bpmn_graph.add_exclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="Exclusive gate fork")
+        [exclusive_gate_fork_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="Exclusive gate fork",
+                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
         [task2_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 2")
         [task3_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 3")
         [task6_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 6")
-        [exclusive_gate_join_id, _] = bpmn_graph.add_exclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="Exclusive gate join")
+        [exclusive_gate_join_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="Exclusive gate join",
+                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
 
-        [parallel_gate_fork_id, _] = bpmn_graph.add_parallel_gateway_to_diagram(process_id,
-                                                                                gateway_name="Parallel gateway fork")
+        [parallel_gate_fork_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                       gateway_name="Parallel gateway fork",
+                                                                       gateway_type=diagram.GatewayType.PARALLEL)
         [task4_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 4")
         [task5_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 5")
-        [parallel_gate_join_id, _] = bpmn_graph.add_parallel_gateway_to_diagram(process_id,
-                                                                                gateway_name="Parallel gateway join")
+        [parallel_gate_join_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                       gateway_name="Parallel gateway join",
+                                                                       gateway_type=diagram.GatewayType.PARALLEL)
 
         [end_id, _] = bpmn_graph.add_end_event_to_diagram(process_id, end_event_name="End event",
-                                                          end_event_definition="message")
+                                                          end_event_definition=diagram.EndEventDefinitions.MESSAGE)
 
         bpmn_graph.add_sequence_flow_to_diagram(process_id, start_id, task1_id,
                                                 sequence_flow_name="Start to one")
@@ -137,26 +141,30 @@ class CsvExportTests(unittest.TestCase):
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_start_event_to_diagram(process_id, start_event_name="Start event",
-                                                              start_event_definition="timer")
+                                                              start_event_definition=diagram.StartEventDefinitions.TIMER)
         [task1_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 1")
 
-        [exclusive_gate_fork_id, _] = bpmn_graph.add_inclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="Inclusive gate fork")
+        [exclusive_gate_fork_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="Inclusive gate fork",
+                                                                        gateway_type=diagram.GatewayType.INCLUSIVE)
         [task2_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 2")
         [task3_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 3")
         [task6_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 6")
-        [exclusive_gate_join_id, _] = bpmn_graph.add_inclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="Inclusive gate join")
+        [exclusive_gate_join_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="Inclusive gate join",
+                                                                        gateway_type=diagram.GatewayType.INCLUSIVE)
 
-        [parallel_gate_fork_id, _] = bpmn_graph.add_parallel_gateway_to_diagram(process_id,
-                                                                                gateway_name="Parallel gateway fork")
+        [parallel_gate_fork_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                       gateway_name="Parallel gateway fork",
+                                                                       gateway_type=diagram.GatewayType.PARALLEL)
         [task4_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 4")
         [task5_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="Task 5")
-        [parallel_gate_join_id, _] = bpmn_graph.add_parallel_gateway_to_diagram(process_id,
-                                                                                gateway_name="Parallel gateway join")
+        [parallel_gate_join_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                       gateway_name="Parallel gateway join",
+                                                                       gateway_type=diagram.GatewayType.PARALLEL)
 
         [end_id, _] = bpmn_graph.add_end_event_to_diagram(process_id, end_event_name="End event",
-                                                          end_event_definition="message")
+                                                          end_event_definition=diagram.EndEventDefinitions.MESSAGE)
 
         bpmn_graph.add_sequence_flow_to_diagram(process_id, start_id, task1_id,
                                                 sequence_flow_name="Start to one")

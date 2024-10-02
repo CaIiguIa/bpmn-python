@@ -7,6 +7,7 @@ import unittest
 import bpmn_python.bpmn_diagram_layouter as layouter
 import bpmn_python.bpmn_diagram_rep as diagram
 
+
 class BPMNEditorTests(unittest.TestCase):
     """
     This class contains test for bpmn-python package functionality using an example BPMN diagram created in BPMNEditor.
@@ -47,12 +48,14 @@ class BPMNEditorTests(unittest.TestCase):
         [task1_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="task1")
         bpmn_graph.add_sequence_flow_to_diagram(process_id, start_id, task1_id, "start_to_one")
 
-        [exclusive_gate_fork_id, _] = bpmn_graph.add_exclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="exclusive_gate_fork")
+        [exclusive_gate_fork_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="exclusive_gate_fork",
+                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
         [task1_ex_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="task1_ex")
         [task2_ex_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="task2_ex")
-        [exclusive_gate_join_id, _] = bpmn_graph.add_exclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="exclusive_gate_join")
+        [exclusive_gate_join_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="exclusive_gate_join",
+                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
 
         bpmn_graph.add_sequence_flow_to_diagram(process_id, task1_id, exclusive_gate_fork_id, "one_to_ex_fork")
         bpmn_graph.add_sequence_flow_to_diagram(process_id, exclusive_gate_fork_id, task1_ex_id, "ex_fork_to_ex_one")
@@ -81,12 +84,14 @@ class BPMNEditorTests(unittest.TestCase):
         [task1_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="task1")
         bpmn_graph.add_sequence_flow_to_diagram(process_id, start_id, task1_id, "start_to_one")
 
-        [exclusive_gate_fork_id, _] = bpmn_graph.add_exclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="exclusive_gate_fork")
+        [exclusive_gate_fork_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="exclusive_gate_fork",
+                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
         [task1_ex_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="task1_ex")
         [task2_ex_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="task2_ex")
-        [exclusive_gate_join_id, _] = bpmn_graph.add_exclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="exclusive_gate_join")
+        [exclusive_gate_join_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="exclusive_gate_join",
+                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
 
         bpmn_graph.add_sequence_flow_to_diagram(process_id, task1_id, exclusive_gate_fork_id, "one_to_ex_fork")
         bpmn_graph.add_sequence_flow_to_diagram(process_id, exclusive_gate_fork_id, task1_ex_id, "ex_fork_to_ex_one")

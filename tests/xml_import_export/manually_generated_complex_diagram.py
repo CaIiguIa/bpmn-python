@@ -43,12 +43,14 @@ class ManualGenerationComplexTests(unittest.TestCase):
         bpmn_graph.add_sequence_flow_to_diagram(process_id, task1_par_id, parallel_gate_join_id)
         bpmn_graph.add_sequence_flow_to_diagram(process_id, task2_par_id, parallel_gate_join_id)
 
-        [exclusive_gate_fork_id, _] = bpmn_graph.add_exclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="exclusive_gate_fork")
+        [exclusive_gate_fork_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="exclusive_gate_fork",
+                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
         [task1_ex_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="task1_ex")
         [task2_ex_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="task2_ex")
-        [exclusive_gate_join_id, _] = bpmn_graph.add_exclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="exclusive_gate_join")
+        [exclusive_gate_join_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="exclusive_gate_join",
+                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
 
         bpmn_graph.add_sequence_flow_to_diagram(process_id, parallel_gate_join_id, exclusive_gate_fork_id)
         bpmn_graph.add_sequence_flow_to_diagram(process_id, exclusive_gate_fork_id, task1_ex_id)
@@ -56,12 +58,14 @@ class ManualGenerationComplexTests(unittest.TestCase):
         bpmn_graph.add_sequence_flow_to_diagram(process_id, task1_ex_id, exclusive_gate_join_id)
         bpmn_graph.add_sequence_flow_to_diagram(process_id, task2_ex_id, exclusive_gate_join_id)
 
-        [inclusive_gate_fork_id, _] = bpmn_graph.add_inclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="inclusive_gate_fork")
+        [inclusive_gate_fork_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="inclusive_gate_fork",
+                                                                        gateway_type=diagram.GatewayType.INCLUSIVE)
         [task1_in_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="task1_in")
         [task2_in_id, _] = bpmn_graph.add_task_to_diagram(process_id, task_name="task2_in")
-        [inclusive_gate_join_id, _] = bpmn_graph.add_inclusive_gateway_to_diagram(process_id,
-                                                                                  gateway_name="inclusive_gate_join")
+        [inclusive_gate_join_id, _] = bpmn_graph.add_gateway_to_diagram(process_id,
+                                                                        gateway_name="inclusive_gate_join",
+                                                                        gateway_type=diagram.GatewayType.INCLUSIVE)
 
         bpmn_graph.add_sequence_flow_to_diagram(process_id, exclusive_gate_join_id, inclusive_gate_fork_id)
         bpmn_graph.add_sequence_flow_to_diagram(process_id, inclusive_gate_fork_id, task1_in_id)

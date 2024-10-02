@@ -12,6 +12,7 @@ import re
 import six
 
 import bpmn_python.bpmn_python_consts as consts
+import bpmn_python.bpmn_diagram_rep as diagram
 import bpmn_python.bpmn_diagram_exception as bpmn_exception
 
 regex_pa_trailing_number = r'^(.*[a-z|A-Z]|[^0-9]?)([0-9]+)$'
@@ -53,16 +54,16 @@ def add_node_info_to_diagram_graph(order, node_type, activity, process_id, bpmn_
     """
     if node_type == consts.Consts.start_event:
         bpmn_diagram.add_start_event_to_diagram(process_id, start_event_name=activity, node_id=order)
-    elif node_type == consts.Consts.subprocess:
-        bpmn_diagram.add_subprocess_to_diagram(process_id, subprocess_name=activity, node_id=order)
     elif node_type == consts.Consts.end_event:
         bpmn_diagram.add_end_event_to_diagram(process_id, node_id=order)
+    elif node_type == consts.Consts.subprocess:
+        bpmn_diagram.add_subprocess_to_diagram(process_id, subprocess_name=activity, node_id=order)
     elif node_type == consts.Consts.inclusive_gateway:
-        bpmn_diagram.add_inclusive_gateway_to_diagram(process_id, node_id=order)
+        bpmn_diagram.add_gateway_to_diagram(process_id, node_id=order, gateway_type=diagram.GatewayType.INCLUSIVE)
     elif node_type == consts.Consts.exclusive_gateway:
-        bpmn_diagram.add_exclusive_gateway_to_diagram(process_id, node_id=order)
+        bpmn_diagram.add_gateway_to_diagram(process_id, node_id=order, gateway_type=diagram.GatewayType.EXCLUSIVE)
     elif node_type == consts.Consts.parallel_gateway:
-        bpmn_diagram.add_parallel_gateway_to_diagram(process_id, node_id=order)
+        bpmn_diagram.add_gateway_to_diagram(process_id, node_id=order, gateway_type=diagram.GatewayType.PARALLEL)
     else:
         bpmn_diagram.add_task_to_diagram(process_id, task_name=activity, node_id=order)
 
