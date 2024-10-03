@@ -17,3 +17,9 @@ Run tests with HTML coverage report:
 ```bash
 poetry run pytest
 ```
+
+## TO DO
+
+- [ ] Fix dot file export
+- [ ] Tests for diagram rep
+- [ ] Change all consts to enums
