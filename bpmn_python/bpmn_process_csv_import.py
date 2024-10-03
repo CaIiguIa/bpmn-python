@@ -53,19 +53,19 @@ def add_node_info_to_diagram_graph(order, node_type, activity, process_id, bpmn_
     :param bpmn_diagram:
     """
     if node_type == consts.Consts.start_event:
-        bpmn_diagram.add_start_event_to_diagram(process_id, start_event_name=activity, node_id=order)
+        bpmn_diagram.add_modify_start_event_to_diagram(process_id, start_event_name=activity, node_id=order)
     elif node_type == consts.Consts.end_event:
-        bpmn_diagram.add_end_event_to_diagram(process_id, node_id=order)
+        bpmn_diagram.add_modify_end_event_to_diagram(process_id, node_id=order)
     elif node_type == consts.Consts.subprocess:
         bpmn_diagram.add_subprocess_to_diagram(process_id, subprocess_name=activity, node_id=order)
     elif node_type == consts.Consts.inclusive_gateway:
-        bpmn_diagram.add_gateway_to_diagram(process_id, node_id=order, gateway_type=diagram.GatewayType.INCLUSIVE)
+        bpmn_diagram.add_modify_gateway_to_diagram(process_id, node_id=order, gateway_type=diagram.GatewayType.INCLUSIVE)
     elif node_type == consts.Consts.exclusive_gateway:
-        bpmn_diagram.add_gateway_to_diagram(process_id, node_id=order, gateway_type=diagram.GatewayType.EXCLUSIVE)
+        bpmn_diagram.add_modify_gateway_to_diagram(process_id, node_id=order, gateway_type=diagram.GatewayType.EXCLUSIVE)
     elif node_type == consts.Consts.parallel_gateway:
-        bpmn_diagram.add_gateway_to_diagram(process_id, node_id=order, gateway_type=diagram.GatewayType.PARALLEL)
+        bpmn_diagram.add_modify_gateway_to_diagram(process_id, node_id=order, gateway_type=diagram.GatewayType.PARALLEL)
     else:
-        bpmn_diagram.add_task_to_diagram(process_id, task_name=activity, node_id=order)
+        bpmn_diagram.add_modify_task_to_diagram(process_id, task_name=activity, node_id=order)
 
 
 def import_nodes_info(process_dict, bpmn_diagram):
