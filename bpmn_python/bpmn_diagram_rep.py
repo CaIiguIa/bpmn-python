@@ -143,7 +143,6 @@ class BpmnDiagramGraph(object):
     def get_nodes(self, node_type: str = "") -> list:
         """
         Gets all nodes of requested type. If no type is provided by user, all nodes in BPMN diagram graph are returned.
-        Returns a dictionary, where key is an ID of node, value is a dictionary of all node attributes.
 
         Args:
             node_type (str): valid BPMN XML tag name (e.g. 'task', 'sequenceFlow'). Returns all nodes if empty.
@@ -163,8 +162,7 @@ class BpmnDiagramGraph(object):
 
     def get_nodes_list_by_process_id(self, process_id: str) -> list:
         """
-        Gets all nodes of requested type. If no type is provided by user, all nodes in BPMN diagram graph are returned.
-        Returns a dictionary, where key is an ID of node, value is a dictionary of all node attributes.
+        Gets all nodes connected to a process with given ID.
 
         Args:
             process_id (str): ID of parent process element.
@@ -182,7 +180,6 @@ class BpmnDiagramGraph(object):
     def get_node_by_id(self, node_id: str) -> tuple:
         """
         Gets a node with requested ID.
-        Returns a tuple, where first value is node ID, second - a dictionary of all node attributes.
 
         Args:
             node_id (str): ID of node.
@@ -198,7 +195,6 @@ class BpmnDiagramGraph(object):
     def get_nodes_id_list_by_type(self, node_type: str) -> list:
         """
         Get a list of node's id by requested type.
-        Returns a list of ids
 
         Args:
             node_type (str): valid BPMN XML tag name (e.g. 'task', 'sequenceFlow').
@@ -215,7 +211,7 @@ class BpmnDiagramGraph(object):
 
     def get_nodes_positions(self) -> dict:
         """
-        Getter method for nodes positions.
+        Gets all nodes positions in the layout.
 
         Returns:
             tuple: A dictionary with nodes as keys and positions as values
@@ -252,7 +248,7 @@ class BpmnDiagramGraph(object):
 
     def get_flows_list_by_process_id(self, process_id: str) -> list:
         """
-        Gets an edge (flow) with requested ID.
+        Gets list of flows connected to a process with given ID.
 
         Args:
             process_id (str): ID of parent process element.
@@ -379,11 +375,11 @@ class BpmnDiagramGraph(object):
                                                     modify=modify_task)
 
     def add_subprocess_to_diagram(self,
-                                  process_id,
-                                  subprocess_name,
-                                  is_expanded=False,
-                                  triggered_by_event=False,
-                                  node_id=None) -> tuple:
+                                  process_id: str,
+                                  subprocess_name: str = "",
+                                  is_expanded: bool = False,
+                                  triggered_by_event: bool = False,
+                                  node_id: str = None) -> tuple:
         """
         Adds a SubProcess element to BPMN diagram.
 
@@ -413,7 +409,7 @@ class BpmnDiagramGraph(object):
                                           start_event_definition: StartEventDefinitions = None,
                                           parallel_multiple: bool = False,
                                           is_interrupting: bool = True,
-                                          node_id: str = None):
+                                          node_id: str = None) -> tuple:
         """
         Add or modify a StartEvent element to BPMN diagram. If node_id matches existing start event, it will be modified.
 
@@ -460,7 +456,7 @@ class BpmnDiagramGraph(object):
                                         process_id: str,
                                         end_event_name: str = "",
                                         end_event_definition: EndEventDefinitions = None,
-                                        node_id: str = None):
+                                        node_id: str = None) -> tuple:
         """
         Add or modify an EndEvent element to BPMN diagram. If node_id matches existing end event, it will be modified.
 
@@ -469,6 +465,9 @@ class BpmnDiagramGraph(object):
             end_event_name (str): Name of end event,
             end_event_definition (EndEventDefinitions): type of end event,
             node_id (str): ID of node. Default value - None.
+
+        Returns:
+            tuple: first value is end event ID, second - a reference to created object.
         """
         modify_end_event = False
 
@@ -503,7 +502,7 @@ class BpmnDiagramGraph(object):
                                       node_id: str = None,
                                       default_target_id: str = None) -> tuple:
         """
-        Add or modify an exclusiveGateway element to BPMN diagram. If node_id matches existing gateway, it will be modified.
+        Add or modify a gateway element to BPMN diagram. If node_id matches existing gateway, it will be modified.
 
         Args:
             process_id (str): ID of parent process,
@@ -544,10 +543,9 @@ class BpmnDiagramGraph(object):
                                             source_ref_id: str,
                                             target_ref_id: str,
                                             sequence_flow_id: str = None,
-                                            sequence_flow_name="") -> tuple:
+                                            sequence_flow_name: str = "") -> tuple:
         """
         Add or modify a SequenceFlow element to BPMN diagram. If sequence_flow_id matches existing sequence flow, it will be modified.
-        Requires that user passes a sourceRef and targetRef as parameters.
 
         Args:
             process_id (str): ID of parent process,
