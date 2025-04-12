@@ -142,7 +142,7 @@ class BpmnDiagramGraph(object):
     # Querying methods
     def get_nodes(self, node_type: str = "") -> list:
         """
-        Gets all nodes of requested type. If no type is provided by user, all nodes in BPMN diagram graph are returned.
+        Returns all nodes of requested type. If no type is provided by user, all nodes in BPMN diagram graph are returned.
 
         Args:
             node_type (str): valid BPMN XML tag name (e.g. 'task', 'sequenceFlow'). Returns all nodes if empty.
@@ -162,7 +162,7 @@ class BpmnDiagramGraph(object):
 
     def get_nodes_list_by_process_id(self, process_id: str) -> list:
         """
-        Gets all nodes connected to a process with given ID.
+        Returns all nodes connected to a process with given ID.
 
         Args:
             process_id (str): ID of parent process element.
@@ -179,7 +179,7 @@ class BpmnDiagramGraph(object):
 
     def get_node_by_id(self, node_id: str) -> tuple:
         """
-        Gets a node with requested ID.
+        Returns a node with requested ID.
 
         Args:
             node_id (str): ID of node.
@@ -194,7 +194,7 @@ class BpmnDiagramGraph(object):
 
     def get_nodes_id_list_by_type(self, node_type: str) -> list:
         """
-        Get a list of node's id by requested type.
+        Return a list of node's id by requested type.
 
         Args:
             node_type (str): valid BPMN XML tag name (e.g. 'task', 'sequenceFlow').
@@ -211,7 +211,7 @@ class BpmnDiagramGraph(object):
 
     def get_nodes_positions(self) -> dict:
         """
-        Gets all nodes positions in the layout.
+        Returns all nodes positions in the layout.
 
         Returns:
             tuple: A dictionary with nodes as keys and positions as values
@@ -224,7 +224,7 @@ class BpmnDiagramGraph(object):
 
     def get_flows(self) -> dict:
         """
-        Gets all graph edges (process flows).
+        Returns all graph edges (process flows).
 
         Returns:
             dict: two-dimensional dictionary, where keys are IDs of nodes connected by edge and values are a dictionary of all edge attributes.
@@ -233,7 +233,7 @@ class BpmnDiagramGraph(object):
 
     def get_flow_by_id(self, flow_id: str) -> tuple:
         """
-        Gets an edge (flow) with requested ID.
+        Returns an edge (flow) with requested ID.
 
         Args:
             flow_id (str): ID of flow.
@@ -248,7 +248,7 @@ class BpmnDiagramGraph(object):
 
     def get_flows_list_by_process_id(self, process_id: str) -> list:
         """
-        Gets list of flows connected to a process with given ID.
+        Returns list of flows connected to a process with given ID.
 
         Args:
             process_id (str): ID of parent process element.

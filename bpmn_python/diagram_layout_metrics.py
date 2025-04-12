@@ -8,9 +8,10 @@ import bpmn_python.bpmn_python_consts as consts
 
 def count_crossing_points(bpmn_graph):
     """
+    Counts the number of crossing points between flow segments in the BPMN graph.
 
-    :param bpmn_graph:
-    :return:
+    :param bpmn_graph: The BPMN graph object.
+    :return: The number of crossing points.
     """
     flows = bpmn_graph.get_flows()
     segments = get_flows_segments(flows)
@@ -27,11 +28,12 @@ def count_crossing_points(bpmn_graph):
 
 def compute_determinant(p1, p2, p3):
     """
+    Computes the determinant of three points in a 2D space.
 
-    :param p1:
-    :param p2:
-    :param p3:
-    :return:
+    :param p1: First point as a tuple (x, y).
+    :param p2: Second point as a tuple (x, y).
+    :param p3: Third point as a tuple (x, y).
+    :return: The determinant value.
     """
     det = float(p1[0]) * float(p2[1]) + float(p2[0]) * float(p3[1]) + float(p3[0]) * float(p1[1])
     det -= float(p1[0]) * float(p3[1]) + float(p2[0]) * float(p1[1]) + float(p3[0]) * float(p2[1])
@@ -40,17 +42,20 @@ def compute_determinant(p1, p2, p3):
 
 def check_integer_sign(value):
     """
+    Checks if the given value is non-negative.
 
-    :param value:
-    :return:
+    :param value: The value to check.
+    :return: True if the value is non-negative, False otherwise.
     """
     return value >= 0
 
 
 def get_flows_segments(flows):
     """
+    Extracts flow segments from the given flows.
 
-    :param flows:
+    :param flows: A list of flows from the BPMN graph.
+    :return: A list of flow segments with source and target points.
     """
     source_param_name = "source"
     target_param_name = "target"
@@ -69,10 +74,11 @@ def get_flows_segments(flows):
 
 def segments_common_points(segment_one, segment_two):
     """
+    Checks if two segments share any common points.
 
-    :param segment_one:
-    :param segment_two:
-    :return:
+    :param segment_one: The first segment.
+    :param segment_two: The second segment.
+    :return: True if the segments share common points, False otherwise.
     """
     source_param = "source"
     target_param = "target"
@@ -84,20 +90,22 @@ def segments_common_points(segment_one, segment_two):
 
 def points_are_equal(p1, p2):
     """
+    Checks if two points are equal.
 
-    :param p1:
-    :param p2:
-    :return:
+    :param p1: The first point as a dictionary with x and y coordinates.
+    :param p2: The second point as a dictionary with x and y coordinates.
+    :return: True if the points are equal, False otherwise.
     """
     return p1[consts.Consts.x] == p2[consts.Consts.x] and p1[consts.Consts.y] == p2[consts.Consts.y]
 
 
 def do_intersect(segment_one, segment_two):
     """
+    Determines if two segments intersect.
 
-    :param segment_one:
-    :param segment_two:
-    :return:
+    :param segment_one: The first segment.
+    :param segment_two: The second segment.
+    :return: True if the segments intersect, False otherwise.
     """
     source_param = "source"
     target_param = "target"
@@ -129,14 +137,12 @@ def do_intersect(segment_one, segment_two):
 
 def orientation(p1, p2, p3):
     """
-    Finds orientation of three points p1, p2, p3.
-    The function returns following values
-    0 --> p1, p2 and p3 are collinear
-    1 --> Clockwise
-    2 --> Counterclockwise
-    :param p1: tuple representing two dimensional point
-    :param p2: tuple representing two dimensional point
-    :param p3: tuple representing two dimensional point
+    Determines the orientation of three points.
+
+    :param p1: First point as a dictionary with x and y coordinates.
+    :param p2: Second point as a dictionary with x and y coordinates.
+    :param p3: Third point as a dictionary with x and y coordinates.
+    :return: 0 if collinear, 1 if clockwise, 2 if counterclockwise.
     """
     val = (p2[consts.Consts.y] - p1[consts.Consts.y]) * (p3[consts.Consts.x] - p2[consts.Consts.x]) \
         - (p2[consts.Consts.x] - p1[consts.Consts.x]) * (p3[consts.Consts.y] - p2[consts.Consts.y])
@@ -151,11 +157,12 @@ def orientation(p1, p2, p3):
 
 def lies_on_segment(p1, p2, p3):
     """
+    Checks if a point lies on a segment defined by two other points.
 
-    :param p1:
-    :param p2:
-    :param p3:
-    :return:
+    :param p1: Start point of the segment.
+    :param p2: End point of the segment.
+    :param p3: The point to check.
+    :return: True if the point lies on the segment, False otherwise.
     """
     return min(p1[consts.Consts.x], p2[consts.Consts.x]) <= p3[consts.Consts.x] \
         <= max(p1[consts.Consts.x], p2[consts.Consts.x])\
@@ -165,8 +172,10 @@ def lies_on_segment(p1, p2, p3):
 
 def count_segments(bpmn_graph):
     """
+    Counts the number of segments in the BPMN graph.
 
-    :param bpmn_graph:
+    :param bpmn_graph: The BPMN graph object.
+    :return: The number of segments.
     """
     flows = bpmn_graph.get_flows()
     segments = get_flows_segments(flows)
@@ -175,8 +184,10 @@ def count_segments(bpmn_graph):
 
 def compute_longest_path(bpmn_graph):
     """
+    Computes the longest path in the BPMN graph.
 
-    :param bpmn_graph:
+    :param bpmn_graph: The BPMN graph object.
+    :return: A tuple containing the longest path and its length.
     """
     incoming_flows_list_param_name = "incoming"
 
@@ -197,11 +208,12 @@ def compute_longest_path(bpmn_graph):
 
 def find_longest_path(previous_nodes, node, bpmn_graph):
     """
+    Recursively finds the longest path starting from a given node.
 
-    :param previous_nodes:
-    :param node:
-    :param bpmn_graph:
-    :return:
+    :param previous_nodes: List of nodes already visited.
+    :param node: The current node.
+    :param bpmn_graph: The BPMN graph object.
+    :return: A tuple containing the longest path and its length.
     """
     outgoing_flows_list_param_name = "outgoing"
     outgoing_flows_list = node[1][outgoing_flows_list_param_name]
@@ -226,8 +238,10 @@ def find_longest_path(previous_nodes, node, bpmn_graph):
 
 def compute_longest_path_tasks(bpmn_graph):
     """
+    Computes the longest path consisting of tasks in the BPMN graph.
 
-    :param bpmn_graph:
+    :param bpmn_graph: The BPMN graph object.
+    :return: A tuple containing the longest path of tasks and its length.
     """
     incoming_flows_list_param_name = "incoming"
 
@@ -248,12 +262,13 @@ def compute_longest_path_tasks(bpmn_graph):
 
 def find_longest_path_tasks(path, qualified_nodes, node, bpmn_graph):
     """
+    Recursively finds the longest path consisting of tasks starting from a given node.
 
-    :param path:
-    :param qualified_nodes:
-    :param node:
-    :param bpmn_graph:
-    :return:
+    :param path: List of nodes already visited.
+    :param qualified_nodes: List of task nodes in the current path.
+    :param node: The current node.
+    :param bpmn_graph: The BPMN graph object.
+    :return: A tuple containing all nodes in the path and the task nodes in the path.
     """
     node_names = {"task", "subProcess"}
     outgoing_flows_list = node[1][consts.Consts.outgoing_flow]
