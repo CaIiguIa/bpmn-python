@@ -20,7 +20,7 @@ class BPMNComplexityMetricsTests(unittest.TestCase):
         self.models['SIMPLE'].load_diagram_from_xml_file(
             os.path.abspath("../examples/xml_import_export/bpmn_editor_simple_example.xml")),
         self.models['COMPLEX'].load_diagram_from_xml_file(
-            os.path.abspath("../examples/xml_import_export/camunda_complex_example.xml")),
+            os.path.abspath("../examples/xml_import_export/camunda_complex_example.bpmn")),
         self.models['WITH_CYCLES'].load_diagram_from_xml_file(
             os.path.abspath("../examples/metrics/cycles_test.bpmn")),
         self.models['WITH_CROSSING_POINT'].load_diagram_from_xml_file(
