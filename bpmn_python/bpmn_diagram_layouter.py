@@ -10,7 +10,16 @@ import bpmn_python.grid_cell_class as cell_class
 
 def generate_layout(bpmn_graph):
     """
-    :param bpmn_graph: an instance of BPMNDiagramGraph class.
+    Generates a layout for the BPMN diagram.
+
+    This function performs the following steps:
+    1. Classifies elements in the BPMN graph.
+    2. Performs a topological sort of the graph.
+    3. Creates a grid layout for the nodes.
+    4. Sets coordinates for the nodes.
+    5. Sets waypoints for the flows.
+
+    :param bpmn_graph: An instance of BPMNDiagramGraph class.
     """
     classification = generate_elements_clasification(bpmn_graph)
     (sorted_nodes_with_classification, backward_flows) = topological_sort(bpmn_graph, classification[0])
@@ -21,8 +30,16 @@ def generate_layout(bpmn_graph):
 
 def generate_elements_clasification(bpmn_graph):
     """
-    :param bpmn_graph:
-    :return:
+    Generates a classification of elements in the BPMN graph.
+
+    This function classifies nodes and flows in the BPMN graph based on their type and properties.
+    Nodes are classified into categories such as "Element", "Join", "Split", "Start Event", and "End Event".
+    Flows are classified as "Flow".
+
+    :param bpmn_graph: An instance of BPMNDiagramGraph representing the BPMN diagram.
+    :return: A tuple containing two lists:
+             - nodes_classification: A list of dictionaries where each dictionary represents a node and its classification.
+             - flows_classification: A list of dictionaries where each dictionary represents a flow and its classification.
     """
     nodes_classification = []
     node_param_name = "node"
@@ -144,7 +161,15 @@ def generate_elements_clasification(bpmn_graph):
 
 def topological_sort(bpmn_graph, nodes_with_classification):
     """
-    :return:
+    Performs a topological sort on the BPMN graph.
+
+    This function sorts the nodes in the BPMN graph in topological order and identifies backward flows.
+
+    :param bpmn_graph: An instance of BPMNDiagramGraph representing the BPMN diagram.
+    :param nodes_with_classification: A list of nodes with their classifications.
+    :return: A tuple containing:
+             - sorted_nodes_with_classification: A list of nodes sorted in topological order.
+             - backward_flows: A list of flows that represent backward edges in the graph.
     """
     node_param_name = "node"
     classification_param_name = "classification"
@@ -212,10 +237,13 @@ def topological_sort(bpmn_graph, nodes_with_classification):
 
 def grid_layout(bpmn_graph, sorted_nodes_with_classification):
     """
+    Creates a grid layout for the BPMN diagram.
 
-    :param sorted_nodes_with_classification:
-    :param bpmn_graph:
-    :return:
+    This function places nodes in a grid based on their topological order and classifications.
+
+    :param bpmn_graph: An instance of BPMNDiagramGraph representing the BPMN diagram.
+    :param sorted_nodes_with_classification: A list of nodes sorted in topological order with their classifications.
+    :return: A grid layout as a list of GridCell objects.
     """
     tmp_nodes_with_classification = list(sorted_nodes_with_classification)
 
@@ -232,15 +260,21 @@ def grid_layout(bpmn_graph, sorted_nodes_with_classification):
 def place_element_in_grid(node_with_classification, grid, last_row, last_col, bpmn_graph, nodes_with_classification,
                           enforced_row_num=None):
     """
+    Places a node in the grid.
 
-    :param node_with_classification:
-    :param grid:
-    :param last_row:
-    :param last_col:
-    :param bpmn_graph:
-    :param nodes_with_classification:
-    :param enforced_row_num:
-    :return:
+    This function determines the position of a node in the grid based on its predecessors and successors.
+
+    :param node_with_classification: A dictionary representing the node and its classification.
+    :param grid: The current grid layout as a list of GridCell objects.
+    :param last_row: The last row number used in the grid.
+    :param last_col: The last column number used in the grid.
+    :param bpmn_graph: An instance of BPMNDiagramGraph representing the BPMN diagram.
+    :param nodes_with_classification: A list of nodes with their classifications.
+    :param enforced_row_num: An optional row number to enforce for the node.
+    :return: A tuple containing:
+             - grid: The updated grid layout.
+             - last_row: The updated last row number.
+             - last_col: The updated last column number.
     """
     node_param_name = "node"
     classification_param_name = "classification"
@@ -352,11 +386,15 @@ def place_element_in_grid(node_with_classification, grid, last_row, last_col, bp
 
 def insert_into_grid(grid, row, col, node_id):
     """
+    Inserts a node into the grid.
 
-    :param grid:
-    :param row:
-    :param col:
-    :param node_id:
+    This function places a node in the specified row and column of the grid. If the cell is already occupied,
+    it shifts rows below the specified row.
+
+    :param grid: The current grid layout as a list of GridCell objects.
+    :param row: The row number where the node should be placed.
+    :param col: The column number where the node should be placed.
+    :param node_id: The ID of the node to be placed.
     """
     # if row <= 0:
     #     row = 1
@@ -375,9 +413,12 @@ def insert_into_grid(grid, row, col, node_id):
 
 def set_coordinates_for_nodes(bpmn_graph, grid):
     """
+    Sets the coordinates for nodes in the BPMN diagram.
 
-    :param bpmn_graph:
-    :param grid:
+    This function assigns x and y coordinates to each node based on its position in the grid.
+
+    :param bpmn_graph: An instance of BPMNDiagramGraph representing the BPMN diagram.
+    :param grid: The grid layout as a list of GridCell objects.
     """
 
     nodes = bpmn_graph.get_nodes()
@@ -389,8 +430,11 @@ def set_coordinates_for_nodes(bpmn_graph, grid):
 
 def set_flows_waypoints(bpmn_graph):
     """
+    Sets waypoints for flows in the BPMN diagram.
 
-    :param bpmn_graph:
+    This function calculates and assigns waypoints for each flow based on the positions of its source and target nodes.
+
+    :param bpmn_graph: An instance of BPMNDiagramGraph representing the BPMN diagram.
     """
     # TODO hardcoded node center, better compute it with x,y coordinates and height/width
     # TODO get rid of string cast

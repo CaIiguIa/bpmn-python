@@ -176,6 +176,17 @@ class BpmnDiagramGraphImport(object):
 
     @staticmethod
     def __import_element_by_tag_name(diagram_graph, sequence_flows, process_id, process_attributes, element, tag_name):
+        """
+        Imports a BPMN element into the graph based on its tag name.
+
+        :param diagram_graph: Graph representing the BPMN diagram.
+        :param sequence_flows: List of sequence flows in the diagram.
+        :param process_id: ID of the process the element belongs to.
+        :param process_attributes: Dictionary of attributes for the process.
+        :param element: XML element representing the BPMN element.
+        :param tag_name: Tag name of the BPMN element.
+        """
+
         if tag_name == consts.Consts.task \
                 or tag_name == consts.Consts.user_task \
                 or tag_name == consts.Consts.service_task \
@@ -397,7 +408,7 @@ class BpmnDiagramGraphImport(object):
         """
         Adds to graph the new element that represents BPMN subprocess.
         In addition to attributes inherited from FlowNode type, SubProcess
-        has additional attribute tiggeredByEvent (boolean type, default value - false).
+        has additional attribute triggeredByEvent (boolean type, default value - false).
 
         :param diagram_graph: NetworkX graph representing a BPMN process diagram,
         :param sequence_flows: a list of sequence flows existing in diagram,
