@@ -56,24 +56,39 @@ def visualize_diagram(bpmn_diagram):
     plt.show()
 
 
-def bpmn_diagram_to_dot_file(bpmn_diagram, file_name):
+def bpmn_diagram_to_dot_file(bpmn_diagram, file_name, auto_layout=False):
     """
     Convert diagram graph to dot file
 
     :param bpmn_diagram: an instance of BPMNDiagramGraph class,
     :param file_name: name of generated file.
+    :param auto_layout: whether to re-layout the graph.
     """
-    g = bpmn_diagram.diagram_graph
-    write_dot(g, file_name + ".dot")
+    if auto_layout:
+        graph = _auto_layout_diagram(bpmn_diagram)
+        graph.write(file_name + ".dot", format='dot')
+    else:
+        g = bpmn_diagram.diagram_graph
+        write_dot(g, file_name + ".dot")
 
-
-def bpmn_diagram_to_png(bpmn_diagram, file_name):
+def bpmn_diagram_to_png(bpmn_diagram, file_name, auto_layout=False):
     """
     Create a png picture for given diagram
 
     :param bpmn_diagram: an instance of BPMNDiagramGraph class,
     :param file_name: name of generated file.
+    :param auto_layout: whether to re-layout the graph.
     """
+    if auto_layout:
+        graph = _auto_layout_diagram(bpmn_diagram)
+        graph.write(file_name + ".png", format='png')
+    else:
+        g = bpmn_diagram.diagram_graph
+        nx.draw(g, with_labels=True)
+        plt.savefig(file_name + ".png")
+        plt.close()
+
+def _auto_layout_diagram(bpmn_diagram):
     g = bpmn_diagram.diagram_graph
     graph = pydotplus.Dot()
 
@@ -93,4 +108,4 @@ def bpmn_diagram_to_png(bpmn_diagram, file_name):
                            label=edge[2].get(consts.Consts.name))
         graph.add_edge(e)
 
-    graph.write(file_name + ".png", format='png')
+    return graph

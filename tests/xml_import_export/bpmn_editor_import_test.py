@@ -41,6 +41,10 @@ class BPMNEditorTests(unittest.TestCase):
         # visualizer.visualize_diagram(bpmn_graph)
         visualizer.bpmn_diagram_to_dot_file(bpmn_graph, self.output_directory + self.output_dot_file)
         visualizer.bpmn_diagram_to_png(bpmn_graph, self.output_directory + self.output_png_file)
+
+        # visualizer.bpmn_diagram_to_dot_file(bpmn_graph, self.output_directory + 'auto/' + self.output_dot_file)
+        # visualizer.bpmn_diagram_to_png(bpmn_graph, self.output_directory + 'auto/' + self.output_png_file)
+
         bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
         bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
 
