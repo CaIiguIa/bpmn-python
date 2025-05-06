@@ -86,7 +86,7 @@ def bpmn_diagram_to_png(bpmn_diagram, file_name, auto_layout=False):
         g = bpmn_diagram.diagram_graph
         nx.draw(g, with_labels=True)
         plt.savefig(file_name + ".png")
-        plt.close()
+        plt.clf()
 
 def _auto_layout_diagram(bpmn_diagram):
     g = bpmn_diagram.diagram_graph
@@ -95,11 +95,11 @@ def _auto_layout_diagram(bpmn_diagram):
     for node in g.nodes(data=True):
 
         if node[1].get(consts.Consts.type) == consts.Consts.task:
-            n = pydotplus.Node(name=node[0], shape="box", style="rounded", label=node[1].get(consts.Consts.node_name))
+            n = pydotplus.Node(name=node[0], shape="box", style="rounded", label=node[1].get(consts.Consts.id))
         elif node[1].get(consts.Consts.type) == consts.Consts.exclusive_gateway:
-            n = pydotplus.Node(name=node[0], shape="diamond", label=node[1].get(consts.Consts.node_name))
+            n = pydotplus.Node(name=node[0], shape="diamond", label=node[1].get(consts.Consts.id))
         else:
-            n = pydotplus.Node(name=node[0], label=node[1].get(consts.Consts.node_name))
+            n = pydotplus.Node(name=node[0], label=node[1].get(consts.Consts.id))
         graph.add_node(n)
 
     for edge in g.edges(data=True):
