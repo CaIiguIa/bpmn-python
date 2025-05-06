@@ -2,7 +2,7 @@
 name = "bpmn-python"
 version = "0.1.0"
 description = ""
-authors = ["Antoine Déchappe <dechantoine@gmail.com>"]
+authors = ["CaIiguIa, JakubG-git, Antoine Déchappe <dechantoine@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
