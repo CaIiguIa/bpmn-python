@@ -239,7 +239,7 @@ class BpmnDiagramGraph(object):
             flow_id (str): ID of flow.
 
         Returns:
-            tuple: Returns a 3-tuple, where the first value is the target_id, second value is source_id, third is a dictionary of all flow attributes.
+            tuple: Returns a 3-tuple, where the first value is the soureRef, second value is targetRef, third is a dictionary of all flow attributes.
         """
         tmp_flows = self.diagram_graph.edges(data=True)
         for flow in tmp_flows:
