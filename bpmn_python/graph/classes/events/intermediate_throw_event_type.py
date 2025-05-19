@@ -2,16 +2,10 @@
 """
 Class used for representing tIntermediateThrowEvent of BPMN 2.0 graph
 """
-import graph.classes.events.throw_event_type as throw_event
+from bpmn_python.graph.classes.events.throw_event_type import ThrowEvent
 
 
-class IntermediateThrowEvent(throw_event.ThrowEvent):
+class IntermediateThrowEvent(ThrowEvent):
     """
     Class used for representing tIntermediateThrowEvent of BPMN 2.0 graph
     """
-
-    def __init__(self):
-        """
-        Default constructor, initializes object fields with new instances.
-        """
-        super(IntermediateThrowEvent, self).__init__()

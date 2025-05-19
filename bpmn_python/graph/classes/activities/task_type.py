@@ -2,16 +2,10 @@
 """
 Class used for representing tTask of BPMN 2.0 graph
 """
-import graph.classes.activities.activity_type as activity
+from bpmn_python.graph.classes.activities.activity_type import Activity
 
 
-class Task(activity.Activity):
+class Task(Activity):
     """
     Class used for representing tTask of BPMN 2.0 graph
     """
-
-    def __init__(self):
-        """
-        Default constructor, initializes object fields with new instances.
-        """
-        super(Task, self).__init__()

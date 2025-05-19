@@ -2,16 +2,10 @@
 """
 Class used for representing tEvent of BPMN 2.0 graph
 """
-import graph.classes.flow_node_type as flow_node
+from bpmn_python.graph.classes.flow_node_type import FlowNode
 
 
-class Event(flow_node.FlowNode):
+class Event(FlowNode):
     """
     Class used for representing tEvent of BPMN 2.0 graph
     """
-
-    def __init__(self):
-        """
-        Default constructor, initializes object fields with new instances.
-        """
-        super(Event, self).__init__()
