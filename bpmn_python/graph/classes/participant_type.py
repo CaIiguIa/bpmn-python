@@ -2,11 +2,12 @@
 """
 Class used for representing tParticipant of BPMN 2.0 graph
 """
-import graph.classes.base_element_type as base_element
 from typing import Optional
 from pydantic import Field
+from bpmn_python.graph.classes.base_element_type import BaseElement
 
-class Participant(base_element.BaseElement):
+
+class Participant(BaseElement):
     """
     Class used for representing tParticipant of BPMN 2.0 graph
     Fields (except inherited):
