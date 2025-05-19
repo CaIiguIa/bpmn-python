@@ -2,10 +2,10 @@
 """
 Class used for representing tInclusiveGateway of BPMN 2.0 graph
 """
-import graph.classes.gateways.gateway_type as gateway
+from bpmn_python.graph.classes.gateways.gateway_type import Gateway
 
 
-class ExclusiveGateway(gateway.Gateway):
+class ExclusiveGateway(Gateway):
     """
     Class used for representing tExclusiveGateway of BPMN 2.0 graph
     Fields (except inherited):
