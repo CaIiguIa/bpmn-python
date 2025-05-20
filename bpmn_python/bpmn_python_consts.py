@@ -99,3 +99,5 @@ class Consts(object):
     definition_type = "definition_type"
 
     grid_column_width = 2
+
+    id_prefix = "id"

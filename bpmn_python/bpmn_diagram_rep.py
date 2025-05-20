@@ -4,8 +4,10 @@ Package with BPMNDiagramGraph - graph representation of BPMN diagram
 """
 import uuid
 from enum import Enum
+from typing import Dict
 
 import networkx as nx
+from pydantic import BaseModel, Field
 
 import bpmn_python.bpmn_diagram_exception as bpmn_exception
 import bpmn_python.bpmn_diagram_export as bpmn_export
@@ -13,6 +15,11 @@ import bpmn_python.bpmn_diagram_import as bpmn_import
 import bpmn_python.bpmn_process_csv_export as bpmn_csv_export
 import bpmn_python.bpmn_process_csv_import as bpmn_csv_import
 import bpmn_python.bpmn_python_consts as consts
+from bpmn_python.bpmn_python_consts import Consts
+from bpmn_python.graph.classes.message_flow import MessageFlow
+from bpmn_python.graph.classes.participant import Participant
+from bpmn_python.graph.classes.root_element.process import Process
+from bpmn_python.graph.classes.sequence_flow import SequenceFlow
 
 
 class StartEventDefinitions(Enum):
@@ -47,7 +54,7 @@ class GatewayType(Enum):
     EVENT_BASED = "eventBasedGateway"
 
 
-class BpmnDiagramGraph(object):
+class BpmnDiagramGraph(BaseModel):
     """
     Class BPMNDiagramGraph implements simple inner representation of BPMN 2.0 diagram,
     based on NetworkX graph implementation
@@ -72,20 +79,34 @@ class BpmnDiagramGraph(object):
     * plane_attributes - dictionary that contains BPMN plane element attributes.
     """
 
-    # String "constants" used in multiple places
-    id_prefix = "id"
-    bpmndi_namespace = "bpmndi:"
-
-    def __init__(self):
-        """
-        Default constructor, initializes object fields with new instances.
-        """
-        self.diagram_graph = nx.Graph()
-        self.sequence_flows = {}
-        self.process_elements = {}
-        self.diagram_attributes = {}
-        self.plane_attributes = {}
-        self.collaboration = {}
+    diagram_graph: nx.Graph = Field(
+        ...,
+        description="A NetworkX graph representing the BPMN diagram. Nodes are BPMN elements, edges are Sequence Flows."
+    )
+    sequence_flows: Dict[str, SequenceFlow] = Field(
+        default_factory=dict,
+        description="Mapping of sequence flow IDs to SequenceFlow objects."
+    )
+    process_elements: Dict[str, Process] = Field(
+        default_factory=dict,
+        description="Mapping of process IDs to Process objects with their attributes."
+    )
+    diagram_attributes: Dict[str, str] = Field(
+        default_factory=dict,
+        description="Attributes of the BPMNDiagram element."
+    )
+    plane_attributes: Dict[str, str] = Field(
+        default_factory=dict,
+        description="Attributes of the BPMNPlane element."
+    )
+    message_flows: Dict[str, MessageFlow] = Field(
+        default_factory=dict,
+        description="Mapping of message flow IDs to MessageFlow objects."
+    )
+    participants: Dict[str, Participant] = Field(
+        default_factory=dict,
+        description="Mapping of participant IDs to Participant objects."
+    )
 
     def load_diagram_from_xml_file(self, filepath: str) -> None:
         """
@@ -272,7 +293,7 @@ class BpmnDiagramGraph(object):
             diagram_name (str): name of diagram.
         """
         self.__init__()
-        diagram_id = BpmnDiagramGraph.id_prefix + str(uuid.uuid4())
+        diagram_id = Consts.id_prefix + str(uuid.uuid4())
 
         self.diagram_attributes[consts.Consts.id] = diagram_id
         self.diagram_attributes[consts.Consts.name] = diagram_name
@@ -295,8 +316,8 @@ class BpmnDiagramGraph(object):
         Returns:
             str: ID of created process
         """
-        plane_id = BpmnDiagramGraph.id_prefix + str(uuid.uuid4())
-        process_id = BpmnDiagramGraph.id_prefix + str(uuid.uuid4())
+        plane_id = Consts.id_prefix + str(uuid.uuid4())
+        process_id = Consts.id_prefix + str(uuid.uuid4())
 
         self.process_elements[process_id] = {consts.Consts.name: process_name,
                                              consts.Consts.is_closed: str(process_is_closed).lower(),
@@ -328,7 +349,7 @@ class BpmnDiagramGraph(object):
             tuple: first value is node ID, second - a reference to created object.
         """
         if node_id is None:
-            node_id = BpmnDiagramGraph.id_prefix + str(uuid.uuid4())
+            node_id = Consts.id_prefix + str(uuid.uuid4())
 
         if not modify:
             self.diagram_graph.add_node(node_id)
@@ -445,7 +466,7 @@ class BpmnDiagramGraph(object):
 
         event_def_list = []
         if start_event_definition:
-            event_def_id = BpmnDiagramGraph.id_prefix + str(uuid.uuid4())
+            event_def_id = Consts.id_prefix + str(uuid.uuid4())
             event_def = {consts.Consts.id: event_def_id, consts.Consts.definition_type: start_event_definition.value}
             event_def_list.append(event_def)
 
@@ -487,7 +508,7 @@ class BpmnDiagramGraph(object):
 
         event_def_list = []
         if end_event_definition:
-            event_def_id = BpmnDiagramGraph.id_prefix + str(uuid.uuid4())
+            event_def_id = Consts.id_prefix + str(uuid.uuid4())
             event_def = {consts.Consts.id: event_def_id, consts.Consts.definition_type: end_event_definition.value}
             event_def_list.append(event_def)
 
@@ -558,7 +579,7 @@ class BpmnDiagramGraph(object):
             tuple: first value is sequence flow ID, second - a reference to created object.
         """
         if sequence_flow_id is None:
-            sequence_flow_id = BpmnDiagramGraph.id_prefix + str(uuid.uuid4())
+            sequence_flow_id = Consts.id_prefix + str(uuid.uuid4())
 
         existing_flow = self.get_flow_by_id(flow_id=sequence_flow_id)
 
