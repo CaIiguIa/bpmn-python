@@ -2,40 +2,21 @@
 """
 Class used for representing tThrowEvent of BPMN 2.0 graph
 """
-import graph.classes.events.event_type as event
-import graph.classes.root_element.event_definition_type as event_definition
+from typing import List
+
+from pydantic import Field
+
+from bpmn_python.graph.classes.events.event_type import Event
+from bpmn_python.graph.classes.root_element.event_definition_type import EventDefinition
 
 
-class ThrowEvent(event.Event):
+class ThrowEvent(Event):
     """
     Class used for representing tThrowEvent of BPMN 2.0 graph
     Fields (except inherited):
-    - event_definition_list: a list of EventDefinition objects. Optional value.
+    - event_definition_list: a list of EventDefinition objects.
     """
-
-    def __init__(self):
-        """
-        Default constructor, initializes object fields with new instances.
-        """
-        super(ThrowEvent, self).__init__()
-        self.__event_definition_list = []
-
-    def get_event_definition_list(self):
-        """
-        Getter for 'event_definition_list' field.
-        :return: value of 'event_definition_list' field.
-        """
-        return self.__event_definition_list
-
-    def set_event_definition_list(self, value):
-        """
-        Setter for 'event_definition_list' field.
-        :param value - a new value of 'event_definition_list' field. Must be a list of EventDefinition objects
-        """
-        if value is None or not isinstance(value, list):
-            raise TypeError("EventDefinitionList new value must be a list")
-        else:
-            for element in value:
-                if not isinstance(element, event_definition.EventDefinition):
-                    raise TypeError("EventDefinitionList elements in variable must be of Lane class")
-            self.__event_definition_list = value
+    event_definition_list: List[EventDefinition] = Field(
+        default_factory=list,
+        description="Optional list of EventDefinition objects"
+    )
