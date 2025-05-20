@@ -2,11 +2,13 @@
 """
 Class used for representing tSequenceFlow of BPMN 2.0 graph
 """
-from bpmn_python.graph.classes.condition_expression_type import ConditionExpression
-from bpmn_python.graph.classes.flow_element_type import FlowElement
-
 from typing import Optional
+
 from pydantic import field_validator
+
+from bpmn_python.graph.classes.condition_expression import ConditionExpression
+from bpmn_python.graph.classes.flow_element import FlowElement
+
 
 class SequenceFlow(FlowElement):
     source_ref: str

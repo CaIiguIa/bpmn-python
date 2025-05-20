@@ -2,10 +2,12 @@
 """
 Class used for representing tFlowNode of BPMN 2.0 graph
 """
-import bpmn_python.graph.classes.flow_element_type as flow_element_type
-
 from typing import List
-from pydantic import Field, field_validator
+
+from pydantic import Field
+
+import bpmn_python.graph.classes.flow_element as flow_element_type
+
 
 class FlowNode(flow_element_type.FlowElement):
     """

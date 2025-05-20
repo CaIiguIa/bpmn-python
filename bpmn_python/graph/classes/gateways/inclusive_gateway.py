@@ -6,7 +6,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from bpmn_python.graph.classes.gateways.gateway_type import Gateway
+from bpmn_python.graph.classes.gateways.gateway import Gateway
 
 
 class InclusiveGateway(Gateway):

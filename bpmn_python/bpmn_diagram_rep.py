@@ -2,8 +2,8 @@
 """
 Package with BPMNDiagramGraph - graph representation of BPMN diagram
 """
-from enum import Enum
 import uuid
+from enum import Enum
 
 import networkx as nx
 
@@ -62,7 +62,7 @@ class BpmnDiagramGraph(object):
     * collaboration - a dictionary that contains two dictionaries:
         * "messageFlows" - dictionary (associative list) of message flows existing in diagram. Key attribute is
             messageFlow ID, value is a dictionary consisting three key-value pairs: "name" (message flow name),
-        * "sourceRef" (ID of node, that is a flow source) and "targetRef" (ID of node, that is a flow target),
+            "sourceRef" (ID of node, that is a flow source) and "targetRef" (ID of node, that is a flow target),
         * "participants" - dictionary (associative list) of participants existing in diagram. Key attribute is
             participant ID, value is a dictionary consisting participant attributes,
     * process_elements_dictionary - dictionary that holds attribute values for imported 'process' elements. 

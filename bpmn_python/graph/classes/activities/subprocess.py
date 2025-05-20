@@ -6,9 +6,9 @@ from typing import List
 
 from pydantic import Field
 
-from bpmn_python.graph.classes.activities.activity_type import Activity
-from bpmn_python.graph.classes.flow_element_type import FlowElement
-from bpmn_python.graph.classes.lane_set_type import LaneSet
+from bpmn_python.graph.classes.activities.activity import Activity
+from bpmn_python.graph.classes.flow_element import FlowElement
+from bpmn_python.graph.classes.lane_set import LaneSet
 
 
 class SubProcess(Activity):

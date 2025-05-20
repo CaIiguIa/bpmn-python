@@ -2,12 +2,13 @@
 """
 Class used for representing tLane of BPMN 2.0 graph
 """
-from bpmn_python.graph.classes.base_element_type import BaseElement
-
 from typing import Optional, List
-from pydantic import Field, field_validator
 
-from bpmn_python.graph.classes.lane_set_type import LaneSet
+from pydantic import Field
+
+from bpmn_python.graph.classes.base_element import BaseElement
+from bpmn_python.graph.classes.lane_set import LaneSet
+
 
 class Lane(BaseElement):
     """

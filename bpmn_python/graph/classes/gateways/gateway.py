@@ -6,7 +6,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from bpmn_python.graph.classes.flow_node_type import FlowNode
+from bpmn_python.graph.classes.flow_node import FlowNode
 
 
 class Gateway(FlowNode):

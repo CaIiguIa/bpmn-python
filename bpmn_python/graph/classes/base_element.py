@@ -4,6 +4,7 @@ Class used for representing tBaseElement of BPMN 2.0 graph
 """
 
 from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
