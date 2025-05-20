@@ -239,12 +239,12 @@ class BpmnDiagramGraph(object):
             flow_id (str): ID of flow.
 
         Returns:
-            tuple: first value is node ID, second - a dictionary of all node attributes.
+            tuple: Returns a 3-tuple, where the first value is the soureRef, second value is targetRef, third is a dictionary of all flow attributes.
         """
         tmp_flows = self.diagram_graph.edges(data=True)
         for flow in tmp_flows:
             if flow[2][consts.Consts.id] == flow_id:
-                return flow
+                return flow[2]['sourceRef'], flow[2]['targetRef'], flow[2]
 
     def get_flows_list_by_process_id(self, process_id: str) -> list:
         """
