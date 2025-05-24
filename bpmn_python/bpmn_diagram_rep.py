@@ -79,10 +79,6 @@ class BpmnDiagramGraph(BaseModel):
     * plane_attributes - dictionary that contains BPMN plane element attributes.
     """
 
-    diagram_graph: nx.Graph = Field(
-        ...,
-        description="A NetworkX graph representing the BPMN diagram. Nodes are BPMN elements, edges are Sequence Flows."
-    )
     sequence_flows: Dict[str, SequenceFlow] = Field(
         default_factory=dict,
         description="Mapping of sequence flow IDs to SequenceFlow objects."
@@ -586,10 +582,14 @@ class BpmnDiagramGraph(BaseModel):
         if existing_flow:
             self.delete_sequence_flow(sequence_flow_id=sequence_flow_id)
 
-        self.sequence_flows[sequence_flow_id] = {consts.Consts.name: sequence_flow_name,
-                                                 consts.Consts.source_ref: source_ref_id,
-                                                 consts.Consts.target_ref: target_ref_id}
+        self.sequence_flows[sequence_flow_id] = SequenceFlow(
+            id=sequence_flow_id,
+            name=sequence_flow_name,
+            source_ref=source_ref_id,
+            target_ref=target_ref_id
+        )
 
+# todo
         self.diagram_graph.add_edge(source_ref_id, target_ref_id)
 
         flow = self.diagram_graph[source_ref_id][target_ref_id]
@@ -654,3 +654,14 @@ class BpmnDiagramGraph(BaseModel):
 
         else:
             raise bpmn_exception.BpmnConnectedFlowsError("Node with given ID does not exist")
+
+    def get_diagram_graph(self) -> nx.Graph:
+        """
+        Returns the diagram graph.
+
+        Returns:
+            nx.Graph: The diagram graph.
+        """
+
+        raise NotImplementedError()
+        return nx.Graph()
