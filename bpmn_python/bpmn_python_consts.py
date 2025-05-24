@@ -90,7 +90,7 @@ class Consts(object):
     outgoing_flow = "outgoing"
     outgoing_flow_list = "outgoing_flow_list"
     waypoint = "waypoint"
-    waypoints = "waypoints"
+    waypoints = "waypoints" # ->
 
     # Additional parameter names
     type = "type"

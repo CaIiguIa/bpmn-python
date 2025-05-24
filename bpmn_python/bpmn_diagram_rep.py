@@ -4,7 +4,7 @@ Package with BPMNDiagramGraph - graph representation of BPMN diagram
 """
 import uuid
 from enum import Enum
-from typing import Dict
+from typing import Dict, Any, Literal
 
 import networkx as nx
 from pydantic import BaseModel, Field
@@ -16,6 +16,7 @@ import bpmn_python.bpmn_process_csv_export as bpmn_csv_export
 import bpmn_python.bpmn_process_csv_import as bpmn_csv_import
 import bpmn_python.bpmn_python_consts as consts
 from bpmn_python.bpmn_python_consts import Consts
+from bpmn_python.graph.classes.flow_node import FlowNode
 from bpmn_python.graph.classes.message_flow import MessageFlow
 from bpmn_python.graph.classes.participant import Participant
 from bpmn_python.graph.classes.root_element.process import Process
@@ -82,6 +83,10 @@ class BpmnDiagramGraph(BaseModel):
     sequence_flows: Dict[str, SequenceFlow] = Field(
         default_factory=dict,
         description="Mapping of sequence flow IDs to SequenceFlow objects."
+    )
+    nodes: Dict[str, FlowNode] = Field(
+        default_factory=dict,
+        description="Mapping of flow nodes IDs to FlowNode objects."
     )
     process_elements: Dict[str, Process] = Field(
         default_factory=dict,
@@ -157,7 +162,7 @@ class BpmnDiagramGraph(BaseModel):
         bpmn_csv_export.BpmnDiagramGraphCsvExport.export_process_to_csv(self, directory, filename)
 
     # Querying methods
-    def get_nodes(self, node_type: str = "") -> list:
+    def get_nodes(self, node_type: str = "") -> list[tuple[str, FlowNode]]:
         """
         Returns all nodes of requested type. If no type is provided by user, all nodes in BPMN diagram graph are returned.
 
@@ -165,19 +170,19 @@ class BpmnDiagramGraph(BaseModel):
             node_type (str): valid BPMN XML tag name (e.g. 'task', 'sequenceFlow'). Returns all nodes if empty.
 
         Returns:
-            list: list of nodes
+            list of tuples: first element of each tuple is node ID, second element is a FlowNode object.
         """
-        tmp_nodes = self.diagram_graph.nodes(True)
+        tmp_nodes = list(self.nodes.items())
         if node_type == "":
             return tmp_nodes
         else:
             nodes = []
-            for node in tmp_nodes:
-                if node[1][consts.Consts.type] == node_type:
-                    nodes.append(node)
+            for node_id, node in tmp_nodes:
+                if node.node_type == node_type:
+                    nodes.append((node_id, node))
             return nodes
 
-    def get_nodes_list_by_process_id(self, process_id: str) -> list:
+    def get_nodes_list_by_process_id(self, process_id: str) -> list[tuple[str, FlowNode]]:
         """
         Returns all nodes connected to a process with given ID.
 
@@ -185,13 +190,12 @@ class BpmnDiagramGraph(BaseModel):
             process_id (str): ID of parent process element.
 
         Returns:
-            list: list of nodes
+            list of tuples: first element of each tuple is node ID, second element is a FlowNode object.
         """
-        tmp_nodes = self.diagram_graph.nodes(True)
         nodes = []
-        for node in tmp_nodes:
-            if node[1][consts.Consts.process] == process_id:
-                nodes.append(node)
+        for node_id, node in self.nodes.items():
+            if node.process_id == process_id:
+                nodes.append((node_id, node))
         return nodes
 
     def get_node_by_id(self, node_id: str) -> tuple:
@@ -202,14 +206,13 @@ class BpmnDiagramGraph(BaseModel):
             node_id (str): ID of node.
 
         Returns:
-            tuple: node ID and dictionary of node attributes
+            tuple: node ID and FlowNode object
         """
-        tmp_nodes = self.diagram_graph.nodes(data=True)
-        for node in tmp_nodes:
-            if node[0] == node_id:
-                return node
 
-    def get_nodes_id_list_by_type(self, node_type: str) -> list:
+        node = self.nodes[node_id]
+        return node.id, node
+
+    def get_nodes_id_list_by_type(self, node_type: str) -> list[str]:
         """
         Return a list of node's id by requested type.
 
@@ -219,36 +222,42 @@ class BpmnDiagramGraph(BaseModel):
         Returns:
             list: list of node's id
         """
-        tmp_nodes = self.diagram_graph.nodes(data=True)
-        id_list = []
-        for node in tmp_nodes:
-            if node[1][consts.Consts.type] == node_type:
-                id_list.append(node[0])
-        return id_list
+        if node_type == "":
+            return list(self.nodes.keys())
+        else:
+            nodes = []
+            for node_id, node in list(self.nodes.items()):
+                if node.node_type == node_type:
+                    nodes.append(node_id)
+            return nodes
 
-    def get_nodes_positions(self) -> dict:
+    def get_nodes_positions(self) -> dict[str, tuple[float, float]]:
         """
         Returns all nodes positions in the layout.
 
         Returns:
-            tuple: A dictionary with nodes as keys and positions as values
+            tuple: A dictionary with nodes as keys and positions (tuples containing two floats) as values
         """
         nodes = self.get_nodes()
         output = {}
-        for node in nodes:
-            output[node[0]] = (float(node[1][consts.Consts.x]), float(node[1][consts.Consts.y]))
+        for node_id, node in nodes:
+            output[node_id] = (node.x, node.y)
         return output
 
-    def get_flows(self) -> dict:
+    def get_flows(self) -> list[tuple[str, str, SequenceFlow]]:
         """
         Returns all graph edges (process flows).
 
         Returns:
-            dict: two-dimensional dictionary, where keys are IDs of nodes connected by edge and values are a dictionary of all edge attributes.
+            List of tuples: first value of each tuple is Source Node ID, second value is Target Node ID, third - a SequenceFlow Object.
         """
-        return self.diagram_graph.edges(data=True)
+        flows = []
+        for _, flow in self.sequence_flows.items():
+            flows.append((flow.source_ref_id, flow.target_ref_id, flow))
 
-    def get_flow_by_id(self, flow_id: str) -> tuple:
+        return flows
+
+    def get_flow_by_id(self, flow_id: str) -> tuple[str, str, SequenceFlow] | None:
         """
         Returns an edge (flow) with requested ID.
 
@@ -256,14 +265,15 @@ class BpmnDiagramGraph(BaseModel):
             flow_id (str): ID of flow.
 
         Returns:
-            tuple: first value is node ID, second - a dictionary of all node attributes.
+            tuple: first value is Source Node ID, second value is Target Node ID, third - a SequenceFlow Object.
         """
-        tmp_flows = self.diagram_graph.edges(data=True)
-        for flow in tmp_flows:
-            if flow[2][consts.Consts.id] == flow_id:
-                return flow
+        flow = self.sequence_flows[flow_id]
+        if flow is None:
+            return None
 
-    def get_flows_list_by_process_id(self, process_id: str) -> list:
+        return flow.source_ref_id, flow.target_ref_id, flow
+
+    def get_flows_list_by_process_id(self, process_id: str) -> list[tuple[str, str, SequenceFlow]]:
         """
         Returns list of flows connected to a process with given ID.
 
@@ -271,13 +281,13 @@ class BpmnDiagramGraph(BaseModel):
             process_id (str): ID of parent process element.
 
         Returns:
-            list: list of flows where first value is node ID, second - a dictionary of all node attributes.
+            List of tuples: first value of each tuple is Source Node ID, second value is Target Node ID, third - a SequenceFlow Object.
         """
-        tmp_flows = self.diagram_graph.edges(data=True)
         flows = []
-        for flow in tmp_flows:
-            if consts.Consts.process in flow[2] and flow[2][consts.Consts.process] == process_id:
-                flows.append(flow)
+        for _, flow in self.sequence_flows.items():
+            if flow.process_id == process_id:
+                flows.append((flow.source_ref_id, flow.target_ref_id, flow))
+
         return flows
 
     # Diagram creating methods
@@ -298,7 +308,7 @@ class BpmnDiagramGraph(BaseModel):
                                process_name: str = "",
                                process_is_closed: bool = False,
                                process_is_executable: bool = False,
-                               process_type: str = "None") -> str:
+                               process_type: Literal["None", "Public", "Private"] = "None") -> str:
         """
         Adds a new process to diagram and corresponding participant
             process, diagram and plane
@@ -315,10 +325,17 @@ class BpmnDiagramGraph(BaseModel):
         plane_id = Consts.id_prefix + str(uuid.uuid4())
         process_id = Consts.id_prefix + str(uuid.uuid4())
 
-        self.process_elements[process_id] = {consts.Consts.name: process_name,
-                                             consts.Consts.is_closed: str(process_is_closed).lower(),
-                                             consts.Consts.is_executable: str(process_is_executable).lower(),
-                                             consts.Consts.process_type: process_type}
+        process = Process(
+            id=process_id,
+            name=process_name,
+            process_type=process_type,
+            is_closed=process_is_closed,
+            is_executable=process_is_executable,
+            lane_set_list=[],
+            flow_element_list=[]
+        )
+
+        self.process_elements[process_id] = process
 
         self.plane_attributes[consts.Consts.id] = plane_id
         self.plane_attributes[consts.Consts.bpmn_element] = process_id
@@ -560,7 +577,7 @@ class BpmnDiagramGraph(BaseModel):
                                             source_ref_id: str,
                                             target_ref_id: str,
                                             sequence_flow_id: str = None,
-                                            sequence_flow_name: str = "") -> tuple:
+                                            sequence_flow_name: str = "") -> tuple[str, SequenceFlow]:
         """
         Add or modify a SequenceFlow element to BPMN diagram. If sequence_flow_id matches existing sequence flow, it will be modified.
 
@@ -582,34 +599,35 @@ class BpmnDiagramGraph(BaseModel):
         if existing_flow:
             self.delete_sequence_flow(sequence_flow_id=sequence_flow_id)
 
-        self.sequence_flows[sequence_flow_id] = SequenceFlow(
+        new_flow = SequenceFlow(
             id=sequence_flow_id,
             name=sequence_flow_name,
-            source_ref=source_ref_id,
-            target_ref=target_ref_id
+            source_ref_id=source_ref_id,
+            target_ref_id=target_ref_id,
+            process_id=process_id,
         )
 
-# todo
-        self.diagram_graph.add_edge(source_ref_id, target_ref_id)
+        self.sequence_flows[sequence_flow_id] = new_flow
 
-        flow = self.diagram_graph[source_ref_id][target_ref_id]
-        flow[consts.Consts.id] = sequence_flow_id
-        flow[consts.Consts.name] = sequence_flow_name
-        flow[consts.Consts.process] = process_id
-        flow[consts.Consts.source_ref] = source_ref_id
-        flow[consts.Consts.target_ref] = target_ref_id
-        source_node = self.diagram_graph.nodes[source_ref_id]
-        target_node = self.diagram_graph.nodes[target_ref_id]
-        flow[consts.Consts.waypoints] = \
-            [(source_node[consts.Consts.x], source_node[consts.Consts.y]),
-             (target_node[consts.Consts.x], target_node[consts.Consts.y])]
+        # flow = self.diagram_graph[source_ref_id][target_ref_id]
+        # flow[consts.Consts.id] = sequence_flow_id
+        # flow[consts.Consts.name] = sequence_flow_name
+        # flow[consts.Consts.process] = process_id
+        # flow[consts.Consts.source_ref] = source_ref_id
+        # flow[consts.Consts.target_ref] = target_ref_id
+        # source_node = self.diagram_graph.nodes[source_ref_id]
+        # target_node = self.diagram_graph.nodes[target_ref_id]
+
+        # flow[consts.Consts.waypoints] = \
+        #     [(source_node[consts.Consts.x], source_node[consts.Consts.y]),
+        #      (target_node[consts.Consts.x], target_node[consts.Consts.y])]
 
         # add target node (target_ref_id) as outgoing node from source node (source_ref_id)
-        source_node[consts.Consts.outgoing_flow].append(sequence_flow_id)
+        # source_node[consts.Consts.outgoing_flow].append(sequence_flow_id)
 
         # add source node (source_ref_id) as incoming node to target node (target_ref_id)
-        target_node[consts.Consts.incoming_flow].append(sequence_flow_id)
-        return sequence_flow_id, flow
+        # target_node[consts.Consts.incoming_flow].append(sequence_flow_id)
+        return sequence_flow_id, new_flow
 
     def delete_sequence_flow(self, sequence_flow_id: str) -> None:
         """

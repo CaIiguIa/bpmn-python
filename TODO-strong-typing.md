@@ -36,3 +36,6 @@ plane_attributes: Dict[str, str]
 message_flows: Dict[ID, MessageFlow]
 participants: Dict[ID, Participant]
 ```
+
+TODOs:
+- [x] **node_type** property for FlowNode class?

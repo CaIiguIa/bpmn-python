@@ -2,11 +2,11 @@
 """
 Class used for representing tInclusiveGateway of BPMN 2.0 graph
 """
-from typing import Optional
+from typing import Optional, ClassVar
 
 from pydantic import Field
 
-from bpmn_python.graph.classes.gateways.gateway import Gateway
+from bpmn_python.graph.classes.gateways.gateway import Gateway, GatewayType
 
 
 class ExclusiveGateway(Gateway):
@@ -19,3 +19,4 @@ class ExclusiveGateway(Gateway):
         default=None,
         description="ID of default flow of gateway. Optional according to BPMN 2.0 XML Schema."
     )
+    node_type: ClassVar[GatewayType] = GatewayType.EXCLUSIVE

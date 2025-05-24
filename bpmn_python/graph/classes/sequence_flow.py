@@ -11,8 +11,9 @@ from bpmn_python.graph.classes.flow_element import FlowElement
 
 
 class SequenceFlow(FlowElement):
-    source_ref: str = Field(..., description="ID of the source element")
-    target_ref: str = Field(..., description="ID of the target element")
+    source_ref_id: str = Field(..., description="ID of the source element")
+    target_ref_id: str = Field(..., description="ID of the target element")
+    process_id: str = Field(..., description="ID of the related process")
     condition_expression: Optional[ConditionExpression] = Field(
         default=None,
         description="Condition expression for conditional flow. Optional."
