@@ -6,7 +6,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from bpmn_python.graph.classes.flow_node import FlowNode
+from bpmn_python.graph.classes.flow_node import FlowNode, NodeType
 
 
 class Activity(FlowNode):
@@ -17,3 +17,8 @@ class Activity(FlowNode):
     or String.
     """
     default: Optional[str] = Field(default=None, description="ID of the default flow (optional)")
+
+
+class ActivityType(NodeType):
+    TASK = "task"
+    SUB_PROCESS = "subProcess"

@@ -2,6 +2,7 @@
 """
 Class used for representing tGateway of BPMN 2.0 graph
 """
+from enum import Enum
 from typing import Literal
 
 from pydantic import Field
@@ -9,14 +10,12 @@ from pydantic import Field
 from bpmn_python.graph.classes.flow_node import FlowNode, NodeType
 
 
-class Gateway(FlowNode):
-    """
-    Class used for representing tGateway of BPMN 2.0 graph.
-    """
+class GatewayDirection(Enum):
+    UNSPECIFIED = "Unspecified"
+    CONVERGING = "Converging"
+    DIVERGING = "Diverging"
+    MIXED = "Mixed"
 
-    gateway_direction: Literal["Unspecified", "Converging", "Diverging", "Mixed"] = Field(
-        default="Unspecified", description="Direction of the gateway"
-    )
 
 class GatewayType(NodeType):
     EXCLUSIVE = "exclusiveGateway"
@@ -24,3 +23,14 @@ class GatewayType(NodeType):
     PARALLEL = "parallelGateway"
     EVENT_BASED = "eventBasedGateway"
     COMPLEX = "complexGateway"
+
+
+class Gateway(FlowNode):
+    """
+    Class used for representing tGateway of BPMN 2.0 graph.
+    """
+
+    gateway_direction: GatewayDirection = Field(default=GatewayDirection.UNSPECIFIED,
+                                                description="Direction of the gateway")
+    default_target_id: str | None = Field(default=None,
+                                             description="ID of the default target node for the gateway")

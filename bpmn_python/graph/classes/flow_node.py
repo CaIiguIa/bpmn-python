@@ -7,12 +7,14 @@ from typing import List, ClassVar
 
 from pydantic import Field
 
-import bpmn_python.graph.classes.flow_element as flow_element_type
+from bpmn_python.graph.classes.flow_element import FlowElement
+
 
 class NodeType(Enum):
     BASE = ""
 
-class FlowNode(flow_element_type.FlowElement):
+
+class FlowNode(FlowElement):
     """
     Class used for representing tFlowNode of BPMN 2.0 graph.
     Fields (except inherited):
@@ -21,6 +23,5 @@ class FlowNode(flow_element_type.FlowElement):
     """
     incoming: List[str] = Field(default_factory=list, description="List of IDs of incoming flows")
     outgoing: List[str] = Field(default_factory=list, description="List of IDs of outgoing flows")
-    process_id: str = Field(..., description="ID of the related process")
+    process_id: str | None = Field(default=None, description="ID of the related process")
     node_type: ClassVar[NodeType] = NodeType.BASE
-

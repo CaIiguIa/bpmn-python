@@ -39,3 +39,7 @@ participants: Dict[ID, Participant]
 
 TODOs:
 - [x] **node_type** property for FlowNode class?
+- [ ] **event_definitions**? look up consts.Consts.event_definitions 
+- [ ] **node_creator** for all gateway types
+
+

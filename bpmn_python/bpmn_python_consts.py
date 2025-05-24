@@ -99,5 +99,9 @@ class Consts(object):
     definition_type = "definition_type"
 
     grid_column_width = 2
+    default_element_x_position = 100.0
+    default_element_y_position = 100.0
+    default_element_width = 100.0
+    default_element_height = 100.0
 
     id_prefix = "id"
