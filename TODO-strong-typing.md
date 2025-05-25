@@ -41,5 +41,6 @@ TODOs:
 - [x] **node_type** property for FlowNode class?
 - [ ] **event_definitions**? look up consts.Consts.event_definitions 
 - [ ] **node_creator** for all gateway types
+- [ ] **create_new_diagram_graph** make sure that it initializes new diagram properly
 
 

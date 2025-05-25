@@ -22,9 +22,25 @@ class SequenceFlow(FlowElement):
         default=None,
         description="If true, indicates immediate execution of the sequence flow"
     )
+    waypoints: Optional[list[tuple[float, float]]] = Field(
+        default=None,
+        description="List of waypoints for the sequence flow. Optional."
+    )
 
     @field_validator('condition_expression')
-    def validate_condition_expression(cls, v):
+    def validate_condition_expression(cls, v) -> Optional[ConditionExpression]:
         if v is not None and not isinstance(v, ConditionExpression):
             raise TypeError("condition_expression must be an instance of ConditionExpression or None")
+        return v
+
+    @field_validator('waypoints')
+    def validate_waypoints(cls, v) -> Optional[list[tuple[float, float]]]:
+        if v is None:
+            return v
+
+        if not isinstance(v, list) or len(v) != 2:
+            raise TypeError("waypoints must be a two-element list of tuples")
+        for point in v:
+            if not isinstance(point, tuple) or len(point) != 2 or not all(isinstance(coord, float) for coord in point):
+                raise TypeError("Each waypoint must be a tuple of two integers (x, y)")
         return v

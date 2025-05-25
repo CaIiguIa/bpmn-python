@@ -296,6 +296,8 @@ class BpmnDiagramGraph(BaseModel):
         self.diagram_attributes[consts.Consts.id] = diagram_id
         self.diagram_attributes[consts.Consts.name] = diagram_name
 
+        # TODO: make sure that it initializes new diagram properly
+
     def add_process_to_diagram(self,
                                process_name: str = "",
                                process_is_closed: bool = False,
@@ -632,8 +634,14 @@ class BpmnDiagramGraph(BaseModel):
             target_ref_id=target_ref_id,
             process_id=process_id,
         )
+        source_node = self.nodes[source_ref_id]
+        target_node = self.nodes[target_ref_id]
+
+        new_flow.waypoints = [(source_node.x, source_node.y), (target_node.x, target_node.y)]
 
         self.sequence_flows[sequence_flow_id] = new_flow
+        source_node.outgoing += [sequence_flow_id]
+        target_node.incoming += [sequence_flow_id]
 
         # flow = self.diagram_graph[source_ref_id][target_ref_id]
         # flow[consts.Consts.id] = sequence_flow_id
@@ -663,16 +671,21 @@ class BpmnDiagramGraph(BaseModel):
             sequence_flow_id (str): ID of the sequence flow to be deleted
         """
         existing_flow = self.get_flow_by_id(flow_id=sequence_flow_id)
-        if existing_flow:
-            source_node = self.diagram_graph.nodes[existing_flow[consts.Consts.source_ref]]
-            target_node = self.diagram_graph.nodes[existing_flow[consts.Consts.target_ref]]
-
-            self.diagram_graph.remove_edge(source_node, target_node)
-            source_node[consts.Consts.outgoing_flow].remove(sequence_flow_id)
-            target_node[consts.Consts.incoming_flow].remove(sequence_flow_id)
-            self.sequence_flows.pop(sequence_flow_id)
-        else:
+        if not existing_flow:
             raise bpmn_exception.BpmnFlowNotFoundError("Flow with given ID does not exist")
+
+        source_node_id, target_node_id, flow = existing_flow
+        source_node = self.nodes[source_node_id]
+        target_node = self.nodes[target_node_id]
+
+        self.sequence_flows.pop(sequence_flow_id)
+        source_node.outgoing.remove(flow.id)
+        target_node.incoming.remove(flow.id)
+
+        # Remove the sequence flow from the nodes' incoming and outgoing flow lists
+        # self.diagram_graph.remove_edge(source_node, target_node)
+        # source_node[consts.Consts.outgoing_flow].remove(sequence_flow_id)
+        # target_node[consts.Consts.incoming_flow].remove(sequence_flow_id)
 
     def delete_node(self, node_id: str, force_remove_sequence_flows: bool = False) -> None:
         """
@@ -683,21 +696,19 @@ class BpmnDiagramGraph(BaseModel):
             force_remove_sequence_flows (bool): If True, all incoming and outgoing flows will be removed. Default value - False.
         """
         existing_node = self.get_node_by_id(node_id=node_id)
-        if existing_node:
-            if (len(existing_node[consts.Consts.outgoing_flow] + existing_node[consts.Consts.incoming_flow]) > 0
-                    and not force_remove_sequence_flows):
-                raise bpmn_exception.BpmnPythonError(
-                    "Cannot delete node with incoming or outgoing flows, remove flows first or set force_remove_flows to True")
-
-            else:
-                flows = existing_node[consts.Consts.incoming_flow] + existing_node[consts.Consts.outgoing_flow]
-                for flow_id in flows:
-                    self.delete_sequence_flow(flow_id)
-
-                self.diagram_graph.remove_node(node_id)
-
-        else:
+        if not existing_node:
             raise bpmn_exception.BpmnConnectedFlowsError("Node with given ID does not exist")
+
+        _, node = existing_node
+        if len(node.outgoing + node.incoming) > 0 and not force_remove_sequence_flows:
+            raise bpmn_exception.BpmnPythonError(
+                "Cannot delete node with incoming or outgoing flows, remove flows first or set force_remove_flows to True")
+
+        flow_ids = node.incoming + node.outgoing
+        for flow_id in flow_ids:
+            self.delete_sequence_flow(flow_id)
+
+        self.nodes.pop(node_id)
 
     def get_diagram_graph(self) -> nx.Graph:
         """
