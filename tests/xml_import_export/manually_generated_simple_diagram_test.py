@@ -5,8 +5,8 @@ Test unit, creates a simple graph using functions provided by package and export
 import unittest
 
 import bpmn_python.bpmn_diagram_layouter as layouter
-import bpmn_python.bpmn_diagram_visualizer as visualizer
 import bpmn_python.bpmn_diagram_rep as diagram
+import bpmn_python.bpmn_diagram_visualizer as visualizer
 
 
 class ManualGenerationSimpleTests(unittest.TestCase):
@@ -24,8 +24,8 @@ class ManualGenerationSimpleTests(unittest.TestCase):
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_modify_start_event_to_diagram(process_id,
-                                                              start_event_name="start_event",
-                                                              start_event_definition=diagram.StartEventDefinitions.TIMER)
+                                                                     start_event_name="start_event",
+                                                                     start_event_definition=diagram.StartEventDefinitionType.TIMER)
         [task1_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task1")
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, start_id, task1_id, "start_to_one")
 
@@ -46,7 +46,7 @@ class ManualGenerationSimpleTests(unittest.TestCase):
 
         [task2_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task2")
         [end_id, _] = bpmn_graph.add_modify_end_event_to_diagram(process_id, end_event_name="end_event",
-                                                          end_event_definition=diagram.EndEventDefinitions.MESSAGE)
+                                                                 end_event_definition=diagram.EndEventDefinitionType.MESSAGE)
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, exclusive_gate_join_id, task2_id, "ex_join_to_two")
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, task2_id, end_id, "two_to_end")
 

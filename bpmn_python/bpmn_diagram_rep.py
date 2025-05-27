@@ -3,8 +3,7 @@
 Package with BPMNDiagramGraph - graph representation of BPMN diagram
 """
 import uuid
-from enum import Enum
-from typing import Dict, Any, Literal
+from typing import Dict, Literal
 
 import networkx as nx
 from pydantic import BaseModel, Field
@@ -25,26 +24,11 @@ from bpmn_python.graph.classes.flow_node import FlowNode, NodeType
 from bpmn_python.graph.classes.gateways.gateway import GatewayType, GatewayDirection, Gateway
 from bpmn_python.graph.classes.message_flow import MessageFlow
 from bpmn_python.graph.classes.participant import Participant
+from bpmn_python.graph.classes.root_element.event_definition import StartEventDefinitionType, EndEventDefinitionType, \
+    EventDefinition
 from bpmn_python.graph.classes.root_element.process import Process
 from bpmn_python.graph.classes.sequence_flow import SequenceFlow
 from bpmn_python.node_creator import create_node, parse_node_type
-
-
-class StartEventDefinitions(Enum):
-    MESSAGE = "messageEventDefinition"
-    TIMER = "timerEventDefinition"
-    CONDITIONAL = "conditionalEventDefinition"
-    SIGNAL = "signalEventDefinition"
-    ESCALATION = "escalationEventDefinition"
-
-
-class EndEventDefinitions(Enum):
-    TERMINATE = "terminateEventDefinition"
-    ESCALATION = "escalationEventDefinition"
-    MESSAGE = "messageEventDefinition"
-    COMPENSATE = "compensateEventDefinition"
-    SIGNAL = "signalEventDefinition"
-    ERROR = "errorEventDefinition"
 
 
 class BpmnDiagramGraph(BaseModel):
@@ -362,7 +346,7 @@ class BpmnDiagramGraph(BaseModel):
             node_type = parse_node_type(node_type)
 
         if not modify:
-            new_node = create_node(node_type, node_id)
+            new_node = create_node(node_type, node_id, process_id)
             self.nodes[node_id] = new_node
 
             # self.diagram_graph.add_node(node_id)
@@ -448,7 +432,7 @@ class BpmnDiagramGraph(BaseModel):
     def add_modify_start_event_to_diagram(self,
                                           process_id: str,
                                           start_event_name: str = "",
-                                          start_event_definition: StartEventDefinitions = None,
+                                          start_event_definition: StartEventDefinitionType = None,
                                           parallel_multiple: bool = False,
                                           is_interrupting: bool = True,
                                           node_id: str = None) -> tuple:
@@ -458,7 +442,7 @@ class BpmnDiagramGraph(BaseModel):
         Args:
             process_id (str): ID of parent process,
             start_event_name (str): Name of start event,
-            start_event_definition (StartEventDefinitions): type of start event,
+            start_event_definition (StartEventDefinitionType): type of start event,
             parallel_multiple (bool): is parallel multiple,
             is_interrupting (bool): is interrupting,
             node_id (str): ID of node. Default value - None.
@@ -491,20 +475,21 @@ class BpmnDiagramGraph(BaseModel):
         # self.diagram_graph.nodes[start_event_id][consts.Consts.parallel_multiple] = str(parallel_multiple).lower()
         # self.diagram_graph.nodes[start_event_id][consts.Consts.is_interrupting] = str(is_interrupting).lower()
 
-        # TODO: event_definitions? look up consts.Consts.event_definitions
         event_def_list = []
         if start_event_definition:
             event_def_id = Consts.id_prefix + str(uuid.uuid4())
-            event_def = {consts.Consts.id: event_def_id, consts.Consts.definition_type: start_event_definition.value}
+            event_def = EventDefinition(id=event_def_id, definition_type=start_event_definition)
             event_def_list.append(event_def)
 
-        self.diagram_graph.nodes[start_event_id][consts.Consts.event_definitions] = event_def_list
+        start_event.event_definition_list = event_def_list
+        # self.diagram_graph.nodes[start_event_id][consts.Consts.event_definitions] = event_def_list
+
         return start_event_id, start_event
 
     def add_modify_end_event_to_diagram(self,
                                         process_id: str,
                                         end_event_name: str = "",
-                                        end_event_definition: EndEventDefinitions = None,
+                                        end_event_definition: EndEventDefinitionType = None,
                                         node_id: str = None) -> tuple:
         """
         Add or modify an EndEvent element to BPMN diagram. If node_id matches existing end event, it will be modified.
@@ -512,7 +497,7 @@ class BpmnDiagramGraph(BaseModel):
         Args:
             process_id (str): ID of parent process,
             end_event_name (str): Name of end event,
-            end_event_definition (EndEventDefinitions): type of end event,
+            end_event_definition (EndEventDefinitionType): type of end event,
             node_id (str): ID of node. Default value - None.
 
         Returns:
@@ -537,14 +522,14 @@ class BpmnDiagramGraph(BaseModel):
         if not isinstance(end_event, EndEvent):
             raise bpmn_exception.BpmnNodeTypeError("Node with given ID is not a start event")
 
-        # TODO: event_definitions? look up consts.Consts.event_definitions
         event_def_list = []
         if end_event_definition:
             event_def_id = Consts.id_prefix + str(uuid.uuid4())
-            event_def = {consts.Consts.id: event_def_id, consts.Consts.definition_type: end_event_definition.value}
+            event_def = EventDefinition(id=event_def_id, definition_type=end_event_definition)
             event_def_list.append(event_def)
 
-        self.diagram_graph.nodes[end_event_id][consts.Consts.event_definitions] = event_def_list
+        end_event.event_definition_list = event_def_list
+        # self.diagram_graph.nodes[end_event_id][consts.Consts.event_definitions] = event_def_list
         return end_event_id, end_event
 
     def add_modify_gateway_to_diagram(self,
@@ -586,7 +571,6 @@ class BpmnDiagramGraph(BaseModel):
             node_id=node_id,
             modify=modify_gateway)
 
-        # TODO: node_creator for all gateway types
         if not isinstance(gateway, Gateway):
             raise bpmn_exception.BpmnNodeTypeError("Node with given ID is not a gateway")
 

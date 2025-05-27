@@ -1,3 +1,5 @@
+from typing import Union
+
 from bpmn_python.bpmn_diagram_rep import GatewayType
 from bpmn_python.graph.classes.activities.activity import ActivityType
 from bpmn_python.graph.classes.activities.subprocess import SubProcess
@@ -8,10 +10,11 @@ from bpmn_python.graph.classes.events.intermediate_catch_event import Intermedia
 from bpmn_python.graph.classes.events.intermediate_throw_event import IntermediateThrowEvent
 from bpmn_python.graph.classes.events.start_event import StartEvent
 from bpmn_python.graph.classes.flow_node import NodeType, FlowNode
+from bpmn_python.graph.classes.gateways.complex_gateway import ComplexGateway
+from bpmn_python.graph.classes.gateways.event_based_gateway import EventBasedGateway
 from bpmn_python.graph.classes.gateways.exclusive_gateway import ExclusiveGateway
 from bpmn_python.graph.classes.gateways.inclusive_gateway import InclusiveGateway
 from bpmn_python.graph.classes.gateways.parallel_gateway import ParallelGateway
-from typing import Union
 
 
 def create_node(node_type: NodeType, node_id: str, process_id: str) -> FlowNode:
@@ -40,6 +43,10 @@ def create_node(node_type: NodeType, node_id: str, process_id: str) -> FlowNode:
             node = InclusiveGateway(id=node_id, process_id=process_id)
         case GatewayType.PARALLEL:
             node = ParallelGateway(id=node_id, process_id=process_id)
+        case GatewayType.COMPLEX:
+            node = ComplexGateway(id=node_id, process_id=process_id)
+        case GatewayType.EVENT_BASED:
+            node = EventBasedGateway(id=node_id, process_id=process_id)
         case ActivityType.TASK:
             node = Task(id=node_id, process_id=process_id)
         case ActivityType.SUB_PROCESS:
