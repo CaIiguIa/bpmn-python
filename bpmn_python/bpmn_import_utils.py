@@ -132,3 +132,15 @@ class BpmnImportUtils(object):
         if len(element[1][consts.Consts.outgoing_flow]) >= 2:
             classification_labels.append(classification_split)
         nodes_classification[element[0]] = classification_labels
+
+    @staticmethod
+    def convert_str_to_bool(value: str | bool) -> bool:
+        if isinstance(value, str):
+            if value.strip().lower() in {"true", "1", "yes", "on"}:
+                return True
+            elif value.strip().lower() in {"false", "0", "no", "off"}:
+                return False
+            raise ValueError(
+                "is_expanded must be a boolean value or a string that can be converted to boolean"
+            )
+        return value

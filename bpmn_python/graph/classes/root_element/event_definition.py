@@ -19,6 +19,7 @@ class StartEventDefinitionType(EventDefinitionType):
     CONDITIONAL = "conditionalEventDefinition"
     SIGNAL = "signalEventDefinition"
     ESCALATION = "escalationEventDefinition"
+    ERROR = "errorEventDefinition"
 
 
 class EndEventDefinitionType(EventDefinitionType):
