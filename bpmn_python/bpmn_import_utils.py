@@ -2,6 +2,9 @@
 """
 Class including utility method used in diagram importing
 """
+from typing import Iterator
+from xml.dom import minidom
+from xml.dom.minidom import Element
 
 import bpmn_python.bpmn_python_consts as consts
 
@@ -15,7 +18,7 @@ class BpmnImportUtils(object):
         pass
 
     @staticmethod
-    def remove_namespace_from_tag_name(tag_name):
+    def remove_namespace_from_tag_name(tag_name: str) -> str:
         """
         Helper function, removes namespace annotation from tag name.
 
@@ -24,7 +27,7 @@ class BpmnImportUtils(object):
         return tag_name.split(':')[-1]
 
     @staticmethod
-    def iterate_elements(parent):
+    def iterate_elements(parent: Element) -> Iterator[minidom.Element]:
         """
         Helper function that iterates over child Nodes/Elements of parent Node/Element.
 

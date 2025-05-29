@@ -3,22 +3,27 @@
 Package provides functionality for importing from BPMN 2.0 XML to graph representation
 """
 from xml.dom import minidom
+from xml.dom.minidom import Element
+
+from pydantic import BaseModel
 
 import bpmn_python.bpmn_import_utils as utils
 import bpmn_python.bpmn_python_consts as consts
+from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
+from bpmn_python.graph.classes.activities.subprocess import SubProcess
+from bpmn_python.graph.classes.condition_expression import ConditionExpression
+from bpmn_python.graph.classes.message_flow import MessageFlow
+from bpmn_python.graph.classes.sequence_flow import SequenceFlow
 
 
-class BpmnDiagramGraphImport(object):
+class BpmnDiagramGraphImport(BaseModel):
     """
     Class BPMNDiagramGraphImport provides methods for importing BPMN 2.0 XML file.
     As a utility class, it only contains static methods. This class is meant to be used from BPMNDiagramGraph class.
     """
 
-    def __init__(self):
-        pass
-
     @staticmethod
-    def load_diagram_from_xml(filepath, bpmn_diagram):
+    def load_diagram_from_xml(filepath: str, bpmn_diagram: BpmnDiagramGraph):
         """
         Reads an XML file from given filepath and maps it into inner representation of BPMN diagram.
         Returns an instance of BPMNDiagramGraph class.
@@ -26,12 +31,12 @@ class BpmnDiagramGraphImport(object):
         :param filepath: string with output filepath,
         :param bpmn_diagram: an instance of BpmnDiagramGraph class.
         """
-        diagram_graph = bpmn_diagram.diagram_graph
         sequence_flows = bpmn_diagram.sequence_flows
         process_elements_dict = bpmn_diagram.process_elements
         diagram_attributes = bpmn_diagram.diagram_attributes
         plane_attributes = bpmn_diagram.plane_attributes
-        collaboration = bpmn_diagram.collaboration
+        participants = bpmn_diagram.participants
+        message_flows = bpmn_diagram.message_flows
 
         document = BpmnDiagramGraphImport.read_xml_file(filepath)
         # According to BPMN 2.0 XML Schema, there's only one 'BPMNDiagram' and 'BPMNPlane'
@@ -40,14 +45,14 @@ class BpmnDiagramGraphImport(object):
         BpmnDiagramGraphImport.import_diagram_and_plane_attributes(diagram_attributes, plane_attributes,
                                                                    diagram_element, plane_element)
 
-        BpmnDiagramGraphImport.import_process_elements(document, diagram_graph, sequence_flows, process_elements_dict,
+        BpmnDiagramGraphImport.import_process_elements(document, bpmn_diagram, sequence_flows, process_elements_dict,
                                                        plane_element)
 
         collaboration_element_list = document.getElementsByTagNameNS("*", consts.Consts.collaboration)
         if collaboration_element_list is not None and len(collaboration_element_list) > 0:
             # Diagram has multiple pools and lanes
             collaboration_element = collaboration_element_list[0]
-            BpmnDiagramGraphImport.import_collaboration_element(diagram_graph, collaboration_element, collaboration)
+            BpmnDiagramGraphImport.import_collaboration_element(bpmn_diagram, collaboration_element)
 
         if consts.Consts.message_flows in collaboration:
             message_flows = collaboration[consts.Consts.message_flows]
@@ -64,10 +69,10 @@ class BpmnDiagramGraphImport(object):
                 if tag_name == consts.Consts.bpmn_shape:
                     BpmnDiagramGraphImport.import_shape_di(participants, diagram_graph, element)
                 elif tag_name == consts.Consts.bpmn_edge:
-                    BpmnDiagramGraphImport.import_flow_di(diagram_graph, sequence_flows, message_flows, element)
+                    BpmnDiagramGraphImport.import_flow_di(bpmn_diagram, element)
 
     @staticmethod
-    def import_collaboration_element(diagram_graph, collaboration_element, collaboration_dict):
+    def import_collaboration_element(diagram_graph, collaboration_element):
         """
         Method that imports information from 'collaboration' element.
 
@@ -715,7 +720,7 @@ class BpmnDiagramGraphImport(object):
                                                                 boundary_event_definitions)
 
     @staticmethod
-    def import_sequence_flow_to_graph(diagram_graph, sequence_flows, process_id, flow_element):
+    def import_sequence_flow_to_graph(bpmn_diagram: BpmnDiagramGraph, process_id: str, flow_element: Element):
         """
         Adds a new edge to graph and a record to sequence_flows dictionary.
         Input parameter is object of class xml.dom.Element.
@@ -726,54 +731,44 @@ class BpmnDiagramGraphImport(object):
         - id - added as edge attribute, we assume that this is a required value,
         - name - optional attribute, empty string by default.
 
-        :param diagram_graph: NetworkX graph representing a BPMN process diagram,
-        :param sequence_flows: dictionary (associative list) of sequence flows existing in diagram.
-            Key attribute is sequenceFlow ID, value is a dictionary consisting three key-value pairs: "name" (sequence
-            flow name), "sourceRef" (ID of node, that is a flow source) and "targetRef" (ID of node, that is a flow target),
+        :param bpmn_diagram : a BpmnDiagramGraph object - a BPMN process diagram representation class,
         :param process_id: string object, representing an ID of process element,
         :param flow_element: object representing a BPMN XML 'sequenceFlow' element.
         """
+        sequence_flows = bpmn_diagram.sequence_flows
         flow_id = flow_element.getAttribute(consts.Consts.id)
         name = flow_element.getAttribute(consts.Consts.name) if flow_element.hasAttribute(consts.Consts.name) else ""
         source_ref = flow_element.getAttribute(consts.Consts.source_ref)
         target_ref = flow_element.getAttribute(consts.Consts.target_ref)
-        sequence_flows[flow_id] = {consts.Consts.name: name, consts.Consts.source_ref: source_ref,
-                                   consts.Consts.target_ref: target_ref}
-        diagram_graph.add_edge(source_ref, target_ref)
-        diagram_graph[source_ref][target_ref][consts.Consts.id] = flow_id
-        diagram_graph[source_ref][target_ref][consts.Consts.process] = process_id
-        diagram_graph[source_ref][target_ref][consts.Consts.name] = name
-        diagram_graph[source_ref][target_ref][consts.Consts.source_ref] = source_ref
-        diagram_graph[source_ref][target_ref][consts.Consts.target_ref] = target_ref
+        sequence_flows[flow_id] = SequenceFlow(id=flow_id, name=name, source_ref_id=source_ref,
+                                               target_ref_id=target_ref, process_id=process_id)
+
         for element in utils.BpmnImportUtils.iterate_elements(flow_element):
             if element.nodeType != element.TEXT_NODE:
                 tag_name = utils.BpmnImportUtils.remove_namespace_from_tag_name(element.tagName)
                 if tag_name == consts.Consts.condition_expression:
                     condition_expression = element.firstChild.nodeValue
-                    diagram_graph[source_ref][target_ref][consts.Consts.condition_expression] = {
-                        consts.Consts.id: element.getAttribute(consts.Consts.id),
-                        consts.Consts.condition_expression: condition_expression
-                    }
+                    condition_id = element.getAttribute(consts.Consts.id)
+                    sequence_flows[flow_id].condition_expression = ConditionExpression(id=condition_id,
+                                                                                       condition=condition_expression)
 
         '''
         # Add incoming / outgoing nodes to corresponding elements. May be redundant action since this information is
         added when processing nodes, but listing incoming / outgoing nodes under node element is optional - this way
         we can make sure this info will be imported.
         '''
-        if consts.Consts.outgoing_flow not in diagram_graph.nodes[source_ref]:
-            diagram_graph.nodes[source_ref][consts.Consts.outgoing_flow] = []
-        outgoing_list = diagram_graph.nodes[source_ref][consts.Consts.outgoing_flow]
-        if flow_id not in outgoing_list:
-            outgoing_list.append(flow_id)
+        if source_ref in bpmn_diagram.nodes:
+            source_node = bpmn_diagram.nodes[source_ref]
+            if flow_id not in source_node.outgoing:
+                source_node.outgoing.append(flow_id)
 
-        if consts.Consts.incoming_flow not in diagram_graph.nodes[target_ref]:
-            diagram_graph.nodes[target_ref][consts.Consts.incoming_flow] = []
-        incoming_list = diagram_graph.nodes[target_ref][consts.Consts.incoming_flow]
-        if flow_id not in incoming_list:
-            incoming_list.append(flow_id)
+        if target_ref in bpmn_diagram.nodes:
+            target_node = bpmn_diagram.nodes[target_ref]
+            if flow_id not in target_node.incoming:
+                target_node.incoming.append(flow_id)
 
     @staticmethod
-    def import_message_flow_to_graph(diagram_graph, message_flows, flow_element):
+    def import_message_flow_to_graph(bpmn_diagram: BpmnDiagramGraph, flow_element: Element):
         """
         Adds a new edge to graph and a record to message flows dictionary.
         Input parameter is object of class xml.dom.Element.
@@ -784,44 +779,33 @@ class BpmnDiagramGraphImport(object):
         - id - added as edge attribute, we assume that this is a required value,
         - name - optional attribute, empty string by default.
 
-        :param diagram_graph: NetworkX graph representing a BPMN process diagram,
-        :param message_flows: dictionary (associative list) of message flows existing in diagram.
-            Key attribute is messageFlow ID, value is a dictionary consisting three key-value pairs: "name" (message
-            flow name), "sourceRef" (ID of node, that is a flow source) and "targetRef" (ID of node, that is a flow target),
+        :param bpmn_diagram: a BpmnDiagramGraph object - a BPMN process diagram representation class,
         :param flow_element: object representing a BPMN XML 'messageFlow' element.
         """
+        message_flows = bpmn_diagram.message_flows
         flow_id = flow_element.getAttribute(consts.Consts.id)
         name = flow_element.getAttribute(consts.Consts.name) if flow_element.hasAttribute(consts.Consts.name) else ""
         source_ref = flow_element.getAttribute(consts.Consts.source_ref)
         target_ref = flow_element.getAttribute(consts.Consts.target_ref)
-        message_flows[flow_id] = {consts.Consts.id: flow_id, consts.Consts.name: name,
-                                  consts.Consts.source_ref: source_ref,
-                                  consts.Consts.target_ref: target_ref}
-        diagram_graph.add_edge(source_ref, target_ref)
-        diagram_graph[source_ref][target_ref][consts.Consts.id] = flow_id
-        diagram_graph[source_ref][target_ref][consts.Consts.name] = name
-        diagram_graph[source_ref][target_ref][consts.Consts.source_ref] = source_ref
-        diagram_graph[source_ref][target_ref][consts.Consts.target_ref] = target_ref
+        message_flows[flow_id] = MessageFlow(id=flow_id, name=name, source_ref=source_ref, target_ref=target_ref)
 
         '''
         # Add incoming / outgoing nodes to corresponding elements. May be redundant action since this information is
         added when processing nodes, but listing incoming / outgoing nodes under node element is optional - this way
         we can make sure this info will be imported.
         '''
-        if consts.Consts.outgoing_flow not in diagram_graph.nodes[source_ref]:
-            diagram_graph.nodes[source_ref][consts.Consts.outgoing_flow] = []
-        outgoing_list = diagram_graph.nodes[source_ref][consts.Consts.outgoing_flow]
-        if flow_id not in outgoing_list:
-            outgoing_list.append(flow_id)
+        if source_ref in bpmn_diagram.nodes:
+            source_node = bpmn_diagram.nodes[source_ref]
+            if flow_id not in source_node.outgoing:
+                source_node.outgoing.append(flow_id)
 
-        if consts.Consts.incoming_flow not in diagram_graph.nodes[target_ref]:
-            diagram_graph.nodes[target_ref][consts.Consts.incoming_flow] = []
-        incoming_list = diagram_graph.nodes[target_ref][consts.Consts.incoming_flow]
-        if flow_id not in incoming_list:
-            incoming_list.append(flow_id)
+        if target_ref in bpmn_diagram.nodes:
+            target_node = bpmn_diagram.nodes[target_ref]
+            if flow_id not in target_node.incoming:
+                target_node.incoming.append(flow_id)
 
     @staticmethod
-    def import_shape_di(participants_dict, diagram_graph, shape_element):
+    def import_shape_di(bpmn_diagram: BpmnDiagramGraph, shape_element: Element):
         """
         Adds Diagram Interchange information (information about rendering a diagram) to appropriate
         BPMN diagram element in graph node.
@@ -832,49 +816,46 @@ class BpmnDiagramGraphImport(object):
         - x - first coordinate of BPMNShape,
         - y - second coordinate of BPMNShape.
 
-        :param participants_dict: dictionary with 'participant' elements attributes,
-        :param diagram_graph: NetworkX graph representing a BPMN process diagram,
+        :param bpmn_diagram: a BpmnDiagramGraph object - a BPMN process diagram representation class,
         :param shape_element: object representing a BPMN XML 'BPMNShape' element.
         """
+        participants = bpmn_diagram.participants
         element_id = shape_element.getAttribute(consts.Consts.bpmn_element)
         bounds = shape_element.getElementsByTagNameNS("*", "Bounds")[0]
-        if diagram_graph.has_node(element_id):
-            node = diagram_graph.nodes[element_id]
-            node[consts.Consts.width] = bounds.getAttribute(consts.Consts.width)
-            node[consts.Consts.height] = bounds.getAttribute(consts.Consts.height)
+        if element_id in bpmn_diagram.nodes:
+            node = bpmn_diagram.nodes[element_id]
+            node.width = bounds.getAttribute(consts.Consts.width)
+            node.height = bounds.getAttribute(consts.Consts.height)
 
-            if node[consts.Consts.type] == consts.Consts.subprocess:
-                node[consts.Consts.is_expanded] = \
+            if isinstance(node, SubProcess):
+                node.is_expanded = \
                     shape_element.getAttribute(consts.Consts.is_expanded) \
-                        if shape_element.hasAttribute(consts.Consts.is_expanded) else "false"
-            node[consts.Consts.x] = bounds.getAttribute(consts.Consts.x)
-            node[consts.Consts.y] = bounds.getAttribute(consts.Consts.y)
-        if element_id in participants_dict:
+                        if shape_element.hasAttribute(consts.Consts.is_expanded) else False
+            node.x = bounds.getAttribute(consts.Consts.x)
+            node.y = bounds.getAttribute(consts.Consts.y)
+        if element_id in participants:
             # BPMNShape is either connected with FlowNode or Participant
-            participant_attr = participants_dict[element_id]
-            participant_attr[consts.Consts.is_horizontal] = shape_element.getAttribute(consts.Consts.is_horizontal)
-            participant_attr[consts.Consts.width] = bounds.getAttribute(consts.Consts.width)
-            participant_attr[consts.Consts.height] = bounds.getAttribute(consts.Consts.height)
-            participant_attr[consts.Consts.x] = bounds.getAttribute(consts.Consts.x)
-            participant_attr[consts.Consts.y] = bounds.getAttribute(consts.Consts.y)
+            participant = participants[element_id]
+            participant.is_horizontal = shape_element.getAttribute(consts.Consts.is_horizontal)
+            participant.width = bounds.getAttribute(consts.Consts.width)
+            participant.height = bounds.getAttribute(consts.Consts.height)
+            participant.x = bounds.getAttribute(consts.Consts.x)
+            participant.y = bounds.getAttribute(consts.Consts.y)
 
     @staticmethod
-    def import_flow_di(diagram_graph, sequence_flows, message_flows, flow_element):
+    def import_flow_di(bpmn_diagram: BpmnDiagramGraph, flow_element: minidom.Element):
         """
         Adds Diagram Interchange information (information about rendering a diagram) to appropriate
         BPMN sequence flow represented as graph edge.
         We assume that each BPMNEdge has a list of 'waypoint' elements. BPMN 2.0 XML Schema states,
         that each BPMNEdge must have at least two waypoints.
 
-        :param diagram_graph: NetworkX graph representing a BPMN process diagram,
-        :param sequence_flows: dictionary (associative list) of sequence flows existing in diagram.
-            Key attribute is sequenceFlow ID, value is a dictionary consisting three key-value pairs: "name" (sequence
-            flow name), "sourceRef" (ID of node, that is a flow source) and "targetRef" (ID of node, that is a flow target),
-        :param message_flows: dictionary (associative list) of message flows existing in diagram.
-            Key attribute is messageFlow ID, value is a dictionary consisting three key-value pairs: "name" (message
-            flow name), "sourceRef" (ID of node, that is a flow source) and "targetRef" (ID of node, that is a flow target),
+        :param bpmn_diagram: a BPMN process diagram representation class,
         :param flow_element: object representing a BPMN XML 'BPMNEdge' element.
         """
+        sequence_flows = bpmn_diagram.sequence_flows
+        message_flows = bpmn_diagram.message_flows
+
         flow_id = flow_element.getAttribute(consts.Consts.bpmn_element)
         waypoints_xml = flow_element.getElementsByTagNameNS("*", consts.Consts.waypoint)
         length = len(waypoints_xml)
@@ -885,21 +866,15 @@ class BpmnDiagramGraphImport(object):
                             waypoints_xml[index].getAttribute(consts.Consts.y))
             waypoints[index] = waypoint_tmp
 
-        flow_data = None
         if flow_id in sequence_flows:
-            flow_data = sequence_flows[flow_id]
+            s_flow = sequence_flows[flow_id]
+            s_flow.waypoints = waypoints
         elif flow_id in message_flows:
-            flow_data = message_flows[flow_id]
-
-        if flow_data is not None:
-            name = flow_data[consts.Consts.name]
-            source_ref = flow_data[consts.Consts.source_ref]
-            target_ref = flow_data[consts.Consts.target_ref]
-            diagram_graph[source_ref][target_ref][consts.Consts.waypoints] = waypoints
-            diagram_graph[source_ref][target_ref][consts.Consts.name] = name
+            m_flow = message_flows[flow_id]
+            m_flow.waypoints = waypoints
 
     @staticmethod
-    def read_xml_file(filepath):
+    def read_xml_file(filepath: str) -> minidom.Document:
         """
         Reads BPMN 2.0 XML file from given filepath and returns xml.dom.xminidom.Document object.
 
