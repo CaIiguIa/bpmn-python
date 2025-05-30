@@ -40,20 +40,16 @@ class BpmnDiagramGraphImport(BaseModel):
     """
 
     @staticmethod
-    def load_diagram_from_xml(filepath: str, bpmn_diagram: BpmnDiagramGraph):
+    def load_diagram_from_xml(filepath: str, diagram_graph: BpmnDiagramGraph):
         """
         Reads an XML file from given filepath and maps it into inner representation of BPMN diagram.
         Returns an instance of BPMNDiagramGraph class.
 
         :param filepath: string with output filepath,
-        :param bpmn_diagram: an instance of BpmnDiagramGraph class.
+        :param diagram_graph: an instance of BpmnDiagramGraph class.
         """
-        sequence_flows = bpmn_diagram.sequence_flows
-        process_elements_dict = bpmn_diagram.process_elements
-        diagram_attributes = bpmn_diagram.diagram_attributes
-        plane_attributes = bpmn_diagram.plane_attributes
-        participants = bpmn_diagram.participants
-        message_flows = bpmn_diagram.message_flows
+        diagram_attributes = diagram_graph.diagram_attributes
+        plane_attributes = diagram_graph.plane_attributes
 
         document = BpmnDiagramGraphImport.read_xml_file(filepath)
         # According to BPMN 2.0 XML Schema, there's only one 'BPMNDiagram' and 'BPMNPlane'
@@ -62,56 +58,39 @@ class BpmnDiagramGraphImport(BaseModel):
         BpmnDiagramGraphImport.import_diagram_and_plane_attributes(diagram_attributes, plane_attributes,
                                                                    diagram_element, plane_element)
 
-        BpmnDiagramGraphImport.import_process_elements(document, bpmn_diagram, sequence_flows, process_elements_dict,
-                                                       plane_element)
+        BpmnDiagramGraphImport.import_process_elements(document, diagram_graph, plane_element)
 
         collaboration_element_list = document.getElementsByTagNameNS("*", consts.Consts.collaboration)
         if collaboration_element_list is not None and len(collaboration_element_list) > 0:
             # Diagram has multiple pools and lanes
             collaboration_element = collaboration_element_list[0]
-            BpmnDiagramGraphImport.import_collaboration_element(bpmn_diagram, collaboration_element)
-
-        if consts.Consts.message_flows in collaboration:
-            message_flows = collaboration[consts.Consts.message_flows]
-        else:
-            message_flows = {}
-
-        participants = []
-        if consts.Consts.participants in collaboration:
-            participants = collaboration[consts.Consts.participants]
+            BpmnDiagramGraphImport.import_collaboration_element(diagram_graph, collaboration_element)
 
         for element in utils.BpmnImportUtils.iterate_elements(plane_element):
             if element.nodeType != element.TEXT_NODE:
                 tag_name = utils.BpmnImportUtils.remove_namespace_from_tag_name(element.tagName)
                 if tag_name == consts.Consts.bpmn_shape:
-                    BpmnDiagramGraphImport.import_shape_di(participants, diagram_graph, element)
+                    BpmnDiagramGraphImport.import_shape_di(diagram_graph, element)
                 elif tag_name == consts.Consts.bpmn_edge:
-                    BpmnDiagramGraphImport.import_flow_di(bpmn_diagram, element)
+                    BpmnDiagramGraphImport.import_flow_di(diagram_graph, element)
 
     @staticmethod
-    def import_collaboration_element(diagram_graph, collaboration_element):
+    def import_collaboration_element(diagram_graph: BpmnDiagramGraph, collaboration_element: Element):
         """
         Method that imports information from 'collaboration' element.
 
         :param diagram_graph: NetworkX graph representing a BPMN process diagram,
-        :param collaboration_element: XML doument element,
-        :param collaboration_dict: dictionary, that consist all information imported from 'collaboration' element.
-            Includes three key-value pairs - 'id' which keeps ID of collaboration element, 'participants' that keeps
-            information about 'participant' elements and 'message_flows' that keeps information about message flows.
+        :param collaboration_element: XML document element,
         """
-        collaboration_dict[consts.Consts.id] = collaboration_element.getAttribute(consts.Consts.id)
-        collaboration_dict[consts.Consts.participants] = {}
-        participants_dict = collaboration_dict[consts.Consts.participants]
-        collaboration_dict[consts.Consts.message_flows] = {}
-        message_flows_dict = collaboration_dict[consts.Consts.message_flows]
+        diagram_graph.collaboration_id = collaboration_element.getAttribute(consts.Consts.id)
 
         for element in utils.BpmnImportUtils.iterate_elements(collaboration_element):
             if element.nodeType != element.TEXT_NODE:
                 tag_name = utils.BpmnImportUtils.remove_namespace_from_tag_name(element.tagName)
                 if tag_name == consts.Consts.participant:
-                    BpmnDiagramGraphImport.import_participant_element(diagram_graph, participants_dict, element)
+                    BpmnDiagramGraphImport.import_participant_element(diagram_graph, element)
                 elif tag_name == consts.Consts.message_flow:
-                    BpmnDiagramGraphImport.import_message_flow_to_graph(diagram_graph, message_flows_dict, element)
+                    BpmnDiagramGraphImport.import_message_flow_to_graph(diagram_graph, element)
 
     @staticmethod
     def import_participant_element(bpmn_diagram: BpmnDiagramGraph, participant_element: Element):
@@ -162,51 +141,45 @@ class BpmnDiagramGraphImport(BaseModel):
         plane_attributes[consts.Consts.bpmn_element] = plane_element.getAttribute(consts.Consts.bpmn_element)
 
     @staticmethod
-    def import_process_elements(document, diagram_graph, sequence_flows, process_elements_dict, plane_element):
+    def import_process_elements(document: minidom.Document, diagram_graph: BpmnDiagramGraph, plane_element: Element):
         """
         Method for importing all 'process' elements in diagram.
 
         :param document: XML document,
         :param diagram_graph: NetworkX graph representing a BPMN process diagram,
-        :param sequence_flows: a list of sequence flows existing in diagram,
-        :param process_elements_dict: dictionary that holds attribute values for imported 'process' elements. Key is
-            an ID of process, value - a dictionary of process attributes,
         :param plane_element: object representing a BPMN XML 'plane' element.
         """
+        processes = diagram_graph.process_elements
         for process_element in document.getElementsByTagNameNS("*", consts.Consts.process):
-            BpmnDiagramGraphImport.import_process_element(process_elements_dict, process_element)
+            BpmnDiagramGraphImport.import_process_element(processes, process_element)
 
             process_id = process_element.getAttribute(consts.Consts.id)
-            process_attributes = process_elements_dict[process_id]
+            process = processes[process_id]
 
             lane_set_list = process_element.getElementsByTagNameNS("*", consts.Consts.lane_set)
             if lane_set_list is not None and len(lane_set_list) > 0:
                 # according to BPMN 2.0 XML Schema, there's at most one 'laneSet' element inside 'process'
                 lane_set = lane_set_list[0]
-                BpmnDiagramGraphImport.import_lane_set_element(process_attributes, lane_set, plane_element)
+                BpmnDiagramGraphImport.import_lane_set_element(process, lane_set, plane_element)
 
             for element in utils.BpmnImportUtils.iterate_elements(process_element):
                 if element.nodeType != element.TEXT_NODE:
                     tag_name = utils.BpmnImportUtils.remove_namespace_from_tag_name(element.tagName)
-                    BpmnDiagramGraphImport.__import_element_by_tag_name(diagram_graph, sequence_flows, process_id,
-                                                                        process_attributes, element, tag_name)
+                    BpmnDiagramGraphImport.__import_element_by_tag_name(diagram_graph, process_id, element, tag_name)
 
             for flow in utils.BpmnImportUtils.iterate_elements(process_element):
                 if flow.nodeType != flow.TEXT_NODE:
                     tag_name = utils.BpmnImportUtils.remove_namespace_from_tag_name(flow.tagName)
                     if tag_name == consts.Consts.sequence_flow:
-                        BpmnDiagramGraphImport.import_sequence_flow_to_graph(diagram_graph, sequence_flows, process_id,
-                                                                             flow)
+                        BpmnDiagramGraphImport.import_sequence_flow_to_graph(diagram_graph, process_id, flow)
 
     @staticmethod
-    def __import_element_by_tag_name(diagram_graph, sequence_flows, process_id, process_attributes, element, tag_name):
+    def __import_element_by_tag_name(diagram_graph: BpmnDiagramGraph, process_id: str, element: Element, tag_name: str):
         """
         Imports a BPMN element into the graph based on its tag name.
 
-        :param diagram_graph: Graph representing the BPMN diagram.
-        :param sequence_flows: List of sequence flows in the diagram.
+        :param diagram_graph: BpmnDiagramGraph instance representing the BPMN diagram,
         :param process_id: ID of the process the element belongs to.
-        :param process_attributes: Dictionary of attributes for the process.
         :param element: XML element representing the BPMN element.
         :param tag_name: Tag name of the BPMN element.
         """
@@ -215,37 +188,29 @@ class BpmnDiagramGraphImport(BaseModel):
                 or tag_name == consts.Consts.user_task \
                 or tag_name == consts.Consts.service_task \
                 or tag_name == consts.Consts.manual_task:
-            BpmnDiagramGraphImport.import_task_to_graph(diagram_graph, process_id, process_attributes, element)
+            BpmnDiagramGraphImport.import_task_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.subprocess:
-            BpmnDiagramGraphImport.import_subprocess_to_graph(diagram_graph, sequence_flows, process_id,
-                                                              process_attributes, element)
+            BpmnDiagramGraphImport.import_subprocess_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.data_object:
-            BpmnDiagramGraphImport.import_data_object_to_graph(diagram_graph, process_id, process_attributes, element)
+            BpmnDiagramGraphImport.import_data_object_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.inclusive_gateway or tag_name == consts.Consts.exclusive_gateway:
-            BpmnDiagramGraphImport.import_incl_or_excl_gateway_to_graph(diagram_graph, process_id, process_attributes,
-                                                                        element)
+            BpmnDiagramGraphImport.import_incl_or_excl_gateway_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.parallel_gateway:
-            BpmnDiagramGraphImport.import_parallel_gateway_to_graph(diagram_graph, process_id, process_attributes,
-                                                                    element)
+            BpmnDiagramGraphImport.import_parallel_gateway_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.event_based_gateway:
-            BpmnDiagramGraphImport.import_event_based_gateway_to_graph(diagram_graph, process_id, process_attributes,
-                                                                       element)
+            BpmnDiagramGraphImport.import_event_based_gateway_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.complex_gateway:
-            BpmnDiagramGraphImport.import_complex_gateway_to_graph(diagram_graph, process_id, process_attributes,
-                                                                   element)
+            BpmnDiagramGraphImport.import_complex_gateway_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.start_event:
-            BpmnDiagramGraphImport.import_start_event_to_graph(diagram_graph, process_id, process_attributes, element)
+            BpmnDiagramGraphImport.import_start_event_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.end_event:
-            BpmnDiagramGraphImport.import_end_event_to_graph(diagram_graph, process_id, process_attributes, element)
+            BpmnDiagramGraphImport.import_end_event_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.intermediate_catch_event:
-            BpmnDiagramGraphImport.import_intermediate_catch_event_to_graph(diagram_graph, process_id,
-                                                                            process_attributes, element)
+            BpmnDiagramGraphImport.import_intermediate_catch_event_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.intermediate_throw_event:
-            BpmnDiagramGraphImport.import_intermediate_throw_event_to_graph(diagram_graph, process_id,
-                                                                            process_attributes, element)
+            BpmnDiagramGraphImport.import_intermediate_throw_event_to_graph(diagram_graph, process_id, element)
         elif tag_name == consts.Consts.boundary_event:
-            BpmnDiagramGraphImport.import_boundary_event_to_graph(diagram_graph, process_id, process_attributes,
-                                                                  element)
+            BpmnDiagramGraphImport.import_boundary_event_to_graph(diagram_graph, process_id, element)
 
     @staticmethod
     def import_lane_set_element(process_attributes, lane_set_element, plane_element):
@@ -301,6 +266,8 @@ class BpmnDiagramGraphImport(BaseModel):
         :param lane_element: XML document element,
         :param plane_element: object representing a BPMN XML 'plane' element.
         """
+
+        # TODO: import_lane_element
         lane_id = lane_element.getAttribute(consts.Consts.id)
         lane_name = lane_element.getAttribute(consts.Consts.name)
         child_lane_set_attr = {}
@@ -413,56 +380,57 @@ class BpmnDiagramGraphImport(BaseModel):
         node.outgoing = outgoing_list
 
     @staticmethod
-    def import_task_to_graph(diagram_graph, process_id, process_attributes, task_element):
+    def import_task_to_graph(diagram_graph: BpmnDiagramGraph, process_id: str, task_element: Element):
         """
         Adds to graph the new element that represents BPMN task.
         In our representation tasks have only basic attributes and elements, inherited from Activity type,
         so this method only needs to call add_flownode_to_graph.
 
-        :param diagram_graph: NetworkX graph representing a BPMN process diagram,
+        :param diagram_graph: BpmnDiagramGraph instance representing the BPMN diagram,
         :param process_id: string object, representing an ID of process element,
-        :param process_attributes: dictionary that holds attribute values of 'process' element, which is parent of
-            imported flow node,
         :param task_element: object representing a BPMN XML 'task' element.
         """
-        BpmnDiagramGraphImport.import_activity_to_graph(diagram_graph, process_id, process_attributes, task_element)
+        BpmnDiagramGraphImport.import_activity_to_graph(diagram_graph, process_id, task_element)
 
     @staticmethod
-    def import_subprocess_to_graph(diagram_graph, sequence_flows, process_id, process_attributes, subprocess_element):
+    def import_subprocess_to_graph(diagram_graph: BpmnDiagramGraph, process_id: str, subprocess_element: Element):
         """
         Adds to graph the new element that represents BPMN subprocess.
         In addition to attributes inherited from FlowNode type, SubProcess
         has additional attribute triggeredByEvent (boolean type, default value - false).
 
-        :param diagram_graph: NetworkX graph representing a BPMN process diagram,
-        :param sequence_flows: a list of sequence flows existing in diagram,
+        :param diagram_graph: BpmnDiagramGraph instance representing the BPMN diagram,
         :param process_id: string object, representing an ID of process element,
-        :param process_attributes: dictionary that holds attribute values of 'process' element, which is parent of
-           imported flow node,
         :param subprocess_element: object representing a BPMN XML 'subprocess' element
         """
-        BpmnDiagramGraphImport.import_activity_to_graph(diagram_graph, process_id, process_attributes,
+
+        BpmnDiagramGraphImport.import_activity_to_graph(diagram_graph, process_id,
                                                         subprocess_element)
 
         subprocess_id = subprocess_element.getAttribute(consts.Consts.id)
-        diagram_graph.nodes[subprocess_id][consts.Consts.triggered_by_event] = \
+        triggered_by_event = BpmnImportUtils.convert_str_to_bool(
             subprocess_element.getAttribute(consts.Consts.triggered_by_event) \
-                if subprocess_element.hasAttribute(consts.Consts.triggered_by_event) else "false"
+                if subprocess_element.hasAttribute(consts.Consts.triggered_by_event) else "false")
 
-        subprocess_attributes = diagram_graph.nodes[subprocess_id]
-        subprocess_attributes[consts.Consts.node_ids] = []
+        subprocess = SubProcess(id=subprocess_id, triggered_by_event=triggered_by_event)
+        diagram_graph.nodes[subprocess_id] = subprocess
+
+        # diagram_graph.nodes[subprocess_id][consts.Consts.triggered_by_event] = \
+        #     subprocess_element.getAttribute(consts.Consts.triggered_by_event) \
+        #         if subprocess_element.hasAttribute(consts.Consts.triggered_by_event) else "false"
+
+        # subprocess_attributes[consts.Consts.node_ids] = []
+
         for element in utils.BpmnImportUtils.iterate_elements(subprocess_element):
             if element.nodeType != element.TEXT_NODE:
                 tag_name = utils.BpmnImportUtils.remove_namespace_from_tag_name(element.tagName)
-                BpmnDiagramGraphImport.__import_element_by_tag_name(diagram_graph, sequence_flows, subprocess_id,
-                                                                    subprocess_attributes, element, tag_name)
+                BpmnDiagramGraphImport.__import_element_by_tag_name(diagram_graph, subprocess_id, element, tag_name)
 
         for flow in utils.BpmnImportUtils.iterate_elements(subprocess_element):
             if flow.nodeType != flow.TEXT_NODE:
                 tag_name = utils.BpmnImportUtils.remove_namespace_from_tag_name(flow.tagName)
                 if tag_name == consts.Consts.sequence_flow:
-                    BpmnDiagramGraphImport.import_sequence_flow_to_graph(diagram_graph, sequence_flows, subprocess_id,
-                                                                         flow)
+                    BpmnDiagramGraphImport.import_sequence_flow_to_graph(diagram_graph, subprocess_id, flow)
 
     @staticmethod
     def import_data_object_to_graph(diagram_graph: BpmnDiagramGraph, process_id: str, data_object_element: Element):
@@ -499,7 +467,7 @@ class BpmnDiagramGraphImport(BaseModel):
         node = diagram_graph.nodes[element_id]
         if isinstance(node, Activity):
             node.default = element.getAttribute(consts.Consts.default) \
-            if element.hasAttribute(consts.Consts.default) else None
+                if element.hasAttribute(consts.Consts.default) else None
 
         # diagram_graph.nodes[element_id][consts.Consts.default] = element.getAttribute(consts.Consts.default) \
         #     if element.hasAttribute(consts.Consts.default) else None
@@ -727,6 +695,7 @@ class BpmnDiagramGraphImport(BaseModel):
         :param process_id: string object, representing an ID of process element,
         :param element: object representing a BPMN XML 'endEvent' element.
         """
+        # TODO: make sure the event object is created somewhere along the way. the same for gateways
         end_event_definitions = {def_type for def_type in EndEventDefinitionType}
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, element)
         BpmnDiagramGraphImport.import_event_definition_elements(diagram_graph, element, end_event_definitions)

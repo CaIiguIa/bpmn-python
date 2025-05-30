@@ -44,4 +44,5 @@ TODOs:
 - [ ] **create_new_diagram_graph** make sure that it initializes new diagram properly
 - [ ] **attached_to_ref** in import
 - [ ] **event_definition_type** add all possible types
+- [ ] **import_lane_element**
 - [ ]

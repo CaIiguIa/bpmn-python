@@ -3,7 +3,7 @@
 Package with BPMNDiagramGraph - graph representation of BPMN diagram
 """
 import uuid
-from typing import Dict
+from typing import Dict, Optional
 
 import networkx as nx
 from pydantic import BaseModel, Field
@@ -84,6 +84,7 @@ class BpmnDiagramGraph(BaseModel):
         default_factory=dict,
         description="Mapping of participant IDs to Participant objects."
     )
+    collaboration_id: Optional[str] = Field(default=None, description="ID of the collaboration element.")
 
     def load_diagram_from_xml_file(self, filepath: str) -> None:
         """
