@@ -19,7 +19,6 @@ class StartEventDefinitionType(EventDefinitionType):
     CONDITIONAL = "conditionalEventDefinition"
     SIGNAL = "signalEventDefinition"
     ESCALATION = "escalationEventDefinition"
-    ERROR = "errorEventDefinition"
 
 
 class EndEventDefinitionType(EventDefinitionType):
@@ -30,6 +29,30 @@ class EndEventDefinitionType(EventDefinitionType):
     SIGNAL = "signalEventDefinition"
     ERROR = "errorEventDefinition"
 
+
+class IntermediateThrowEventDefinitionType(EventDefinitionType):
+    ESCALATION = "escalationEventDefinition"
+    MESSAGE = "messageEventDefinition"
+    COMPENSATE = "compensateEventDefinition"
+    SIGNAL = "signalEventDefinition"
+
+
+class IntermediateCatchEventDefinitionType(EventDefinitionType):
+    MESSAGE = "messageEventDefinition"
+    TIMER = "timerEventDefinition"
+    SIGNAL = "signalEventDefinition"
+    CONDITIONAL = "conditionalEventDefinition"
+    ESCALATION = "escalationEventDefinition"
+
+class BoundaryEventDefinitionType(IntermediateCatchEventDefinitionType):
+    MESSAGE = "messageEventDefinition"
+    TIMER = "timerEventDefinition"
+    SIGNAL = "signalEventDefinition"
+    CONDITIONAL = "conditionalEventDefinition"
+    ESCALATION = "escalationEventDefinition"
+    ERROR = "errorEventDefinition"
+
+# TODO: event_definition_type add all possible types
 
 class EventDefinition(RootElement):
     """

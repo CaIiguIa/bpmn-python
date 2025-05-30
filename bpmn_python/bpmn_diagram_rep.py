@@ -3,7 +3,7 @@
 Package with BPMNDiagramGraph - graph representation of BPMN diagram
 """
 import uuid
-from typing import Dict, Literal
+from typing import Dict
 
 import networkx as nx
 from pydantic import BaseModel, Field
@@ -26,7 +26,7 @@ from bpmn_python.graph.classes.message_flow import MessageFlow
 from bpmn_python.graph.classes.participant import Participant
 from bpmn_python.graph.classes.root_element.event_definition import StartEventDefinitionType, EndEventDefinitionType, \
     EventDefinition
-from bpmn_python.graph.classes.root_element.process import Process
+from bpmn_python.graph.classes.root_element.process import Process, ProcessType
 from bpmn_python.graph.classes.sequence_flow import SequenceFlow
 from bpmn_python.node_creator import create_node, parse_node_type
 
@@ -286,7 +286,7 @@ class BpmnDiagramGraph(BaseModel):
                                process_name: str = "",
                                process_is_closed: bool = False,
                                process_is_executable: bool = False,
-                               process_type: Literal["None", "Public", "Private"] = "None") -> str:
+                               process_type: ProcessType = "None") -> str:
         """
         Adds a new process to diagram and corresponding participant
             process, diagram and plane

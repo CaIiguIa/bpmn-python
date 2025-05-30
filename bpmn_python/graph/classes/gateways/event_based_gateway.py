@@ -2,9 +2,25 @@
 """
 Class used for representing tEventBasedGateway of BPMN 2.0 graph
 """
+from enum import Enum
 from typing import ClassVar
 
+from pydantic import Field
+
 from bpmn_python.graph.classes.gateways.gateway import Gateway, GatewayType
+
+
+class EventBasedGatewayType(Enum):
+    EXCLUSIVE = "Exclusive"
+    PARALLEL = "Parallel"
+
+    @classmethod
+    def parse(cls, value: str) -> "EventBasedGatewayType":
+        value_lower = value.lower()
+        for member in cls:
+            if member.name.lower() == value_lower or str(member.value).lower() == value_lower:
+                return member
+        raise ValueError(f"Invalid EventBasedGatewayType value: {value}")
 
 
 class EventBasedGateway(Gateway):
@@ -12,3 +28,8 @@ class EventBasedGateway(Gateway):
     Class used for representing tEventBasedGateway of BPMN 2.0 graph
     """
     node_type: ClassVar[GatewayType] = GatewayType.EVENT_BASED
+    instantiate: bool = Field(default=False)
+    event_gateway_type: EventBasedGatewayType = Field(
+        description="Type of the event gateway, can be 'Exclusive' or 'Parallel'"
+    )
+

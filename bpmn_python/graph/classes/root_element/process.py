@@ -37,7 +37,8 @@ class ProcessType(Enum):
         :param value: The string value to parse.
         :return: Corresponding ProcessType enum member.
         """
-        try:
-            return cls[value.upper()]
-        except KeyError:
-            raise ValueError(f"Invalid ProcessType value: {value}")
+        value_lower = value.strip().lower()
+        for member in cls:
+            if member.name.lower() == value_lower or str(member.value).lower() == value_lower:
+                return member
+        raise ValueError(f"Invalid ProcessType value: {value}")

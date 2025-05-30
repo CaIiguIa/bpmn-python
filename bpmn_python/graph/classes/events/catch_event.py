@@ -23,3 +23,4 @@ class CatchEvent(Event):
         default_factory=list,
         description="Optional list of EventDefinition objects"
     )
+    cancel_activity: bool = Field(default=False)

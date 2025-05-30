@@ -144,3 +144,12 @@ class BpmnImportUtils(object):
                 "is_expanded must be a boolean value or a string that can be converted to boolean"
             )
         return value
+
+    @staticmethod
+    def convert_str_to_float(value: str | float) -> float:
+        if isinstance(value, str):
+            try:
+                return float(value.strip())
+            except ValueError:
+                raise ValueError("Value must be a float or a string that can be converted to a float")
+        return value
