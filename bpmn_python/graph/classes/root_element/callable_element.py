@@ -6,7 +6,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from bpmn_python.graph.classes.root_element.root_element_type import RootElement
+from bpmn_python.graph.classes.root_element.root_element import RootElement
 
 
 class CallableElement(RootElement):

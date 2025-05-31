@@ -6,9 +6,9 @@ from typing import List, Literal
 
 from pydantic import Field
 
-from bpmn_python.graph.classes.flow_element_type import FlowElement
-from bpmn_python.graph.classes.lane_set_type import LaneSet
-from bpmn_python.graph.classes.root_element.callable_element_type import CallableElement
+from bpmn_python.graph.classes.flow_element import FlowElement
+from bpmn_python.graph.classes.lane_set import LaneSet
+from bpmn_python.graph.classes.root_element.callable_element import CallableElement
 
 
 class Process(CallableElement):

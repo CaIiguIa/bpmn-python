@@ -2,12 +2,19 @@
 """
 Class used for representing tFlowNode of BPMN 2.0 graph
 """
-import bpmn_python.graph.classes.flow_element_type as flow_element_type
+from enum import Enum
+from typing import List, ClassVar
 
-from typing import List
-from pydantic import Field, field_validator
+from pydantic import Field
 
-class FlowNode(flow_element_type.FlowElement):
+from bpmn_python.graph.classes.flow_element import FlowElement
+
+
+class NodeType(Enum):
+    BASE = ""
+
+
+class FlowNode(FlowElement):
     """
     Class used for representing tFlowNode of BPMN 2.0 graph.
     Fields (except inherited):
@@ -16,3 +23,5 @@ class FlowNode(flow_element_type.FlowElement):
     """
     incoming: List[str] = Field(default_factory=list, description="List of IDs of incoming flows")
     outgoing: List[str] = Field(default_factory=list, description="List of IDs of outgoing flows")
+    process_id: str | None = Field(default=None, description="ID of the related process")
+    node_type: ClassVar[NodeType] = NodeType.BASE

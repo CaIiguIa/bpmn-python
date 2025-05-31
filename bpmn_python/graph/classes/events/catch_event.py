@@ -7,8 +7,8 @@ from typing import List
 
 from pydantic import Field
 
-from bpmn_python.graph.classes.events.event_type import Event
-from bpmn_python.graph.classes.root_element.event_definition_type import EventDefinition
+from bpmn_python.graph.classes.events.event import Event
+from bpmn_python.graph.classes.root_element.event_definition import EventDefinition
 
 
 class CatchEvent(Event):

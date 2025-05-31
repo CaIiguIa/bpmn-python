@@ -3,8 +3,10 @@
 Class used for representing tParticipant of BPMN 2.0 graph
 """
 from typing import Optional
+
 from pydantic import Field
-from bpmn_python.graph.classes.base_element_type import BaseElement
+
+from bpmn_python.graph.classes.base_element import BaseElement
 
 
 class Participant(BaseElement):

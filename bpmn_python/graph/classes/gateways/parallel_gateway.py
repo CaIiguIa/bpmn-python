@@ -2,10 +2,13 @@
 """
 Class used for representing tParallelGateway of BPMN 2.0 graph
 """
-from bpmn_python.graph.classes.gateways.gateway_type import Gateway
+from typing import ClassVar
+
+from bpmn_python.graph.classes.gateways.gateway import Gateway, GatewayType
 
 
 class ParallelGateway(Gateway):
     """
     Class used for representing tParallelGateway of BPMN 2.0 graph
     """
+    node_type: ClassVar[GatewayType] = GatewayType.PARALLEL
