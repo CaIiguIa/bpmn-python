@@ -6,7 +6,8 @@ from typing import Optional, ClassVar
 
 from pydantic import Field
 
-from bpmn_python.graph.classes.gateways.gateway import Gateway, GatewayType
+from bpmn_python.graph.classes.flow_node import NodeType
+from bpmn_python.graph.classes.gateways.gateway import Gateway
 
 
 class ExclusiveGateway(Gateway):
@@ -19,4 +20,4 @@ class ExclusiveGateway(Gateway):
         default=None,
         description="ID of default flow of gateway. Optional according to BPMN 2.0 XML Schema."
     )
-    node_type: ClassVar[GatewayType] = GatewayType.EXCLUSIVE
+    node_type: ClassVar[NodeType] = NodeType.EXCLUSIVE

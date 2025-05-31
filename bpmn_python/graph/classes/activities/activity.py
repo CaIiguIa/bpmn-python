@@ -17,8 +17,3 @@ class Activity(FlowNode):
     or String.
     """
     default: Optional[str] = Field(default=None, description="ID of the default flow (optional)")
-
-
-class ActivityType(NodeType):
-    TASK = "task"
-    SUB_PROCESS = "subProcess"

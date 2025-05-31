@@ -8,7 +8,8 @@ from typing import ClassVar
 from pydantic import Field
 
 from bpmn_python.bpmn_python_consts import Consts
-from bpmn_python.graph.classes.gateways.gateway import Gateway, GatewayType
+from bpmn_python.graph.classes.flow_node import NodeType
+from bpmn_python.graph.classes.gateways.gateway import Gateway
 
 
 class EventBasedGatewayType(Enum):
@@ -28,7 +29,7 @@ class EventBasedGateway(Gateway):
     """
     Class used for representing tEventBasedGateway of BPMN 2.0 graph
     """
-    node_type: ClassVar[GatewayType] = GatewayType.EVENT_BASED
+    node_type: ClassVar[NodeType] = NodeType.EVENT_BASED
     instantiate: bool = Field(default=False)
     event_gateway_type: EventBasedGatewayType = Field(
         default=EventBasedGatewayType.parse(Consts.default_event_gateway_type),
