@@ -31,6 +31,6 @@ class EventBasedGateway(Gateway):
     node_type: ClassVar[GatewayType] = GatewayType.EVENT_BASED
     instantiate: bool = Field(default=False)
     event_gateway_type: EventBasedGatewayType = Field(
-        default=Consts.default_event_gateway_type,
+        default=EventBasedGatewayType.parse(Consts.default_event_gateway_type),
         description="Type of the event gateway, can be 'Exclusive' or 'Parallel'"
     )

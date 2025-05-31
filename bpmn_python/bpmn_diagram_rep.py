@@ -10,7 +10,6 @@ from pydantic import BaseModel, Field
 
 import bpmn_python.bpmn_diagram_exception as bpmn_exception
 import bpmn_python.bpmn_diagram_export as bpmn_export
-import bpmn_python.bpmn_diagram_import as bpmn_import
 import bpmn_python.bpmn_process_csv_export as bpmn_csv_export
 import bpmn_python.bpmn_process_csv_import as bpmn_csv_import
 import bpmn_python.bpmn_python_consts as consts
@@ -95,7 +94,8 @@ class BpmnDiagramGraph(BaseModel):
              filepath (str): XML filepath.
         """
 
-        bpmn_import.BpmnDiagramGraphImport.load_diagram_from_xml(filepath, self)
+        from bpmn_python.bpmn_diagram_import import BpmnDiagramGraphImport
+        BpmnDiagramGraphImport.load_diagram_from_xml(filepath, self)
 
     def export_xml_file(self, directory: str, filename: str) -> None:
         """
