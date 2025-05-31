@@ -14,6 +14,8 @@ from bpmn_python.bpmn_import_utils import BpmnImportUtils
 from bpmn_python.graph.classes.activities.activity import Activity
 from bpmn_python.graph.classes.activities.subprocess import SubProcess
 from bpmn_python.graph.classes.condition_expression import ConditionExpression
+from bpmn_python.graph.classes.data_object import DataObject
+from bpmn_python.graph.classes.events.boundary_event import BoundaryEvent
 from bpmn_python.graph.classes.events.catch_event import CatchEvent
 from bpmn_python.graph.classes.events.end_event import EndEvent
 from bpmn_python.graph.classes.events.intermediate_catch_event import IntermediateCatchEvent
@@ -23,6 +25,7 @@ from bpmn_python.graph.classes.gateways.complex_gateway import ComplexGateway
 from bpmn_python.graph.classes.gateways.event_based_gateway import EventBasedGateway, EventBasedGatewayType
 from bpmn_python.graph.classes.gateways.exclusive_gateway import ExclusiveGateway
 from bpmn_python.graph.classes.gateways.gateway import Gateway
+from bpmn_python.graph.classes.lane_set import LaneSet, Lane
 from bpmn_python.graph.classes.message_flow import MessageFlow
 from bpmn_python.graph.classes.participant import Participant
 from bpmn_python.graph.classes.root_element.event_definition import EventDefinition, EventDefinitionType, \
@@ -213,31 +216,31 @@ class BpmnDiagramGraphImport(BaseModel):
             BpmnDiagramGraphImport.import_boundary_event_to_graph(diagram_graph, process_id, element)
 
     @staticmethod
-    def import_lane_set_element(process_attributes, lane_set_element, plane_element):
+    def import_lane_set_element(process: Process, lane_set_element: Element, plane_element: Element):
         """
         Method for importing 'laneSet' element from diagram file.
 
-        :param process_attributes: dictionary that holds attribute values of 'process' element, which is parent of
+        :param process: dictionary that holds attribute values of 'process' element, which is parent of
             imported flow node,
         :param lane_set_element: XML document element,
         :param plane_element: object representing a BPMN XML 'plane' element.
         """
         lane_set_id = lane_set_element.getAttribute(consts.Consts.id)
-        lanes_attr = {}
+        lanes_dict = {}
         for element in utils.BpmnImportUtils.iterate_elements(lane_set_element):
             if element.nodeType != element.TEXT_NODE:
                 tag_name = utils.BpmnImportUtils.remove_namespace_from_tag_name(element.tagName)
                 if tag_name == consts.Consts.lane:
-                    lane = element
-                    lane_id = lane.getAttribute(consts.Consts.id)
-                    lane_attr = BpmnDiagramGraphImport.import_lane_element(lane, plane_element)
-                    lanes_attr[lane_id] = lane_attr
+                    lane_element = element
+                    lane_id = lane_element.getAttribute(consts.Consts.id)
+                    lane = BpmnDiagramGraphImport.import_lane_element(lane_element, plane_element)
+                    lanes_dict[lane_id] = lane
 
-        lane_set_attr = {consts.Consts.id: lane_set_id, consts.Consts.lanes: lanes_attr}
-        process_attributes[consts.Consts.lane_set] = lane_set_attr
+        lane_set = LaneSet(id=lane_set_id, lanes=lanes_dict)
+        process.lane_set_list.append(lane_set)
 
     @staticmethod
-    def import_child_lane_set_element(child_lane_set_element, plane_element):
+    def import_child_lane_set_element(child_lane_set_element, plane_element) -> LaneSet:
         """
         Method for importing 'childLaneSet' element from diagram file.
 
@@ -245,45 +248,42 @@ class BpmnDiagramGraphImport(BaseModel):
         :param plane_element: object representing a BPMN XML 'plane' element.
         """
         lane_set_id = child_lane_set_element.getAttribute(consts.Consts.id)
-        lanes_attr = {}
+        lanes: dict[str, Lane] = {}
         for element in utils.BpmnImportUtils.iterate_elements(child_lane_set_element):
             if element.nodeType != element.TEXT_NODE:
                 tag_name = utils.BpmnImportUtils.remove_namespace_from_tag_name(element.tagName)
                 if tag_name == consts.Consts.lane:
-                    lane = element
-                    lane_id = lane.getAttribute(consts.Consts.id)
-                    lane_attr = BpmnDiagramGraphImport.import_lane_element(lane, plane_element)
-                    lanes_attr[lane_id] = lane_attr
+                    lane_element = element
+                    lane_id = lane_element.getAttribute(consts.Consts.id)
+                    lane = BpmnDiagramGraphImport.import_lane_element(lane_element, plane_element)
+                    lanes[lane_id] = lane
 
-        child_lane_set_attr = {consts.Consts.id: lane_set_id, consts.Consts.lanes: lanes_attr}
+        child_lane_set_attr = LaneSet(id=lane_set_id, lanes=lanes)
         return child_lane_set_attr
 
     @staticmethod
-    def import_lane_element(lane_element, plane_element):
+    def import_lane_element(lane_element, plane_element) -> Lane:
         """
-        Method for importing 'laneSet' element from diagram file.
+        Method for importing 'lane' element from diagram file.
 
         :param lane_element: XML document element,
         :param plane_element: object representing a BPMN XML 'plane' element.
         """
 
-        # TODO: import_lane_element
         lane_id = lane_element.getAttribute(consts.Consts.id)
         lane_name = lane_element.getAttribute(consts.Consts.name)
-        child_lane_set_attr = {}
+        child_lane_set: LaneSet | None = None
         flow_node_refs = []
         for element in utils.BpmnImportUtils.iterate_elements(lane_element):
             if element.nodeType != element.TEXT_NODE:
                 tag_name = utils.BpmnImportUtils.remove_namespace_from_tag_name(element.tagName)
                 if tag_name == consts.Consts.child_lane_set:
-                    child_lane_set_attr = BpmnDiagramGraphImport.import_child_lane_set_element(element, plane_element)
+                    child_lane_set = BpmnDiagramGraphImport.import_child_lane_set_element(element, plane_element)
                 elif tag_name == consts.Consts.flow_node_ref:
                     flow_node_ref_id = element.firstChild.nodeValue
                     flow_node_refs.append(flow_node_ref_id)
 
-        lane_attr = {consts.Consts.id: lane_id, consts.Consts.name: lane_name,
-                     consts.Consts.child_lane_set: child_lane_set_attr,
-                     consts.Consts.flow_node_refs: flow_node_refs}
+        lane = Lane(id=lane_id, name=lane_name, child_lane_set=child_lane_set, flow_node_refs=flow_node_refs)
 
         shape_element = None
         for element in utils.BpmnImportUtils.iterate_elements(plane_element):
@@ -291,12 +291,14 @@ class BpmnDiagramGraphImport(BaseModel):
                 shape_element = element
         if shape_element is not None:
             bounds = shape_element.getElementsByTagNameNS("*", "Bounds")[0]
-            lane_attr[consts.Consts.is_horizontal] = shape_element.getAttribute(consts.Consts.is_horizontal)
-            lane_attr[consts.Consts.width] = bounds.getAttribute(consts.Consts.width)
-            lane_attr[consts.Consts.height] = bounds.getAttribute(consts.Consts.height)
-            lane_attr[consts.Consts.x] = bounds.getAttribute(consts.Consts.x)
-            lane_attr[consts.Consts.y] = bounds.getAttribute(consts.Consts.y)
-        return lane_attr
+            lane.is_horizontal = BpmnImportUtils.convert_str_to_bool(
+                shape_element.getAttribute(consts.Consts.is_horizontal)
+            )
+            lane.width = BpmnImportUtils.convert_str_to_float(bounds.getAttribute(consts.Consts.width))
+            lane.height = BpmnImportUtils.convert_str_to_float(bounds.getAttribute(consts.Consts.height))
+            lane.x = BpmnImportUtils.convert_str_to_float(bounds.getAttribute(consts.Consts.x))
+            lane.y = BpmnImportUtils.convert_str_to_float(bounds.getAttribute(consts.Consts.y))
+        return lane
 
     @staticmethod
     def import_process_element(process_elements_dict: dict[str, Process], process_element: Element):
@@ -445,10 +447,16 @@ class BpmnDiagramGraphImport(BaseModel):
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, data_object_element)
         data_object_id = data_object_element.getAttribute(consts.Consts.id)
 
-        # todo: data object ?
-        diagram_graph.nodes[data_object_id][consts.Consts.is_collection] = \
-            data_object_element.getAttribute(consts.Consts.is_collection) \
-                if data_object_element.hasAttribute(consts.Consts.is_collection) else "false"
+        node = diagram_graph.nodes[data_object_id]
+        if isinstance(node, DataObject):
+            node.is_collection = BpmnImportUtils.convert_str_to_bool(
+                data_object_element.getAttribute(consts.Consts.is_collection) \
+                    if data_object_element.hasAttribute(consts.Consts.is_collection) else "false"
+            )
+
+        # diagram_graph.nodes[data_object_id][consts.Consts.is_collection] = \
+        #     data_object_element.getAttribute(consts.Consts.is_collection) \
+        #         if data_object_element.hasAttribute(consts.Consts.is_collection) else "false"
 
     @staticmethod
     def import_activity_to_graph(diagram_graph: BpmnDiagramGraph, process_id: str, element: Element):
@@ -695,7 +703,6 @@ class BpmnDiagramGraphImport(BaseModel):
         :param process_id: string object, representing an ID of process element,
         :param element: object representing a BPMN XML 'endEvent' element.
         """
-        # TODO: make sure the event object is created somewhere along the way. the same for gateways
         end_event_definitions = {def_type for def_type in EndEventDefinitionType}
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, element)
         BpmnDiagramGraphImport.import_event_definition_elements(diagram_graph, element, end_event_definitions)
@@ -734,7 +741,7 @@ class BpmnDiagramGraphImport(BaseModel):
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, element)
 
         node = diagram_graph.nodes[element_id]
-        if isinstance(node, CatchEvent):
+        if isinstance(node, BoundaryEvent):
             node.parallel_multiple = BpmnImportUtils.convert_str_to_bool(
                 element.getAttribute(consts.Consts.parallel_multiple) \
                     if element.hasAttribute(consts.Consts.parallel_multiple) else "false"
@@ -743,7 +750,8 @@ class BpmnDiagramGraphImport(BaseModel):
                 element.getAttribute(consts.Consts.cancel_activity) \
                     if element.hasAttribute(consts.Consts.cancel_activity) else "true"
             )
-            # TODO: attached_to_ref ?
+            node.attached_to_ref = element.getAttribute(consts.Consts.attached_to_ref)
+
         # diagram_graph.nodes[element_id][consts.Consts.parallel_multiple] = \
         #     element.getAttribute(consts.Consts.parallel_multiple) \
         #         if element.hasAttribute(consts.Consts.parallel_multiple) else "false"

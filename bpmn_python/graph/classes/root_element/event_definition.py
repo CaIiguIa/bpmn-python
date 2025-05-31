@@ -44,6 +44,7 @@ class IntermediateCatchEventDefinitionType(EventDefinitionType):
     CONDITIONAL = "conditionalEventDefinition"
     ESCALATION = "escalationEventDefinition"
 
+
 class BoundaryEventDefinitionType(IntermediateCatchEventDefinitionType):
     MESSAGE = "messageEventDefinition"
     TIMER = "timerEventDefinition"
@@ -52,7 +53,6 @@ class BoundaryEventDefinitionType(IntermediateCatchEventDefinitionType):
     ESCALATION = "escalationEventDefinition"
     ERROR = "errorEventDefinition"
 
-# TODO: event_definition_type add all possible types
 
 class EventDefinition(RootElement):
     """

@@ -7,6 +7,7 @@ from typing import ClassVar
 
 from pydantic import Field
 
+from bpmn_python.bpmn_python_consts import Consts
 from bpmn_python.graph.classes.gateways.gateway import Gateway, GatewayType
 
 
@@ -30,6 +31,6 @@ class EventBasedGateway(Gateway):
     node_type: ClassVar[GatewayType] = GatewayType.EVENT_BASED
     instantiate: bool = Field(default=False)
     event_gateway_type: EventBasedGatewayType = Field(
+        default=Consts.default_event_gateway_type,
         description="Type of the event gateway, can be 'Exclusive' or 'Parallel'"
     )
-

@@ -4,6 +4,8 @@ from bpmn_python.bpmn_diagram_rep import GatewayType
 from bpmn_python.graph.classes.activities.activity import ActivityType
 from bpmn_python.graph.classes.activities.subprocess import SubProcess
 from bpmn_python.graph.classes.activities.task import Task
+from bpmn_python.graph.classes.data_object import DataObject, DataObjectType
+from bpmn_python.graph.classes.events.boundary_event import BoundaryEvent
 from bpmn_python.graph.classes.events.end_event import EndEvent
 from bpmn_python.graph.classes.events.event import EventType
 from bpmn_python.graph.classes.events.intermediate_catch_event import IntermediateCatchEvent
@@ -24,8 +26,6 @@ def create_node(node_type: NodeType, node_id: str, process_id: str) -> FlowNode:
     :param node_type: Type of the node (NodeType).
     :param node_id: Unique identifier for the node.
     :param process_id: Identifier of the process to which the node belongs.
-    :param x: X coordinate of the node in the diagram (default is 100.0).
-    :param y: Y coordinate of the node in the diagram (default is 100.0).
     :return: An instance of FlowNode or its subclass based on the node_type.
     """
     match node_type:
@@ -37,6 +37,8 @@ def create_node(node_type: NodeType, node_id: str, process_id: str) -> FlowNode:
             node = IntermediateThrowEvent(id=node_id, process_id=process_id)
         case EventType.INTERMEDIATE_CATCH:
             node = IntermediateCatchEvent(id=node_id, process_id=process_id)
+        case EventType.BOUNDARY:
+            node = BoundaryEvent(id=node_id, process_id=process_id)
         case GatewayType.EXCLUSIVE:
             node = ExclusiveGateway(id=node_id, process_id=process_id)
         case GatewayType.INCLUSIVE:
@@ -51,13 +53,15 @@ def create_node(node_type: NodeType, node_id: str, process_id: str) -> FlowNode:
             node = Task(id=node_id, process_id=process_id)
         case ActivityType.SUB_PROCESS:
             node = SubProcess(id=node_id, process_id=process_id)
+        case DataObjectType.DATA_OBJECT:
+            node = DataObject(id=node_id, process_id=process_id)
         case _:
             node = FlowNode(id=node_id, process_id=process_id)
 
     return node
 
 
-def parse_node_type(value: str) -> Union[GatewayType, EventType, NodeType]:
+def parse_node_type(value: str) -> Union[GatewayType, EventType, NodeType, DataObjectType]:
     for enum_cls in (GatewayType, EventType):
         for member in enum_cls:
             if member.value == value:
