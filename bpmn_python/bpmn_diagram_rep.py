@@ -137,7 +137,7 @@ class BpmnDiagramGraph(BaseModel):
         bpmn_csv_export.BpmnDiagramGraphCsvExport.export_process_to_csv(self, directory, filename)
 
     # Querying methods
-    def get_nodes(self, node_type: str = "") -> list[tuple[str, FlowNode]]:
+    def get_nodes(self, node_type: str = "") -> list[FlowNode]:
         """
         Returns all nodes of requested type. If no type is provided by user, all nodes in BPMN diagram graph are returned.
 
@@ -147,14 +147,15 @@ class BpmnDiagramGraph(BaseModel):
         Returns:
             list of tuples: first element of each tuple is node ID, second element is a FlowNode object.
         """
-        tmp_nodes = list(self.nodes.items())
+        tmp_nodes = list(self.nodes.values())
         if node_type == "":
             return tmp_nodes
         else:
             nodes = []
-            for node_id, node in tmp_nodes:
-                if node.node_type == node_type:
-                    nodes.append((node_id, node))
+            parsed_type = parse_node_type(node_type)
+            for node in tmp_nodes:
+                if node.node_type == parsed_type:
+                    nodes.append(node)
             return nodes
 
     def get_nodes_list_by_process_id(self, process_id: str) -> list[tuple[str, FlowNode]]:
@@ -264,6 +265,18 @@ class BpmnDiagramGraph(BaseModel):
                 flows.append((flow.source_ref_id, flow.target_ref_id, flow))
 
         return flows
+
+    def degree(self) -> dict[str, int]:
+        """
+        Returns the degree of each node in the diagram graph.
+        The degree of a node is the number of edges connected to it.
+        Returns:
+            dict: A dictionary where keys are node IDs and values are their degrees.
+        """
+        degrees = {}
+        for node_id, node in self.nodes.items():
+            degrees[node_id] = node.degree()
+        return degrees
 
     # Diagram creating methods
     def create_new_diagram_graph(self, diagram_name: str = "") -> None:
