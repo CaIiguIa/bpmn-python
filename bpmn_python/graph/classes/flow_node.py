@@ -46,3 +46,6 @@ class FlowNode(FlowElement):
     outgoing: List[str] = Field(default_factory=list, description="List of IDs of outgoing flows")
     process_id: str | None = Field(default=None, description="ID of the related process")
     node_type: ClassVar[NodeType] = NodeType.BASE
+
+    def degree(self) -> int:
+        return len(self.incoming) + len(self.outgoing)
