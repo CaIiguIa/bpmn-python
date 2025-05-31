@@ -17,7 +17,9 @@ class FlowElement(BaseElement):
     - name: name of element. Must be either None (name is optional according to BPMN 2.0 XML Schema) or String.
     """
     name: Optional[str] = Field(default=None, description="Optional name of the element")
-    x: float = Field(default=Consts.default_element_x_position, description="X coordinate of the element in the diagram")
-    y: float = Field(default=Consts.default_element_y_position, description="Y coordinate of the element in the diagram")
+    x: float = Field(default=Consts.default_element_x_position,
+                     description="X coordinate of the element in the diagram")
+    y: float = Field(default=Consts.default_element_y_position,
+                     description="Y coordinate of the element in the diagram")
     width: float = Field(default=Consts.default_element_width, description="Width of the element in the diagram")
     height: float = Field(default=Consts.default_element_height, description="Height of the element in the diagram")

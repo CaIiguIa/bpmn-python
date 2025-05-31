@@ -4,6 +4,8 @@ Class used for representing tStartEvent of BPMN 2.0 graph
 """
 from typing import ClassVar
 
+from pydantic import Field
+
 from bpmn_python.graph.classes.events.catch_event import CatchEvent
 from bpmn_python.graph.classes.events.event import EventType
 
@@ -13,3 +15,4 @@ class StartEvent(CatchEvent):
     Class used for representing tStartEvent of BPMN 2.0 graph
     """
     node_type: ClassVar[EventType] = EventType.START
+    is_interrupting: bool = Field(default=True)

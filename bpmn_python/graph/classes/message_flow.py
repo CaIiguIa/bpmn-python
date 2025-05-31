@@ -22,3 +22,7 @@ class MessageFlow(BaseElement):
     source_ref: str = Field(..., description="ID of source node")
     target_ref: str = Field(..., description="ID of target node")
     message_ref: Optional[str] = Field(default=None, description="ID of referenced message element")
+    waypoints: Optional[list[tuple[float, float]]] = Field(
+        default=None,
+        description="List of waypoints for the sequence flow. Optional."
+    )

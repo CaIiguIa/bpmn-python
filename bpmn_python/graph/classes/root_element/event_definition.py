@@ -30,6 +30,30 @@ class EndEventDefinitionType(EventDefinitionType):
     ERROR = "errorEventDefinition"
 
 
+class IntermediateThrowEventDefinitionType(EventDefinitionType):
+    ESCALATION = "escalationEventDefinition"
+    MESSAGE = "messageEventDefinition"
+    COMPENSATE = "compensateEventDefinition"
+    SIGNAL = "signalEventDefinition"
+
+
+class IntermediateCatchEventDefinitionType(EventDefinitionType):
+    MESSAGE = "messageEventDefinition"
+    TIMER = "timerEventDefinition"
+    SIGNAL = "signalEventDefinition"
+    CONDITIONAL = "conditionalEventDefinition"
+    ESCALATION = "escalationEventDefinition"
+
+
+class BoundaryEventDefinitionType(IntermediateCatchEventDefinitionType):
+    MESSAGE = "messageEventDefinition"
+    TIMER = "timerEventDefinition"
+    SIGNAL = "signalEventDefinition"
+    CONDITIONAL = "conditionalEventDefinition"
+    ESCALATION = "escalationEventDefinition"
+    ERROR = "errorEventDefinition"
+
+
 class EventDefinition(RootElement):
     """
     Class used for representing tEventDefinition of BPMN 2.0 graph.

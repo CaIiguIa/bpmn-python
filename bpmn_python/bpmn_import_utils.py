@@ -2,6 +2,9 @@
 """
 Class including utility method used in diagram importing
 """
+from typing import Iterator
+from xml.dom import minidom
+from xml.dom.minidom import Element
 
 import bpmn_python.bpmn_python_consts as consts
 
@@ -15,7 +18,7 @@ class BpmnImportUtils(object):
         pass
 
     @staticmethod
-    def remove_namespace_from_tag_name(tag_name):
+    def remove_namespace_from_tag_name(tag_name: str) -> str:
         """
         Helper function, removes namespace annotation from tag name.
 
@@ -24,7 +27,7 @@ class BpmnImportUtils(object):
         return tag_name.split(':')[-1]
 
     @staticmethod
-    def iterate_elements(parent):
+    def iterate_elements(parent: Element) -> Iterator[minidom.Element]:
         """
         Helper function that iterates over child Nodes/Elements of parent Node/Element.
 
@@ -129,3 +132,24 @@ class BpmnImportUtils(object):
         if len(element[1][consts.Consts.outgoing_flow]) >= 2:
             classification_labels.append(classification_split)
         nodes_classification[element[0]] = classification_labels
+
+    @staticmethod
+    def convert_str_to_bool(value: str | bool) -> bool:
+        if isinstance(value, str):
+            if value.strip().lower() in {"true", "1", "yes", "on"}:
+                return True
+            elif value.strip().lower() in {"false", "0", "no", "off"}:
+                return False
+            raise ValueError(
+                "is_expanded must be a boolean value or a string that can be converted to boolean"
+            )
+        return value
+
+    @staticmethod
+    def convert_str_to_float(value: str | float) -> float:
+        if isinstance(value, str):
+            try:
+                return float(value.strip())
+            except ValueError:
+                raise ValueError("Value must be a float or a string that can be converted to a float")
+        return value

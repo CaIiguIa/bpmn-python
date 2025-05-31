@@ -2,7 +2,7 @@
 """
 Class used for representing condition expression in sequence flow
 """
-
+from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -13,6 +13,7 @@ class ConditionExpression(BaseModel):
     Fields:
     - condition: condition expression. Required field. Must be a String.
     """
+    id: Optional[str] = Field(default=None, description="Optional ID of the condition expression")
     condition: str = Field(..., description="Condition expression. Required field.")
 
     @field_validator('condition')
