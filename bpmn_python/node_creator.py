@@ -1,13 +1,8 @@
-from typing import Union
-
-from bpmn_python.bpmn_diagram_rep import GatewayType
-from bpmn_python.graph.classes.activities.activity import ActivityType
 from bpmn_python.graph.classes.activities.subprocess import SubProcess
 from bpmn_python.graph.classes.activities.task import Task
-from bpmn_python.graph.classes.data_object import DataObject, DataObjectType
+from bpmn_python.graph.classes.data_object import DataObject
 from bpmn_python.graph.classes.events.boundary_event import BoundaryEvent
 from bpmn_python.graph.classes.events.end_event import EndEvent
-from bpmn_python.graph.classes.events.event import EventType
 from bpmn_python.graph.classes.events.intermediate_catch_event import IntermediateCatchEvent
 from bpmn_python.graph.classes.events.intermediate_throw_event import IntermediateThrowEvent
 from bpmn_python.graph.classes.events.start_event import StartEvent
@@ -29,31 +24,31 @@ def create_node(node_type: NodeType, node_id: str, process_id: str) -> FlowNode:
     :return: An instance of FlowNode or its subclass based on the node_type.
     """
     match node_type:
-        case EventType.START:
+        case NodeType.START:
             node = StartEvent(id=node_id, process_id=process_id)
-        case EventType.END:
+        case NodeType.END:
             node = EndEvent(id=node_id, process_id=process_id)
-        case EventType.INTERMEDIATE_THROW:
+        case NodeType.INTERMEDIATE_THROW:
             node = IntermediateThrowEvent(id=node_id, process_id=process_id)
-        case EventType.INTERMEDIATE_CATCH:
+        case NodeType.INTERMEDIATE_CATCH:
             node = IntermediateCatchEvent(id=node_id, process_id=process_id)
-        case EventType.BOUNDARY:
+        case NodeType.BOUNDARY:
             node = BoundaryEvent(id=node_id, process_id=process_id)
-        case GatewayType.EXCLUSIVE:
+        case NodeType.EXCLUSIVE:
             node = ExclusiveGateway(id=node_id, process_id=process_id)
-        case GatewayType.INCLUSIVE:
+        case NodeType.INCLUSIVE:
             node = InclusiveGateway(id=node_id, process_id=process_id)
-        case GatewayType.PARALLEL:
+        case NodeType.PARALLEL:
             node = ParallelGateway(id=node_id, process_id=process_id)
-        case GatewayType.COMPLEX:
+        case NodeType.COMPLEX:
             node = ComplexGateway(id=node_id, process_id=process_id)
-        case GatewayType.EVENT_BASED:
+        case NodeType.EVENT_BASED:
             node = EventBasedGateway(id=node_id, process_id=process_id)
-        case ActivityType.TASK:
+        case NodeType.TASK:
             node = Task(id=node_id, process_id=process_id)
-        case ActivityType.SUB_PROCESS:
+        case NodeType.SUB_PROCESS:
             node = SubProcess(id=node_id, process_id=process_id)
-        case DataObjectType.DATA_OBJECT:
+        case NodeType.DATA_OBJECT:
             node = DataObject(id=node_id, process_id=process_id)
         case _:
             node = FlowNode(id=node_id, process_id=process_id)
@@ -61,9 +56,8 @@ def create_node(node_type: NodeType, node_id: str, process_id: str) -> FlowNode:
     return node
 
 
-def parse_node_type(value: str) -> Union[GatewayType, EventType, NodeType, DataObjectType]:
-    for enum_cls in (GatewayType, EventType):
-        for member in enum_cls:
-            if member.value == value:
-                return member
+def parse_node_type(value: str) -> NodeType:
+    for member in NodeType:
+        if member.value.lower() == value.lower():
+            return member
     return NodeType.BASE

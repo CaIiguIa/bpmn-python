@@ -25,14 +25,6 @@ class GatewayDirection(Enum):
         raise ValueError(f"Invalid GatewayDirection value: {value}")
 
 
-class GatewayType(NodeType):
-    EXCLUSIVE = "exclusiveGateway"
-    INCLUSIVE = "inclusiveGateway"
-    PARALLEL = "parallelGateway"
-    EVENT_BASED = "eventBasedGateway"
-    COMPLEX = "complexGateway"
-
-
 class Gateway(FlowNode):
     """
     Class used for representing tGateway of BPMN 2.0 graph.
@@ -41,4 +33,4 @@ class Gateway(FlowNode):
     gateway_direction: GatewayDirection = Field(default=GatewayDirection.UNSPECIFIED,
                                                 description="Direction of the gateway")
     default_target_id: str | None = Field(default=None,
-                                             description="ID of the default target node for the gateway")
+                                          description="ID of the default target node for the gateway")

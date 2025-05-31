@@ -4,7 +4,7 @@ from typing import Optional, ClassVar
 from pydantic import Field
 
 from bpmn_python.graph.classes.events.catch_event import CatchEvent
-from bpmn_python.graph.classes.events.event import EventType
+from bpmn_python.graph.classes.flow_node import NodeType
 
 
 class BoundaryEvent(CatchEvent):
@@ -19,4 +19,4 @@ class BoundaryEvent(CatchEvent):
         default=None,
         description="ID of the activity to which the boundary event is attached"
     )
-    node_type: ClassVar[EventType] = EventType.BOUNDARY
+    node_type: ClassVar[NodeType] = NodeType.BOUNDARY

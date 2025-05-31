@@ -10,48 +10,75 @@ from bpmn_python.graph.classes.root_element.root_element import RootElement
 
 
 class EventDefinitionType(Enum):
-    pass
-
-
-class StartEventDefinitionType(EventDefinitionType):
     MESSAGE = "messageEventDefinition"
     TIMER = "timerEventDefinition"
     CONDITIONAL = "conditionalEventDefinition"
     SIGNAL = "signalEventDefinition"
     ESCALATION = "escalationEventDefinition"
-
-
-class EndEventDefinitionType(EventDefinitionType):
     TERMINATE = "terminateEventDefinition"
-    ESCALATION = "escalationEventDefinition"
-    MESSAGE = "messageEventDefinition"
     COMPENSATE = "compensateEventDefinition"
-    SIGNAL = "signalEventDefinition"
     ERROR = "errorEventDefinition"
 
 
-class IntermediateThrowEventDefinitionType(EventDefinitionType):
-    ESCALATION = "escalationEventDefinition"
-    MESSAGE = "messageEventDefinition"
-    COMPENSATE = "compensateEventDefinition"
-    SIGNAL = "signalEventDefinition"
+class StartEventDefinitionTypes:
+    @staticmethod
+    def getTypes() -> set[EventDefinitionType]:
+        return {
+            EventDefinitionType.MESSAGE,
+            EventDefinitionType.TIMER,
+            EventDefinitionType.CONDITIONAL,
+            EventDefinitionType.SIGNAL,
+            EventDefinitionType.ESCALATION
+        }
 
 
-class IntermediateCatchEventDefinitionType(EventDefinitionType):
-    MESSAGE = "messageEventDefinition"
-    TIMER = "timerEventDefinition"
-    SIGNAL = "signalEventDefinition"
-    CONDITIONAL = "conditionalEventDefinition"
-    ESCALATION = "escalationEventDefinition"
+class EndEventDefinitionTypes:
+    @staticmethod
+    def getTypes() -> set[EventDefinitionType]:
+        return {
+            EventDefinitionType.MESSAGE,
+            EventDefinitionType.SIGNAL,
+            EventDefinitionType.ESCALATION,
+            EventDefinitionType.TERMINATE,
+            EventDefinitionType.COMPENSATE,
+            EventDefinitionType.ERROR
+        }
 
 
-class BoundaryEventDefinitionType(IntermediateCatchEventDefinitionType):
-    MESSAGE = "messageEventDefinition"
-    TIMER = "timerEventDefinition"
-    SIGNAL = "signalEventDefinition"
-    CONDITIONAL = "conditionalEventDefinition"
-    ESCALATION = "escalationEventDefinition"
-    ERROR = "errorEventDefinition"
+class IntermediateThrowEventDefinitionTypes:
+    @staticmethod
+    def getTypes() -> set[EventDefinitionType]:
+        return {
+            EventDefinitionType.MESSAGE,
+            EventDefinitionType.SIGNAL,
+            EventDefinitionType.ESCALATION,
+            EventDefinitionType.COMPENSATE
+        }
+
+
+class IntermediateCatchEventDefinitionTypes:
+    @staticmethod
+    def getTypes() -> set[EventDefinitionType]:
+        return {
+            EventDefinitionType.MESSAGE,
+            EventDefinitionType.TIMER,
+            EventDefinitionType.SIGNAL,
+            EventDefinitionType.CONDITIONAL,
+            EventDefinitionType.ESCALATION
+        }
+
+
+class BoundaryEventDefinitionTypes:
+    @staticmethod
+    def getTypes() -> set[EventDefinitionType]:
+        return {
+            EventDefinitionType.MESSAGE,
+            EventDefinitionType.TIMER,
+            EventDefinitionType.SIGNAL,
+            EventDefinitionType.CONDITIONAL,
+            EventDefinitionType.ESCALATION,
+            EventDefinitionType.ERROR
+        }
 
 
 class EventDefinition(RootElement):

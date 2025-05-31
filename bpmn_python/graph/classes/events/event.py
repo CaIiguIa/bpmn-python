@@ -10,9 +10,3 @@ class Event(FlowNode):
     Class used for representing tEvent of BPMN 2.0 graph
     """
 
-class EventType(NodeType):
-    START = "startEvent"
-    END = "endEvent"
-    INTERMEDIATE_THROW = "intermediateThrowEvent"
-    INTERMEDIATE_CATCH = "intermediateCatchEvent"
-    BOUNDARY = "boundaryEvent"

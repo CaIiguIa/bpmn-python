@@ -13,6 +13,27 @@ from bpmn_python.graph.classes.flow_element import FlowElement
 class NodeType(Enum):
     BASE = ""
 
+#   Activities
+    TASK = "task"
+    SUB_PROCESS = "subProcess"
+
+#   Events
+    START = "startEvent"
+    END = "endEvent"
+    INTERMEDIATE_THROW = "intermediateThrowEvent"
+    INTERMEDIATE_CATCH = "intermediateCatchEvent"
+    BOUNDARY = "boundaryEvent"
+
+#   Gateways
+    EXCLUSIVE = "exclusiveGateway"
+    INCLUSIVE = "inclusiveGateway"
+    PARALLEL = "parallelGateway"
+    EVENT_BASED = "eventBasedGateway"
+    COMPLEX = "complexGateway"
+
+#   Data Objects
+    DATA_OBJECT = "dataObject"
+
 
 class FlowNode(FlowElement):
     """
