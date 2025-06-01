@@ -4,16 +4,19 @@ Collection of different metrics used to compare diagram layout quality
 """
 import copy
 import bpmn_python.bpmn_python_consts as consts
+from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
+from bpmn_python.graph.classes.flow_node import FlowNode, NodeType
+from bpmn_python.graph.classes.sequence_flow import SequenceFlow
 
 
-def count_crossing_points(bpmn_graph):
+def count_crossing_points(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Counts the number of crossing points between flow segments in the BPMN graph.
 
     :param bpmn_graph: The BPMN graph object.
     :return: The number of crossing points.
     """
-    flows = bpmn_graph.get_flows()
+    flows = [flow for _, _, flow in bpmn_graph.get_flows()]
     segments = get_flows_segments(flows)
 
     crossing_point_num = 0
@@ -26,7 +29,7 @@ def count_crossing_points(bpmn_graph):
     return crossing_point_num
 
 
-def compute_determinant(p1, p2, p3):
+def compute_determinant(p1: tuple[float, float], p2: tuple[float, float], p3: tuple[float, float]) -> float:
     """
     Computes the determinant of three points in a 2D space.
 
@@ -40,7 +43,7 @@ def compute_determinant(p1, p2, p3):
     return det
 
 
-def check_integer_sign(value):
+def check_integer_sign(value: float | int) -> bool:
     """
     Checks if the given value is non-negative.
 
@@ -50,7 +53,7 @@ def check_integer_sign(value):
     return value >= 0
 
 
-def get_flows_segments(flows):
+def get_flows_segments(flows: list[SequenceFlow]) -> list[dict[str, dict[str, float]]]:
     """
     Extracts flow segments from the given flows.
 
@@ -62,7 +65,7 @@ def get_flows_segments(flows):
 
     segments = []
     for flow in flows:
-        waypoints = copy.deepcopy(flow[2][consts.Consts.waypoints])
+        waypoints = copy.deepcopy(flow.waypoints)
         source = waypoints.pop(0)
         while len(waypoints) > 0:
             target = waypoints.pop(0)
@@ -72,7 +75,7 @@ def get_flows_segments(flows):
     return segments
 
 
-def segments_common_points(segment_one, segment_two):
+def segments_common_points(segment_one: dict[str, dict[str, float]], segment_two: dict[str, dict[str, float]]) -> bool:
     """
     Checks if two segments share any common points.
 
@@ -88,7 +91,7 @@ def segments_common_points(segment_one, segment_two):
         or points_are_equal(segment_one[target_param], segment_two[target_param])
 
 
-def points_are_equal(p1, p2):
+def points_are_equal(p1: dict[str, float], p2: dict[str, float]) -> bool:
     """
     Checks if two points are equal.
 
@@ -99,7 +102,7 @@ def points_are_equal(p1, p2):
     return p1[consts.Consts.x] == p2[consts.Consts.x] and p1[consts.Consts.y] == p2[consts.Consts.y]
 
 
-def do_intersect(segment_one, segment_two):
+def do_intersect(segment_one: dict[str, dict[str, float]], segment_two: dict[str, dict[str, float]]) -> bool:
     """
     Determines if two segments intersect.
 
@@ -135,7 +138,7 @@ def do_intersect(segment_one, segment_two):
     return False
 
 
-def orientation(p1, p2, p3):
+def orientation(p1: dict[str, float], p2: dict[str, float], p3: dict[str, float]) -> int:
     """
     Determines the orientation of three points.
 
@@ -145,7 +148,7 @@ def orientation(p1, p2, p3):
     :return: 0 if collinear, 1 if clockwise, 2 if counterclockwise.
     """
     val = (p2[consts.Consts.y] - p1[consts.Consts.y]) * (p3[consts.Consts.x] - p2[consts.Consts.x]) \
-        - (p2[consts.Consts.x] - p1[consts.Consts.x]) * (p3[consts.Consts.y] - p2[consts.Consts.y])
+          - (p2[consts.Consts.x] - p1[consts.Consts.x]) * (p3[consts.Consts.y] - p2[consts.Consts.y])
 
     if val == 0:
         return 0  # collinear
@@ -155,7 +158,7 @@ def orientation(p1, p2, p3):
         return 2  # counterclockwise
 
 
-def lies_on_segment(p1, p2, p3):
+def lies_on_segment(p1: dict[str, float], p2: dict[str, float], p3: dict[str, float]) -> bool:
     """
     Checks if a point lies on a segment defined by two other points.
 
@@ -165,37 +168,34 @@ def lies_on_segment(p1, p2, p3):
     :return: True if the point lies on the segment, False otherwise.
     """
     return min(p1[consts.Consts.x], p2[consts.Consts.x]) <= p3[consts.Consts.x] \
-        <= max(p1[consts.Consts.x], p2[consts.Consts.x])\
-        and min(p1[consts.Consts.y],  p2[consts.Consts.y]) <= p3[consts.Consts.y] \
+        <= max(p1[consts.Consts.x], p2[consts.Consts.x]) \
+        and min(p1[consts.Consts.y], p2[consts.Consts.y]) <= p3[consts.Consts.y] \
         <= max(p1[consts.Consts.y], p2[consts.Consts.y])
 
 
-def count_segments(bpmn_graph):
+def count_segments(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Counts the number of segments in the BPMN graph.
 
     :param bpmn_graph: The BPMN graph object.
     :return: The number of segments.
     """
-    flows = bpmn_graph.get_flows()
+    flows = [flow for _, _, flow in bpmn_graph.get_flows()]
     segments = get_flows_segments(flows)
     return len(segments)
 
 
-def compute_longest_path(bpmn_graph):
+def compute_longest_path(bpmn_graph: BpmnDiagramGraph) -> tuple[list[FlowNode], int]:
     """
     Computes the longest path in the BPMN graph.
 
     :param bpmn_graph: The BPMN graph object.
     :return: A tuple containing the longest path and its length.
     """
-    incoming_flows_list_param_name = "incoming"
-
     nodes = copy.deepcopy(bpmn_graph.get_nodes())
     no_incoming_flow_nodes = []
     for node in nodes:
-        incoming_list = node[1][incoming_flows_list_param_name]
-        if len(incoming_list) == 0:
+        if len(node.incoming) == 0:
             no_incoming_flow_nodes.append(node)
 
     longest_path = []
@@ -206,7 +206,8 @@ def compute_longest_path(bpmn_graph):
     return longest_path, len(longest_path)
 
 
-def find_longest_path(previous_nodes, node, bpmn_graph):
+def find_longest_path(previous_nodes: list[FlowNode], node: FlowNode, bpmn_graph: BpmnDiagramGraph) -> tuple[
+    list[FlowNode], int]:
     """
     Recursively finds the longest path starting from a given node.
 
@@ -215,41 +216,37 @@ def find_longest_path(previous_nodes, node, bpmn_graph):
     :param bpmn_graph: The BPMN graph object.
     :return: A tuple containing the longest path and its length.
     """
-    outgoing_flows_list_param_name = "outgoing"
-    outgoing_flows_list = node[1][outgoing_flows_list_param_name]
+    outgoing_flows_list = node.outgoing
     longest_path = []
 
+    tmp_previous_nodes = copy.deepcopy(previous_nodes)
+    tmp_previous_nodes.append(node)
+
     if len(outgoing_flows_list) == 0:
-        tmp_previous_nodes = copy.deepcopy(previous_nodes)
-        tmp_previous_nodes.append(node)
         return tmp_previous_nodes, len(tmp_previous_nodes)
-    else:
-        tmp_previous_nodes = copy.deepcopy(previous_nodes)
-        tmp_previous_nodes.append(node)
-        for outgoing_flow_id in outgoing_flows_list:
-            flow = bpmn_graph.get_flow_by_id(outgoing_flow_id)
-            outgoing_node = bpmn_graph.get_node_by_id(flow[2][consts.Consts.target_ref])
-            if outgoing_node not in previous_nodes:
-                (output_path, output_path_len) = find_longest_path(tmp_previous_nodes, outgoing_node, bpmn_graph)
-                if output_path_len > len(longest_path):
-                    longest_path = output_path
-        return longest_path, len(longest_path)
+
+    for outgoing_flow_id in outgoing_flows_list:
+        _, _, flow = bpmn_graph.get_flow_by_id(outgoing_flow_id)
+        _, outgoing_node = bpmn_graph.get_node_by_id(flow.target_ref_id)
+        if outgoing_node not in previous_nodes:
+            (output_path, output_path_len) = find_longest_path(tmp_previous_nodes, outgoing_node, bpmn_graph)
+            if output_path_len > len(longest_path):
+                longest_path = output_path
+    return longest_path, len(longest_path)
 
 
-def compute_longest_path_tasks(bpmn_graph):
+def compute_longest_path_tasks(bpmn_graph: BpmnDiagramGraph) -> tuple[list[FlowNode], int]:
     """
     Computes the longest path consisting of tasks in the BPMN graph.
 
     :param bpmn_graph: The BPMN graph object.
     :return: A tuple containing the longest path of tasks and its length.
     """
-    incoming_flows_list_param_name = "incoming"
 
     nodes = copy.deepcopy(bpmn_graph.get_nodes())
     no_incoming_flow_nodes = []
     for node in nodes:
-        incoming_list = node[1][incoming_flows_list_param_name]
-        if len(incoming_list) == 0:
+        if len(node.incoming) == 0:
             no_incoming_flow_nodes.append(node)
 
     longest_path = []
@@ -260,7 +257,8 @@ def compute_longest_path_tasks(bpmn_graph):
     return longest_path, len(longest_path)
 
 
-def find_longest_path_tasks(path, qualified_nodes, node, bpmn_graph):
+def find_longest_path_tasks(path: list[FlowNode], qualified_nodes: list[FlowNode], node: FlowNode,
+                            bpmn_graph: BpmnDiagramGraph) -> tuple[list[FlowNode], list[FlowNode]]:
     """
     Recursively finds the longest path consisting of tasks starting from a given node.
 
@@ -270,14 +268,14 @@ def find_longest_path_tasks(path, qualified_nodes, node, bpmn_graph):
     :param bpmn_graph: The BPMN graph object.
     :return: A tuple containing all nodes in the path and the task nodes in the path.
     """
-    node_names = {"task", "subProcess"}
-    outgoing_flows_list = node[1][consts.Consts.outgoing_flow]
+    node_types = {NodeType.TASK, NodeType.SUB_PROCESS}
+    outgoing_flows_list = node.outgoing
 
     if len(outgoing_flows_list) == 0:
         tmp_path = copy.deepcopy(path)
         tmp_path.append(node)
         tmp_qualified_nodes = copy.deepcopy(qualified_nodes)
-        if node[1][consts.Consts.type] in node_names:
+        if node.node_type in node_types:
             tmp_qualified_nodes.append(node)
         return tmp_path, tmp_qualified_nodes
     else:
@@ -285,12 +283,12 @@ def find_longest_path_tasks(path, qualified_nodes, node, bpmn_graph):
         longest_path = copy.deepcopy(path)
         longest_path.append(node)
         for outgoing_flow_id in outgoing_flows_list:
-            flow = bpmn_graph.get_flow_by_id(outgoing_flow_id)
-            outgoing_node = bpmn_graph.get_node_by_id(flow[2][consts.Consts.target_ref])
+            _, _, flow = bpmn_graph.get_flow_by_id(outgoing_flow_id)
+            _, outgoing_node = bpmn_graph.get_node_by_id(flow.target_ref_id)
             tmp_path = copy.deepcopy(path)
             tmp_path.append(node)
             tmp_qualified_nodes = copy.deepcopy(qualified_nodes)
-            if node[1]["type"] in node_names:
+            if node.node_type in node_types:
                 tmp_qualified_nodes.append(node)
 
             if outgoing_node not in path:
