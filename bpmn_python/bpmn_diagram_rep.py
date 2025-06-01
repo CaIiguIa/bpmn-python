@@ -14,16 +14,14 @@ import bpmn_python.bpmn_process_csv_export as bpmn_csv_export
 import bpmn_python.bpmn_process_csv_import as bpmn_csv_import
 import bpmn_python.bpmn_python_consts as consts
 from bpmn_python.bpmn_python_consts import Consts
-from bpmn_python.graph.classes.activities.activity import ActivityType
 from bpmn_python.graph.classes.activities.subprocess import SubProcess
 from bpmn_python.graph.classes.events.end_event import EndEvent
-from bpmn_python.graph.classes.events.event import EventType
 from bpmn_python.graph.classes.events.start_event import StartEvent
 from bpmn_python.graph.classes.flow_node import FlowNode, NodeType
-from bpmn_python.graph.classes.gateways.gateway import GatewayType, GatewayDirection, Gateway
+from bpmn_python.graph.classes.gateways.gateway import GatewayDirection, Gateway
 from bpmn_python.graph.classes.message_flow import MessageFlow
 from bpmn_python.graph.classes.participant import Participant
-from bpmn_python.graph.classes.root_element.event_definition import StartEventDefinitionType, EndEventDefinitionType, \
+from bpmn_python.graph.classes.root_element.event_definition import StartEventDefinitionTypes, EndEventDefinitionTypes, \
     EventDefinition
 from bpmn_python.graph.classes.root_element.process import Process, ProcessType
 from bpmn_python.graph.classes.sequence_flow import SequenceFlow
@@ -139,7 +137,7 @@ class BpmnDiagramGraph(BaseModel):
         bpmn_csv_export.BpmnDiagramGraphCsvExport.export_process_to_csv(self, directory, filename)
 
     # Querying methods
-    def get_nodes(self, node_type: str = "") -> list[tuple[str, FlowNode]]:
+    def get_nodes(self, node_type: str = "") -> list[FlowNode]:
         """
         Returns all nodes of requested type. If no type is provided by user, all nodes in BPMN diagram graph are returned.
 
@@ -149,14 +147,15 @@ class BpmnDiagramGraph(BaseModel):
         Returns:
             list of tuples: first element of each tuple is node ID, second element is a FlowNode object.
         """
-        tmp_nodes = list(self.nodes.items())
+        tmp_nodes = list(self.nodes.values())
         if node_type == "":
             return tmp_nodes
         else:
             nodes = []
-            for node_id, node in tmp_nodes:
-                if node.node_type == node_type:
-                    nodes.append((node_id, node))
+            parsed_type = parse_node_type(node_type)
+            for node in tmp_nodes:
+                if node.node_type == parsed_type:
+                    nodes.append(node)
             return nodes
 
     def get_nodes_list_by_process_id(self, process_id: str) -> list[tuple[str, FlowNode]]:
@@ -266,6 +265,18 @@ class BpmnDiagramGraph(BaseModel):
                 flows.append((flow.source_ref_id, flow.target_ref_id, flow))
 
         return flows
+
+    def degree(self) -> dict[str, int]:
+        """
+        Returns the degree of each node in the diagram graph.
+        The degree of a node is the number of edges connected to it.
+        Returns:
+            dict: A dictionary where keys are node IDs and values are their degrees.
+        """
+        degrees = {}
+        for node_id, node in self.nodes.items():
+            degrees[node_id] = node.degree()
+        return degrees
 
     # Diagram creating methods
     def create_new_diagram_graph(self, diagram_name: str = "") -> None:
@@ -383,10 +394,10 @@ class BpmnDiagramGraph(BaseModel):
         modify_task = False
         _, existing_node = self.get_node_by_id(node_id=node_id)
 
-        if existing_node and existing_node.node_type == ActivityType.TASK:
+        if existing_node and existing_node.node_type == NodeType.TASK:
             modify_task = True
 
-        if existing_node and not existing_node.node_type == ActivityType.TASK:
+        if existing_node and not existing_node.node_type == NodeType.TASK:
             raise bpmn_exception.BpmnNodeTypeError("Node with given ID is not a task")
 
         return self.add_modify_flow_node_to_diagram(process_id=process_id,
@@ -416,7 +427,7 @@ class BpmnDiagramGraph(BaseModel):
         """
         subprocess_id, subprocess = self.add_modify_flow_node_to_diagram(
             process_id=process_id,
-            node_type=ActivityType.SUB_PROCESS,
+            node_type=NodeType.SUB_PROCESS,
             name=subprocess_name,
             node_id=node_id,
             modify=False)
@@ -433,7 +444,7 @@ class BpmnDiagramGraph(BaseModel):
     def add_modify_start_event_to_diagram(self,
                                           process_id: str,
                                           start_event_name: str = "",
-                                          start_event_definition: StartEventDefinitionType = None,
+                                          start_event_definition: StartEventDefinitionTypes = None,
                                           parallel_multiple: bool = False,
                                           is_interrupting: bool = True,
                                           node_id: str = None) -> tuple:
@@ -443,7 +454,7 @@ class BpmnDiagramGraph(BaseModel):
         Args:
             process_id (str): ID of parent process,
             start_event_name (str): Name of start event,
-            start_event_definition (StartEventDefinitionType): type of start event,
+            start_event_definition (StartEventDefinitionTypes): type of start event,
             parallel_multiple (bool): is parallel multiple,
             is_interrupting (bool): is interrupting,
             node_id (str): ID of node. Default value - None.
@@ -454,15 +465,15 @@ class BpmnDiagramGraph(BaseModel):
         modify_start_event = False
 
         _, existing_node = self.get_node_by_id(node_id=node_id)
-        if existing_node and existing_node.node_type == EventType.START:
+        if existing_node and existing_node.node_type == NodeType.START:
             modify_start_event = True
 
-        if existing_node and not existing_node.node_type == EventType.START:
+        if existing_node and not existing_node.node_type == NodeType.START:
             raise bpmn_exception.BpmnNodeTypeError("Node with given ID is not a start event")
 
         start_event_id, start_event = self.add_modify_flow_node_to_diagram(
             process_id=process_id,
-            node_type=EventType.START,
+            node_type=NodeType.START,
             name=start_event_name,
             node_id=node_id,
             modify=modify_start_event)
@@ -490,7 +501,7 @@ class BpmnDiagramGraph(BaseModel):
     def add_modify_end_event_to_diagram(self,
                                         process_id: str,
                                         end_event_name: str = "",
-                                        end_event_definition: EndEventDefinitionType = None,
+                                        end_event_definition: EndEventDefinitionTypes = None,
                                         node_id: str = None) -> tuple:
         """
         Add or modify an EndEvent element to BPMN diagram. If node_id matches existing end event, it will be modified.
@@ -498,7 +509,7 @@ class BpmnDiagramGraph(BaseModel):
         Args:
             process_id (str): ID of parent process,
             end_event_name (str): Name of end event,
-            end_event_definition (EndEventDefinitionType): type of end event,
+            end_event_definition (EndEventDefinitionTypes): type of end event,
             node_id (str): ID of node. Default value - None.
 
         Returns:
@@ -507,10 +518,10 @@ class BpmnDiagramGraph(BaseModel):
         modify_end_event = False
 
         _, existing_node = self.get_node_by_id(node_id=node_id)
-        if existing_node and existing_node.node_type == EventType.END:
+        if existing_node and existing_node.node_type == NodeType.END:
             modify_end_event = True
 
-        if existing_node and not existing_node.node_type == EventType.END:
+        if existing_node and not existing_node.node_type == NodeType.END:
             raise bpmn_exception.BpmnNodeTypeError("Node with given ID is not an end event")
 
         end_event_id, end_event = self.add_modify_flow_node_to_diagram(
@@ -535,7 +546,7 @@ class BpmnDiagramGraph(BaseModel):
 
     def add_modify_gateway_to_diagram(self,
                                       process_id: str,
-                                      gateway_type: GatewayType,
+                                      gateway_type: NodeType,
                                       gateway_name: str = "",
                                       gateway_direction: GatewayDirection = GatewayDirection.UNSPECIFIED,
                                       node_id: str = None,
@@ -559,7 +570,7 @@ class BpmnDiagramGraph(BaseModel):
         _, existing_node = self.get_node_by_id(node_id=node_id)
         if existing_node:
             try:
-                GatewayType(existing_node.node_type)
+                NodeType(existing_node.node_type)
             except ValueError:
                 raise bpmn_exception.BpmnNodeTypeError("Node with given ID is not a gateway")
             else:

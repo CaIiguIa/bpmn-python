@@ -54,13 +54,13 @@ class CsvExportTests(unittest.TestCase):
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_modify_start_event_to_diagram(process_id, start_event_name="Start event",
-                                                                     start_event_definition=diagram.StartEventDefinitionType.TIMER)
+                                                                     start_event_definition=diagram.StartEventDefinitionTypes.TIMER)
         [task1_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 1")
         [subprocess1_id, _] = bpmn_graph.add_subprocess_to_diagram(process_id, subprocess_name="Subprocess 1")
         [subprocess2_id, _] = bpmn_graph.add_subprocess_to_diagram(process_id, subprocess_name="Subprocess 2")
         [task2_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 2")
         [end_id, _] = bpmn_graph.add_modify_end_event_to_diagram(process_id, end_event_name="End event",
-                                                                 end_event_definition=diagram.EndEventDefinitionType.MESSAGE)
+                                                                 end_event_definition=diagram.EndEventDefinitionTypes.MESSAGE)
 
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, start_id, task1_id,
                                                 sequence_flow_name="start_to_task_one")
@@ -81,7 +81,7 @@ class CsvExportTests(unittest.TestCase):
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_modify_start_event_to_diagram(process_id, start_event_name="Start event",
-                                                                     start_event_definition=diagram.StartEventDefinitionType.TIMER)
+                                                                     start_event_definition=diagram.StartEventDefinitionTypes.TIMER)
         [task1_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 1")
 
         [exclusive_gate_fork_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
@@ -104,7 +104,7 @@ class CsvExportTests(unittest.TestCase):
                                                                        gateway_type=diagram.GatewayType.PARALLEL)
 
         [end_id, _] = bpmn_graph.add_modify_end_event_to_diagram(process_id, end_event_name="End event",
-                                                                 end_event_definition=diagram.EndEventDefinitionType.MESSAGE)
+                                                                 end_event_definition=diagram.EndEventDefinitionTypes.MESSAGE)
 
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, start_id, task1_id,
                                                 sequence_flow_name="Start to one")
@@ -141,7 +141,7 @@ class CsvExportTests(unittest.TestCase):
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_modify_start_event_to_diagram(process_id, start_event_name="Start event",
-                                                                     start_event_definition=diagram.StartEventDefinitionType.TIMER)
+                                                                     start_event_definition=diagram.StartEventDefinitionTypes.TIMER)
         [task1_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 1")
 
         [exclusive_gate_fork_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
@@ -164,7 +164,7 @@ class CsvExportTests(unittest.TestCase):
                                                                        gateway_type=diagram.GatewayType.PARALLEL)
 
         [end_id, _] = bpmn_graph.add_modify_end_event_to_diagram(process_id, end_event_name="End event",
-                                                                 end_event_definition=diagram.EndEventDefinitionType.MESSAGE)
+                                                                 end_event_definition=diagram.EndEventDefinitionTypes.MESSAGE)
 
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, start_id, task1_id,
                                                 sequence_flow_name="Start to one")

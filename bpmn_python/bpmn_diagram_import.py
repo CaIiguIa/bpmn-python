@@ -24,13 +24,13 @@ from bpmn_python.graph.classes.events.start_event import StartEvent
 from bpmn_python.graph.classes.gateways.complex_gateway import ComplexGateway
 from bpmn_python.graph.classes.gateways.event_based_gateway import EventBasedGateway, EventBasedGatewayType
 from bpmn_python.graph.classes.gateways.exclusive_gateway import ExclusiveGateway
-from bpmn_python.graph.classes.gateways.gateway import Gateway
+from bpmn_python.graph.classes.gateways.gateway import Gateway, GatewayDirection
 from bpmn_python.graph.classes.lane_set import LaneSet, Lane
 from bpmn_python.graph.classes.message_flow import MessageFlow
 from bpmn_python.graph.classes.participant import Participant
 from bpmn_python.graph.classes.root_element.event_definition import EventDefinition, EventDefinitionType, \
-    StartEventDefinitionType, EndEventDefinitionType, IntermediateThrowEventDefinitionType, \
-    IntermediateCatchEventDefinitionType, BoundaryEventDefinitionType
+    StartEventDefinitionTypes, EndEventDefinitionTypes, IntermediateThrowEventDefinitionTypes, \
+    IntermediateCatchEventDefinitionTypes, BoundaryEventDefinitionTypes
 from bpmn_python.graph.classes.root_element.process import Process, ProcessType
 from bpmn_python.graph.classes.sequence_flow import SequenceFlow
 from bpmn_python.node_creator import create_node, parse_node_type
@@ -381,6 +381,8 @@ class BpmnDiagramGraphImport(BaseModel):
                     outgoing_list.append(outgoing_value)
         node.outgoing = outgoing_list
 
+        bpmn_diagram.nodes[element_id] = node
+
     @staticmethod
     def import_task_to_graph(diagram_graph: BpmnDiagramGraph, process_id: str, task_element: Element):
         """
@@ -496,7 +498,7 @@ class BpmnDiagramGraphImport(BaseModel):
 
         node = diagram_graph.nodes[element_id]
         if isinstance(node, Gateway):
-            node.gateway_direction = Gateway.parse(
+            node.gateway_direction = GatewayDirection.parse(
                 element.getAttribute(consts.Consts.gateway_direction) \
                     if element.hasAttribute(consts.Consts.gateway_direction) else "Unspecified"
             )
@@ -638,7 +640,7 @@ class BpmnDiagramGraphImport(BaseModel):
         :param element: object representing a BPMN XML 'startEvent' element.
         """
         element_id = element.getAttribute(consts.Consts.id)
-        start_event_definitions = {def_type for def_type in StartEventDefinitionType}
+        start_event_definitions = StartEventDefinitionTypes.getTypes()
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, element)
 
         node = diagram_graph.nodes[element_id]
@@ -675,7 +677,7 @@ class BpmnDiagramGraphImport(BaseModel):
         :param element: object representing a BPMN XML 'intermediateCatchEvent' element.
         """
         element_id = element.getAttribute(consts.Consts.id)
-        intermediate_catch_event_definitions = {def_type for def_type in IntermediateCatchEventDefinitionType}
+        intermediate_catch_event_definitions = IntermediateCatchEventDefinitionTypes.getTypes()
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, element)
 
         node = diagram_graph.nodes[element_id]
@@ -703,7 +705,7 @@ class BpmnDiagramGraphImport(BaseModel):
         :param process_id: string object, representing an ID of process element,
         :param element: object representing a BPMN XML 'endEvent' element.
         """
-        end_event_definitions = {def_type for def_type in EndEventDefinitionType}
+        end_event_definitions = EndEventDefinitionTypes.getTypes()
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, element)
         BpmnDiagramGraphImport.import_event_definition_elements(diagram_graph, element, end_event_definitions)
 
@@ -719,7 +721,7 @@ class BpmnDiagramGraphImport(BaseModel):
         :param process_id: string object, representing an ID of process element,
         :param element: object representing a BPMN XML 'intermediateThrowEvent' element.
         """
-        intermediate_throw_event_definitions = {def_type for def_type in IntermediateThrowEventDefinitionType}
+        intermediate_throw_event_definitions = IntermediateThrowEventDefinitionTypes.getTypes()
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, element)
         BpmnDiagramGraphImport.import_event_definition_elements(diagram_graph, element,
                                                                 intermediate_throw_event_definitions)
@@ -737,7 +739,7 @@ class BpmnDiagramGraphImport(BaseModel):
         :param element: object representing a BPMN XML 'endEvent' element.
         """
         element_id = element.getAttribute(consts.Consts.id)
-        boundary_event_definitions = {def_type for def_type in BoundaryEventDefinitionType}
+        boundary_event_definitions = BoundaryEventDefinitionTypes.getTypes()
         BpmnDiagramGraphImport.import_flow_node_to_graph(diagram_graph, process_id, element)
 
         node = diagram_graph.nodes[element_id]
@@ -918,7 +920,7 @@ class BpmnDiagramGraphImport(BaseModel):
         waypoints_xml = flow_element.getElementsByTagNameNS("*", consts.Consts.waypoint)
         length = len(waypoints_xml)
 
-        waypoints = [] * length
+        waypoints = [None] * length
         for index in range(length):
             waypoint_tmp = (waypoints_xml[index].getAttribute(consts.Consts.x),
                             waypoints_xml[index].getAttribute(consts.Consts.y))

@@ -8,11 +8,14 @@ from collections import Counter
 
 from math import sqrt
 
+from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
+from bpmn_python.graph.classes.gateways.gateway import Gateway
+
 GATEWAY_TYPES = ['inclusiveGateway', 'exclusiveGateway', 'parallelGateway', 'eventBasedGateway', 'complexGateway']
-EVENT_TYPES = ['startEvent', 'endEvent', 'intermediateCatchEvent', 'intermediateThrowEvent']
+EVENT_TYPES = ['startEvent', 'endEvent', 'intermediateCatchEvent', 'intermediateThrowEvent', 'boundaryEvent']
 
 
-def get_nodes_count(bpmn_graph, node_type=None):
+def get_nodes_count(bpmn_graph: BpmnDiagramGraph, node_type: str | None = None) -> int:
     """
     Gets the count of nodes of the requested type.
     If no type is provided,
@@ -26,19 +29,19 @@ def get_nodes_count(bpmn_graph, node_type=None):
     return len(bpmn_graph.get_nodes(node_type=node_type))
 
 
-def get_all_gateways(bpmn_graph):
+def get_all_gateways(bpmn_graph: BpmnDiagramGraph) -> list[Gateway]:
     """
     Returns a list with all gateways in diagram
 
     :param bpmn_graph: an instance of BpmnDiagramGraph representing BPMN model.
     :return: a list with all gateways in diagram
     """
-    gateways = filter(lambda node: node[1]['type'] in GATEWAY_TYPES, bpmn_graph.get_nodes())
+    gateways = [node for node in bpmn_graph.get_nodes() if isinstance(node, Gateway)]
 
     return gateways
 
 
-def get_gateway_counts(bpmn_graph):
+def get_gateway_counts(bpmn_graph: BpmnDiagramGraph) -> dict[str, int]:
     """
     Returns the count of the different types of gateways
     in the BPMNDiagramGraph instance.
@@ -51,7 +54,7 @@ def get_gateway_counts(bpmn_graph):
             for gateway_type in GATEWAY_TYPES}
 
 
-def get_events_counts(bpmn_graph):
+def get_events_counts(bpmn_graph: BpmnDiagramGraph) -> dict[str, int]:
     """
     Returns the count of the different types of event elements
     in the BPMNDiagramGraph instance.
@@ -64,7 +67,7 @@ def get_events_counts(bpmn_graph):
             for event_type in EVENT_TYPES}
 
 
-def get_activities_counts(bpmn_graph):
+def get_activities_counts(bpmn_graph: BpmnDiagramGraph) -> dict[str, int]:
     """
     Returns the count of the different types of activities
     in the BPMNDiagramGraph instance.
@@ -81,7 +84,7 @@ def get_activities_counts(bpmn_graph):
     }
 
 
-def all_activities_count(bpmn_graph):
+def all_activities_count(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the total count of all activities in the BPMNDiagramGraph instance.
 
@@ -89,12 +92,10 @@ def all_activities_count(bpmn_graph):
     :return: total count of the activities in the BPMNDiagramGraph instance
     """
 
-    return sum([
-                   count for name, count in get_activities_counts(bpmn_graph).items()
-                   ])
+    return sum(get_activities_counts(bpmn_graph).values())
 
 
-def all_gateways_count(bpmn_graph):
+def all_gateways_count(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the total count of all gateway elements
     in the BPMNDiagramGraph instance.
@@ -103,12 +104,10 @@ def all_gateways_count(bpmn_graph):
     :return: total count of the gateway elements in the BPMNDiagramGraph instance
     """
 
-    return sum([
-                   count for name, count in get_gateway_counts(bpmn_graph).items()
-                   ])
+    return sum(get_gateway_counts(bpmn_graph).values())
 
 
-def all_control_flow_elements_count(bpmn_graph):
+def all_control_flow_elements_count(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the total count of all control flow elements
     in the BPMNDiagramGraph instance.
@@ -118,31 +117,22 @@ def all_control_flow_elements_count(bpmn_graph):
     :return: total count of the control flow elements in the BPMNDiagramGraph instance
     """
 
-    gateway_counts = get_gateway_counts(bpmn_graph)
-    events_counts = get_events_counts(bpmn_graph)
-    control_flow_elements_counts = gateway_counts.copy()
-    control_flow_elements_counts.update(events_counts)
-
-    return sum([
-                   count for name, count in control_flow_elements_counts.items()
-                   ])
+    return all_gateways_count(bpmn_graph=bpmn_graph) + all_events_count(bpmn_graph=bpmn_graph)
 
 
-def all_events_count(bpmn_graph):
+def all_events_count(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the total count of all events elements
     in the BPMNDiagramGraph instance.
 
     :param bpmn_graph: an instance of BpmnDiagramGraph representing BPMN model.
-    :return: total count of the events elements elements in the BPMNDiagramGraph instance
+    :return: total count of the events elements in the BPMNDiagramGraph instance
     """
 
-    return sum([
-                   count for name, count in get_events_counts(bpmn_graph).items()
-                   ])
+    return sum(get_events_counts(bpmn_graph).values())
 
 
-def TNSE_metric(bpmn_graph):
+def TNSE_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the TNSE metric (Total Number of Start Events of the Model)
     for the BPMNDiagramGraph instance.
@@ -153,7 +143,7 @@ def TNSE_metric(bpmn_graph):
     return get_nodes_count(bpmn_graph, node_type='startEvent')
 
 
-def TNIE_metric(bpmn_graph):
+def TNIE_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the TNIE metric (Total Number of Intermediate Events of the Model)
     for the BPMNDiagramGraph instance.
@@ -162,10 +152,10 @@ def TNIE_metric(bpmn_graph):
     """
 
     return get_nodes_count(bpmn_graph, node_type='intermediateCatchEvent') + \
-           get_nodes_count(bpmn_graph, node_type='intermediateThrowEvent')
+        get_nodes_count(bpmn_graph, node_type='intermediateThrowEvent')
 
 
-def TNEE_metric(bpmn_graph):
+def TNEE_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the TNEE metric (Total Number of End Events of the Model)
     for the BPMNDiagramGraph instance.
@@ -176,7 +166,7 @@ def TNEE_metric(bpmn_graph):
     return get_nodes_count(bpmn_graph, node_type='endEvent')
 
 
-def TNE_metric(bpmn_graph):
+def TNE_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the TNE metric (Total Number of Events of the Model)
     for the BPMNDiagramGraph instance.
@@ -186,12 +176,10 @@ def TNE_metric(bpmn_graph):
 
     events_counts = get_events_counts(bpmn_graph)
 
-    return sum(
-        [count for _, count in events_counts.items()]
-    )
+    return sum(events_counts.values())
 
 
-def NOA_metric(bpmn_graph):
+def NOA_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the NOA metric (Number of Activities)
     for the BPMNDiagramGraph instance.
@@ -204,7 +192,7 @@ def NOA_metric(bpmn_graph):
     return activities_counts["task"] + activities_counts["subProcess"]
 
 
-def NOAC_metric(bpmn_graph):
+def NOAC_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the NOAC metric (Number of Activities and control flow elements)
     for the BPMNDiagramGraph instance.
@@ -218,7 +206,7 @@ def NOAC_metric(bpmn_graph):
     return activities_count + control_flow_count
 
 
-def NOAJS_metric(bpmn_graph):
+def NOAJS_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the NOAJS metric (Number of Activities, joins and splits)
     for the BPMNDiagramGraph instance.
@@ -232,7 +220,7 @@ def NOAJS_metric(bpmn_graph):
     return activities_count + gateways_count
 
 
-def NumberOfNodes_metric(bpmn_graph):
+def NumberOfNodes_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the Number of Nodes metric
     ("Number of activities and routing elements in a model")
@@ -247,7 +235,7 @@ def NumberOfNodes_metric(bpmn_graph):
     return activities_count + control_flow_count
 
 
-def GatewayHeterogenity_metric(bpmn_graph):
+def GatewayHeterogenity_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the Gateway Heterogenity metric
     ("Number of different types of gateways used in a mode")
@@ -256,7 +244,7 @@ def GatewayHeterogenity_metric(bpmn_graph):
     :param bpmn_graph: an instance of BpmnDiagramGraph representing BPMN model.
     """
 
-    gateway_counts = get_gateway_counts(bpmn_graph)
+    gateway_counts: dict[str, int] = get_gateway_counts(bpmn_graph)
     present_gateways = [gateway_name
                         for gateway_name, count in gateway_counts.items()
                         if count > 0]
@@ -264,7 +252,7 @@ def GatewayHeterogenity_metric(bpmn_graph):
     return len(present_gateways)
 
 
-def CoefficientOfNetworkComplexity_metric(bpmn_graph):
+def CoefficientOfNetworkComplexity_metric(bpmn_graph: BpmnDiagramGraph) -> float:
     """
     Returns the value of the Coefficient of Network Complexity metric
     ("Ratio of the total number of arcs in a process model to its total number of nodes.")
@@ -276,7 +264,7 @@ def CoefficientOfNetworkComplexity_metric(bpmn_graph):
     return float(len(bpmn_graph.get_flows())) / float(len(bpmn_graph.get_nodes()))
 
 
-def AverageGatewayDegree_metric(bpmn_graph):
+def AverageGatewayDegree_metric(bpmn_graph: BpmnDiagramGraph) -> float:
     """
     Returns the value of the Average Gateway Degree metric
     ("Average of the number of both incoming and outgoing arcs of the gateway nodes in the process model")
@@ -285,14 +273,14 @@ def AverageGatewayDegree_metric(bpmn_graph):
     :param bpmn_graph: an instance of BpmnDiagramGraph representing BPMN model.
     """
 
-    gateways_ids = [gateway[0] for gateway in get_all_gateways(bpmn_graph)]
-    all_nodes_degrees = bpmn_graph.diagram_graph.degree()
-    gateways_degree_values = [all_nodes_degrees[gateway_id] for gateway_id in gateways_ids]
+    gateways_ids = [gateway.id for gateway in get_all_gateways(bpmn_graph)]
+    all_nodes_degrees = bpmn_graph.degree()
+    gateways_degree_values: list[int] = [all_nodes_degrees[gateway_id] for gateway_id in gateways_ids]
 
     return float(sum(gateways_degree_values)) / float(len(gateways_degree_values))
 
 
-def DurfeeSquare_metric(bpmn_graph):
+def DurfeeSquare_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the Durfee Square metric
      ("Durfee Square equals d if there are d types of elements
@@ -303,7 +291,7 @@ def DurfeeSquare_metric(bpmn_graph):
     :param bpmn_graph: an instance of BpmnDiagramGraph representing BPMN model.
     """
 
-    all_types_count = Counter([node[1]['type'] for node in bpmn_graph.get_nodes() if node[1]['type']])
+    all_types_count = Counter([node.node_type for node in bpmn_graph.get_nodes()])
     length = len(all_types_count)
 
     histogram = [0] * (length + 1)
@@ -319,12 +307,12 @@ def DurfeeSquare_metric(bpmn_graph):
     return 0
 
 
-def PerfectSquare_metric(bpmn_graph):
+def PerfectSquare_metric(bpmn_graph: BpmnDiagramGraph) -> int:
     """
     Returns the value of the Perfect Square metric
     ("Given a set of element types ranked
     in decreasing order of the number of their instances,
-    the PSM is the (unique) largest number
+    the PSM is the (unique) the largest number
     such that the top p types occur(together)
     at least p2 times.")
     for the BPMNDiagramGraph instance.
@@ -332,7 +320,7 @@ def PerfectSquare_metric(bpmn_graph):
     :param bpmn_graph: an instance of BpmnDiagramGraph representing BPMN model.
     """
 
-    all_types_count = Counter([node[1]['type'] for node in bpmn_graph.get_nodes() if node[1]['type']])
+    all_types_count = Counter([node.node_type for node in bpmn_graph.get_nodes()])
     sorted_counts = [count for _, count in all_types_count.most_common()]
 
     potential_perfect_square = min(len(sorted_counts), int(sqrt(sum(sorted_counts))))

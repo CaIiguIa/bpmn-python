@@ -6,8 +6,9 @@ from typing import List, ClassVar
 
 from pydantic import Field
 
-from bpmn_python.graph.classes.activities.activity import Activity, ActivityType
+from bpmn_python.graph.classes.activities.activity import Activity
 from bpmn_python.graph.classes.flow_element import FlowElement
+from bpmn_python.graph.classes.flow_node import NodeType
 from bpmn_python.graph.classes.lane_set import LaneSet
 
 
@@ -24,4 +25,4 @@ class SubProcess(Activity):
     lane_set_list: List[LaneSet] = Field(default_factory=list, description="List of LaneSet objects")
     flow_element_list: List[FlowElement] = Field(default_factory=list, description="List of FlowElement objects")
     is_expanded: bool = Field(default=True, description="Indicates if the subprocess is expanded (default is True)")
-    node_type: ClassVar[ActivityType] = ActivityType.SUB_PROCESS
+    node_type: ClassVar[NodeType] = NodeType.SUB_PROCESS
