@@ -38,9 +38,9 @@ class SequenceFlow(FlowElement):
         if v is None:
             return v
 
-        if not isinstance(v, list) or len(v) != 2:
-            raise TypeError("waypoints must be a two-element list of tuples")
+        if not isinstance(v, list):
+            raise TypeError("waypoints must be a list of tuples")
         for point in v:
             if not isinstance(point, tuple) or len(point) != 2 or not all(isinstance(coord, float) for coord in point):
-                raise TypeError("Each waypoint must be a tuple of two integers (x, y)")
+                raise TypeError("Each waypoint must be a tuple of two floats (x, y)")
         return v
