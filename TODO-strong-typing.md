@@ -42,5 +42,5 @@ TODOs:
 - [x] **event_definitions**? look up consts.Consts.event_definitions
 - [x] **node_creator** for all gateway types
 - [ ] **create_new_diagram_graph** make sure that it initializes new diagram properly
-
-
+- [x] **attached_to_ref** in import
+- [x] **import_lane_element**

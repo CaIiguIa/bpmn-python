@@ -16,6 +16,14 @@ class GatewayDirection(Enum):
     DIVERGING = "Diverging"
     MIXED = "Mixed"
 
+    @classmethod
+    def parse(cls, value: str) -> "GatewayDirection":
+        value_lower = value.lower()
+        for member in cls:
+            if member.name.lower() == value_lower or str(member.value).lower() == value_lower:
+                return member
+        raise ValueError(f"Invalid GatewayDirection value: {value}")
+
 
 class GatewayType(NodeType):
     EXCLUSIVE = "exclusiveGateway"

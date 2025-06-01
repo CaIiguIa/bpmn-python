@@ -15,3 +15,4 @@ class EventType(NodeType):
     END = "endEvent"
     INTERMEDIATE_THROW = "intermediateThrowEvent"
     INTERMEDIATE_CATCH = "intermediateCatchEvent"
+    BOUNDARY = "boundaryEvent"

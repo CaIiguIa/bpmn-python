@@ -3,7 +3,6 @@
 Package used to unify the different constant values used in entire project
 """
 
-
 class Consts(object):
     """
     Class used to unify the different constant values used in entire project
@@ -103,5 +102,7 @@ class Consts(object):
     default_element_y_position = 100.0
     default_element_width = 100.0
     default_element_height = 100.0
+    default_is_horizontal = True
+    default_event_gateway_type = "Exclusive"
 
     id_prefix = "id"
