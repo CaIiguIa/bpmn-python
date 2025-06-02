@@ -44,3 +44,5 @@ TODOs:
 - [ ] **create_new_diagram_graph** make sure that it initializes new diagram properly
 - [x] **attached_to_ref** in import
 - [x] **import_lane_element**
+- [ ] **consts.Consts.width** ? in diagram_layouter ?
+- [ ] 

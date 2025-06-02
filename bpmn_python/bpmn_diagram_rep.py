@@ -22,7 +22,7 @@ from bpmn_python.graph.classes.gateways.gateway import GatewayDirection, Gateway
 from bpmn_python.graph.classes.message_flow import MessageFlow
 from bpmn_python.graph.classes.participant import Participant
 from bpmn_python.graph.classes.root_element.event_definition import StartEventDefinitionTypes, EndEventDefinitionTypes, \
-    EventDefinition
+    EventDefinition, EventDefinitionType
 from bpmn_python.graph.classes.root_element.process import Process, ProcessType
 from bpmn_python.graph.classes.sequence_flow import SequenceFlow
 from bpmn_python.node_creator import create_node, parse_node_type
@@ -174,7 +174,7 @@ class BpmnDiagramGraph(BaseModel):
                 nodes.append((node_id, node))
         return nodes
 
-    def get_node_by_id(self, node_id: str) -> tuple[str, FlowNode]:
+    def get_node_by_id(self, node_id: str) -> tuple[str, FlowNode] | None:
         """
         Returns a node with requested ID.
 
@@ -184,6 +184,8 @@ class BpmnDiagramGraph(BaseModel):
         Returns:
             tuple: node ID and FlowNode object
         """
+        if node_id not in self.nodes:
+            return None
 
         node = self.nodes[node_id]
         return node.id, node
@@ -243,10 +245,10 @@ class BpmnDiagramGraph(BaseModel):
         Returns:
             tuple: first value is Source Node ID, second value is Target Node ID, third - a SequenceFlow Object.
         """
-        flow = self.sequence_flows[flow_id]
-        if flow is None:
+        if flow_id not in self.sequence_flows:
             return None
 
+        flow = self.sequence_flows[flow_id]
         return flow.source_ref_id, flow.target_ref_id, flow
 
     def get_flows_list_by_process_id(self, process_id: str) -> list[tuple[str, str, SequenceFlow]]:
@@ -298,7 +300,7 @@ class BpmnDiagramGraph(BaseModel):
                                process_name: str = "",
                                process_is_closed: bool = False,
                                process_is_executable: bool = False,
-                               process_type: ProcessType = "None") -> str:
+                               process_type: ProcessType = ProcessType.NONE) -> str:
         """
         Adds a new process to diagram and corresponding participant
             process, diagram and plane
@@ -392,12 +394,12 @@ class BpmnDiagramGraph(BaseModel):
             tuple: first value is task ID, second - a reference to created object.
         """
         modify_task = False
-        _, existing_node = self.get_node_by_id(node_id=node_id)
+        existing_node = self.get_node_by_id(node_id=node_id)
 
-        if existing_node and existing_node.node_type == NodeType.TASK:
+        if existing_node and existing_node[1].node_type == NodeType.TASK:
             modify_task = True
 
-        if existing_node and not existing_node.node_type == NodeType.TASK:
+        if existing_node and not existing_node[1].node_type == NodeType.TASK:
             raise bpmn_exception.BpmnNodeTypeError("Node with given ID is not a task")
 
         return self.add_modify_flow_node_to_diagram(process_id=process_id,
@@ -444,7 +446,7 @@ class BpmnDiagramGraph(BaseModel):
     def add_modify_start_event_to_diagram(self,
                                           process_id: str,
                                           start_event_name: str = "",
-                                          start_event_definition: StartEventDefinitionTypes = None,
+                                          start_event_definition: EventDefinitionType = None,
                                           parallel_multiple: bool = False,
                                           is_interrupting: bool = True,
                                           node_id: str = None) -> tuple:
@@ -464,11 +466,11 @@ class BpmnDiagramGraph(BaseModel):
         """
         modify_start_event = False
 
-        _, existing_node = self.get_node_by_id(node_id=node_id)
-        if existing_node and existing_node.node_type == NodeType.START:
+        existing_node = self.get_node_by_id(node_id=node_id)
+        if existing_node and existing_node[1].node_type == NodeType.START:
             modify_start_event = True
 
-        if existing_node and not existing_node.node_type == NodeType.START:
+        if existing_node and not existing_node[1].node_type == NodeType.START:
             raise bpmn_exception.BpmnNodeTypeError("Node with given ID is not a start event")
 
         start_event_id, start_event = self.add_modify_flow_node_to_diagram(
@@ -501,7 +503,7 @@ class BpmnDiagramGraph(BaseModel):
     def add_modify_end_event_to_diagram(self,
                                         process_id: str,
                                         end_event_name: str = "",
-                                        end_event_definition: EndEventDefinitionTypes = None,
+                                        end_event_definition: EventDefinitionType | None = None,
                                         node_id: str = None) -> tuple:
         """
         Add or modify an EndEvent element to BPMN diagram. If node_id matches existing end event, it will be modified.
@@ -517,11 +519,11 @@ class BpmnDiagramGraph(BaseModel):
         """
         modify_end_event = False
 
-        _, existing_node = self.get_node_by_id(node_id=node_id)
-        if existing_node and existing_node.node_type == NodeType.END:
+        existing_node = self.get_node_by_id(node_id=node_id)
+        if existing_node and existing_node[1].node_type == NodeType.END:
             modify_end_event = True
 
-        if existing_node and not existing_node.node_type == NodeType.END:
+        if existing_node and not existing_node[1].node_type == NodeType.END:
             raise bpmn_exception.BpmnNodeTypeError("Node with given ID is not an end event")
 
         end_event_id, end_event = self.add_modify_flow_node_to_diagram(
@@ -567,10 +569,10 @@ class BpmnDiagramGraph(BaseModel):
         """
         modify_gateway = False
 
-        _, existing_node = self.get_node_by_id(node_id=node_id)
+        existing_node = self.get_node_by_id(node_id=node_id)
         if existing_node:
             try:
-                NodeType(existing_node.node_type)
+                NodeType(existing_node[1].node_type)
             except ValueError:
                 raise bpmn_exception.BpmnNodeTypeError("Node with given ID is not a gateway")
             else:
