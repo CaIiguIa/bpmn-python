@@ -6,17 +6,19 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pydotplus
 import bpmn_python.bpmn_python_consts as consts
-
+from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
 from networkx.drawing.nx_pydot import write_dot
 
 
-def visualize_diagram(bpmn_diagram):
+def visualize_diagram(bpmn_diagram: BpmnDiagramGraph):
     """
     Shows a simple visualization of diagram
 
     :param bpmn_diagram: an instance of BPMNDiagramGraph class.
     """
-    g = bpmn_diagram.diagram_graph
+    g = bpmn_diagram.get_diagram_graph()
+    # if g is None:
+    #     raise ValueError("BPMN diagram graph is not set. Please use 'create_diagram_graph' method first.")
     pos = bpmn_diagram.get_nodes_positions()
     nx.draw_networkx_nodes(g, pos, node_shape='s', node_color='white',
                            nodelist=bpmn_diagram.get_nodes_id_list_by_type(consts.Consts.task))
@@ -56,7 +58,7 @@ def visualize_diagram(bpmn_diagram):
     plt.show()
 
 
-def bpmn_diagram_to_dot_file(bpmn_diagram, file_name, auto_layout=False):
+def bpmn_diagram_to_dot_file(bpmn_diagram: BpmnDiagramGraph, file_name: str, auto_layout=False):
     """
     Convert diagram graph to dot file
 
@@ -68,10 +70,10 @@ def bpmn_diagram_to_dot_file(bpmn_diagram, file_name, auto_layout=False):
         graph = _auto_layout_diagram(bpmn_diagram)
         graph.write(file_name + ".dot", format='dot')
     else:
-        g = bpmn_diagram.diagram_graph
+        g = bpmn_diagram.get_diagram_graph()
         write_dot(g, file_name + ".dot")
 
-def bpmn_diagram_to_png(bpmn_diagram, file_name, auto_layout=False):
+def bpmn_diagram_to_png(bpmn_diagram: BpmnDiagramGraph, file_name: str, auto_layout=False):
     """
     Create a png picture for given diagram
 
@@ -83,13 +85,13 @@ def bpmn_diagram_to_png(bpmn_diagram, file_name, auto_layout=False):
         graph = _auto_layout_diagram(bpmn_diagram)
         graph.write(file_name + ".png", format='png')
     else:
-        g = bpmn_diagram.diagram_graph
+        g = bpmn_diagram.get_diagram_graph()
         nx.draw(g, with_labels=True)
         plt.savefig(file_name + ".png")
         plt.clf()
 
-def _auto_layout_diagram(bpmn_diagram):
-    g = bpmn_diagram.diagram_graph
+def _auto_layout_diagram(bpmn_diagram: BpmnDiagramGraph):
+    g = bpmn_diagram.get_diagram_graph()
     graph = pydotplus.Dot()
 
     for node in g.nodes(data=True):
