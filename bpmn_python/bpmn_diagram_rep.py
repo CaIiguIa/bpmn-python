@@ -785,29 +785,63 @@ class BpmnDiagramGraph(BaseModel):
 
         self.nodes.pop(node_id)
 
+    def get_diagram_graph(self) -> nx.DiGraph:
+        """
+        Returns the NetworkX DiGraph representing the BPMN diagram.
+        Nodes are node ids, and each node is a FlowNode object with its attributes.
+        Edges are sequence flows (source->target), with flow id as attribute.
 
-def get_diagram_graph(self) -> nx.DiGraph:
-    """
-    Returns the NetworkX DiGraph representing the BPMN diagram.
-    Nodes are node ids, with FlowNode objects as attributes.
-    Edges are sequence flows (source->target), with flow id as attribute.
+        Returns:
+            nx.DiGraph: The BPMN diagram as a directed graph.
+        """
+        G = nx.DiGraph()
 
-    Returns:
-        nx.DiGraph: The BPMN diagram as a directed graph.
-    """
-    G = nx.DiGraph()
+        # Add BPMN nodes as graph nodes (id as node, FlowNode as attribute)
+        for node_id, node in self.nodes.items():
+            G.add_node(
+                node_id,
+                # flow_node=node,  # Store the FlowNode object as an attribute
+                **{
+                    # consts.Consts.name: node.name,
+                    consts.Consts.process: node.process_id,
+                    consts.Consts.type: node.node_type.value,
+                    consts.Consts.id: node.id,
+                    consts.Consts.x: node.x,
+                    consts.Consts.y: node.y,
+                    consts.Consts.width: node.width,
+                    consts.Consts.height: node.height,
+                    consts.Consts.incoming_flow: node.incoming,
+                    consts.Consts.outgoing_flow: node.outgoing,
+                }
+            )
 
-    # Add BPMN nodes as graph nodes (id as node, FlowNode as attribute)
-    for node_id, node in self.nodes.items():
-        G.add_node(node_id, flow_node=node)  # add extra attributes if needed
+        # Add edges for sequence flows
+        for seq_flow_id, seq_flow in self.sequence_flows.items():
+            G.add_edge(
+                seq_flow.source_ref_id,
+                seq_flow.target_ref_id,
+                **{
+                    consts.Consts.id: seq_flow_id,
+                    consts.Consts.name: seq_flow.name,
+                    consts.Consts.process: seq_flow.process_id,
+                    consts.Consts.source_ref: seq_flow.source_ref_id,
+                    consts.Consts.target_ref: seq_flow.target_ref_id,
+                    consts.Consts.waypoints: seq_flow.waypoints,
+                },
+            )
 
-    # Add edges for sequence flows
-    for seq_flow_id, seq_flow in self.sequence_flows.items():
-        G.add_edge(
-            seq_flow.source_ref_id,
-            seq_flow.target_ref_id,
-            id=seq_flow_id,
-            sequence_flow=seq_flow,
-        )
+        for message_flow_id, message_flow in self.message_flows.items():
+            G.add_edge(
+                message_flow.source_ref,
+                message_flow.target_ref,
+                **{
+                    consts.Consts.source_ref: message_flow.source_ref,
+                    consts.Consts.target_ref: message_flow.target_ref,
+                    consts.Consts.name: message_flow.name,
+                    consts.Consts.id: message_flow_id,
+                    consts.Consts.message_flow: message_flow,
+                    consts.Consts.waypoints: message_flow.waypoints,
+                }
+            )
 
-    return G
+        return G
