@@ -5,49 +5,63 @@ Package provides functionality for exporting graph representation to BPMN 2.0 XM
 import errno
 import os
 import xml.etree.cElementTree as eTree
+from xml.etree.ElementTree import Element
+
+from pydantic import BaseModel
 
 import bpmn_python.bpmn_python_consts as consts
+from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
+from bpmn_python.graph.classes.activities.subprocess import SubProcess
+from bpmn_python.graph.classes.activities.task import Task
+from bpmn_python.graph.classes.data_object import DataObject
+from bpmn_python.graph.classes.events.boundary_event import BoundaryEvent
+from bpmn_python.graph.classes.events.intermediate_catch_event import IntermediateCatchEvent
+from bpmn_python.graph.classes.events.intermediate_throw_event import IntermediateThrowEvent
+from bpmn_python.graph.classes.events.start_event import StartEvent
+from bpmn_python.graph.classes.gateways.complex_gateway import ComplexGateway
+from bpmn_python.graph.classes.gateways.event_based_gateway import EventBasedGateway
+from bpmn_python.graph.classes.gateways.exclusive_gateway import ExclusiveGateway
+from bpmn_python.graph.classes.gateways.gateway import Gateway
+from bpmn_python.graph.classes.gateways.inclusive_gateway import InclusiveGateway
+from bpmn_python.graph.classes.gateways.parallel_gateway import ParallelGateway
 
 
-class BpmnDiagramGraphExport(object):
+class BpmnDiagramGraphExport(BaseModel):
     """
     Class BPMNDiagramGraphExport provides methods for exporting BPMNDiagramGraph into BPMN 2.0 XML file.
     As a utility class, it only contains static methods.
     This class is meant to be used from BPMNDiagramGraph class.
     """
 
-    def __init__(self):
-        pass
-
     # String "constants" used in multiple places
     bpmndi_namespace = "bpmndi:"
 
     @staticmethod
-    def export_task_info(node_params, output_element):
+    def export_task_info(task: Task, output_element: Element):
         """
         Adds Task node attributes to exported XML element
 
-        :param node_params: dictionary with given task parameters,
+        :param task: a Task object,
         :param output_element: object representing BPMN XML 'task' element.
         """
-        if consts.Consts.default in node_params and node_params[consts.Consts.default] is not None:
-            output_element.set(consts.Consts.default, node_params[consts.Consts.default])
+        if task.default is not None:
+            output_element.set(consts.Consts.default, task.default)
 
     @staticmethod
-    def export_subprocess_info(bpmn_diagram, subprocess_params, output_element):
+    def export_subprocess_info(bpmn_diagram: BpmnDiagramGraph, subprocess: SubProcess, output_element: Element):
         """
         Adds Subprocess node attributes to exported XML element
 
-        :param bpmn_diagram: BPMNDiagramGraph class instantion representing a BPMN process diagram,
-        :param subprocess_params: dictionary with given subprocess parameters,
+        :param bpmn_diagram: BPMNDiagramGraph class instance representing a BPMN process diagram,
+        :param subprocess: dictionary with given subprocess parameters,
         :param output_element: object representing BPMN XML 'subprocess' element.
         """
-        output_element.set(consts.Consts.triggered_by_event, subprocess_params[consts.Consts.triggered_by_event])
-        if consts.Consts.default in subprocess_params and subprocess_params[consts.Consts.default] is not None:
-            output_element.set(consts.Consts.default, subprocess_params[consts.Consts.default])
+        output_element.set(consts.Consts.triggered_by_event, str(subprocess.triggered_by_event).lower())
+        if subprocess.default is not None:
+            output_element.set(consts.Consts.default, subprocess.default)
 
         # for each node in graph add correct type of element, its attributes and BPMNShape element
-        subprocess_id = subprocess_params[consts.Consts.id]
+        subprocess_id = subprocess.id
         nodes = bpmn_diagram.get_nodes_list_by_process_id(subprocess_id)
         for node in nodes:
             node_id = node[0]
@@ -56,136 +70,139 @@ class BpmnDiagramGraphExport(object):
 
         # for each edge in graph add sequence flow element, its attributes and BPMNEdge element
         flows = bpmn_diagram.get_flows_list_by_process_id(subprocess_id)
-        for flow in flows:
-            params = flow[2]
+        for _, _, flow in flows:
+            params = flow
             BpmnDiagramGraphExport.export_flow_process_data(params, output_element)
 
     @staticmethod
-    def export_data_object_info(bpmn_diagram, data_object_params, output_element):
+    def export_data_object_info(bpmn_diagram: BpmnDiagramGraph, data_object: DataObject, output_element: Element):
         """
         Adds DataObject node attributes to exported XML element
 
-        :param bpmn_diagram: BPMNDiagramGraph class instantion representing a BPMN process diagram,
-        :param data_object_params: dictionary with given subprocess parameters,
+        :param bpmn_diagram: BPMNDiagramGraph class instance representing a BPMN process diagram,
+        :param data_object: dictionary with given subprocess parameters,
         :param output_element: object representing BPMN XML 'subprocess' element.
         """
-        output_element.set(consts.Consts.is_collection, data_object_params[consts.Consts.is_collection])
+        output_element.set(consts.Consts.is_collection, str(data_object.is_collection).lower())
 
     # TODO Complex gateway not fully supported
     #  need to find out how sequence of conditions is represented in BPMN 2.0 XML
     @staticmethod
-    def export_complex_gateway_info(node_params, output_element):
+    def export_complex_gateway_info(gateway: ComplexGateway, output_element: Element):
         """
         Adds ComplexGateway node attributes to exported XML element
 
-        :param node_params: dictionary with given complex gateway parameters,
+        :param gateway: complex gateway object,
         :param output_element: object representing BPMN XML 'complexGateway' element.
         """
-        output_element.set(consts.Consts.gateway_direction, node_params[consts.Consts.gateway_direction])
-        if consts.Consts.default in node_params and node_params[consts.Consts.default] is not None:
-            output_element.set(consts.Consts.default, node_params[consts.Consts.default])
+        output_element.set(consts.Consts.gateway_direction, gateway.gateway_direction.value)
+        if gateway.default_target_id is not None:
+            output_element.set(consts.Consts.default, gateway.default_target_id)
 
     @staticmethod
-    def export_event_based_gateway_info(node_params, output_element):
+    def export_event_based_gateway_info(gateway: EventBasedGateway, output_element: Element):
         """
         Adds EventBasedGateway node attributes to exported XML element
 
-        :param node_params: dictionary with given event based gateway parameters,
+        :param gateway: EventBasedGateway object,
         :param output_element: object representing BPMN XML 'eventBasedGateway' element.
         """
-        output_element.set(consts.Consts.gateway_direction, node_params[consts.Consts.gateway_direction])
-        output_element.set(consts.Consts.instantiate, node_params[consts.Consts.instantiate])
-        output_element.set(consts.Consts.event_gateway_type, node_params[consts.Consts.event_gateway_type])
+        output_element.set(consts.Consts.gateway_direction, gateway.gateway_direction.value)
+        output_element.set(consts.Consts.instantiate, str(gateway.instantiate).lower())
+        output_element.set(consts.Consts.event_gateway_type, gateway.event_gateway_type.value)
 
     @staticmethod
-    def export_inclusive_exclusive_gateway_info(node_params, output_element):
+    def export_inclusive_exclusive_gateway_info(gateway: Gateway, output_element: Element):
         """
         Adds InclusiveGateway or ExclusiveGateway node attributes to exported XML element
 
-        :param node_params: dictionary with given inclusive or exclusive gateway parameters,
+        :param gateway: inclusive or exclusive gateway,
         :param output_element: object representing BPMN XML 'inclusiveGateway'/'exclusive' element.
         """
-        output_element.set(consts.Consts.gateway_direction, node_params[consts.Consts.gateway_direction])
-        if consts.Consts.default in node_params and node_params[consts.Consts.default] is not None:
-            output_element.set(consts.Consts.default, node_params[consts.Consts.default])
+        if not isinstance(gateway, InclusiveGateway) and not isinstance(gateway, ExclusiveGateway):
+            raise TypeError("Expected Gateway or ComplexGateway instance")
+
+        output_element.set(consts.Consts.gateway_direction, gateway.gateway_direction.value)
+        if gateway.default is not None:
+            output_element.set(consts.Consts.default, gateway.default)
 
     @staticmethod
-    def export_parallel_gateway_info(node_params, output_element):
+    def export_parallel_gateway_info(gateway: ParallelGateway, output_element: Element):
         """
         Adds parallel gateway node attributes to exported XML element
 
-        :param node_params: dictionary with given parallel gateway parameters,
+        :param gateway: parallel gateway,
         :param output_element: object representing BPMN XML 'parallelGateway' element.
         """
-        output_element.set(consts.Consts.gateway_direction, node_params[consts.Consts.gateway_direction])
+        output_element.set(consts.Consts.gateway_direction, gateway.gateway_direction.value)
 
     @staticmethod
-    def export_catch_event_info(node_params, output_element):
+    def export_catch_event_info(event: IntermediateCatchEvent, output_element: Element):
         """
         Adds IntermediateCatchEvent attributes to exported XML element
 
-        :param node_params: dictionary with given intermediate catch event parameters,
+        :param event: intermediate catch event,
         :param output_element: object representing BPMN XML 'intermediateCatchEvent' element.
         """
-        output_element.set(consts.Consts.parallel_multiple, node_params[consts.Consts.parallel_multiple])
-        definitions = node_params[consts.Consts.event_definitions]
+        output_element.set(consts.Consts.parallel_multiple, str(event.parallel_multiple).lower())
+        definitions = event.event_definition_list
         for definition in definitions:
-            definition_id = definition[consts.Consts.id]
-            definition_type = definition[consts.Consts.definition_type]
-            output_definition = eTree.SubElement(output_element, definition_type)
+            definition_id = definition.id
+            definition_type = definition.definition_type
+            output_definition = eTree.SubElement(output_element, definition_type.value)
             if definition_id != "":
                 output_definition.set(consts.Consts.id, definition_id)
 
     @staticmethod
-    def export_start_event_info(node_params, output_element):
+    def export_start_event_info(event: StartEvent, output_element: Element):
         """
         Adds StartEvent attributes to exported XML element
 
-        :param node_params: dictionary with given intermediate catch event parameters,
+        :param event: intermediate catch event,
         :param output_element: object representing BPMN XML 'intermediateCatchEvent' element.
         """
-        output_element.set(consts.Consts.parallel_multiple, node_params.get(consts.Consts.parallel_multiple))
-        output_element.set(consts.Consts.is_interrupting, node_params.get(consts.Consts.is_interrupting))
-        definitions = node_params.get(consts.Consts.event_definitions)
+        output_element.set(consts.Consts.parallel_multiple, str(event.parallel_multiple).lower())
+        output_element.set(consts.Consts.is_interrupting, str(event.is_interrupting).lower())
+        definitions = event.event_definition_list
         for definition in definitions:
-            definition_id = definition[consts.Consts.id]
-            definition_type = definition[consts.Consts.definition_type]
+            definition_id = definition.id
+            definition_type = definition.definition_type.value
             output_definition = eTree.SubElement(output_element, definition_type)
             if definition_id != "":
                 output_definition.set(consts.Consts.id, definition_id)
 
     @staticmethod
-    def export_throw_event_info(node_params, output_element):
+    def export_throw_event_info(event: IntermediateThrowEvent, output_element: Element):
         """
         Adds EndEvent or IntermediateThrowingEvent attributes to exported XML element
 
-        :param node_params: dictionary with given intermediate throw event parameters,
+        :param event: intermediate throw event,
         :param output_element: object representing BPMN XML 'intermediateThrowEvent' element.
         """
-        definitions = node_params[consts.Consts.event_definitions]
+        definitions = event.event_definition_list
         for definition in definitions:
-            definition_id = definition[consts.Consts.id]
-            definition_type = definition[consts.Consts.definition_type]
-            output_definition = eTree.SubElement(output_element, definition_type)
+            definition_id = definition.id
+            definition_type = definition.definition_type
+            output_definition = eTree.SubElement(output_element, definition_type.value)
             if definition_id != "":
                 output_definition.set(consts.Consts.id, definition_id)
 
     @staticmethod
-    def export_boundary_event_info(node_params, output_element):
+    def export_boundary_event_info(event: BoundaryEvent, output_element: Element):
         """
-        Adds IntermediateCatchEvent attributes to exported XML element
+        Adds BoundaryEvent attributes to exported XML element
 
-        :param node_params: dictionary with given intermediate catch event parameters,
-        :param output_element: object representing BPMN XML 'intermediateCatchEvent' element.
+        :param event: dictionary with given intermediate catch event parameters,
+        :param output_element: object representing BPMN XML 'boundaryEvent' element.
         """
-        output_element.set(consts.Consts.parallel_multiple, node_params[consts.Consts.parallel_multiple])
-        output_element.set(consts.Consts.cancel_activity, node_params[consts.Consts.cancel_activity])
-        output_element.set(consts.Consts.attached_to_ref, node_params[consts.Consts.attached_to_ref])
-        definitions = node_params[consts.Consts.event_definitions]
+        output_element.set(consts.Consts.parallel_multiple, str(event.parallel_multiple).lower())
+        output_element.set(consts.Consts.cancel_activity, str(event.cancel_activity).lower())
+        output_element.set(consts.Consts.attached_to_ref, event.attached_to_ref)
+        definitions = event.event_definition_list
         for definition in definitions:
-            definition_id = definition[consts.Consts.id]
-            definition_type = definition[consts.Consts.definition_type]
-            output_definition = eTree.SubElement(output_element, definition_type)
+            definition_id = definition.id
+            definition_type = definition.definition_type
+            output_definition = eTree.SubElement(output_element, definition_type.value)
             if definition_id != "":
                 output_definition.set(consts.Consts.id, definition_id)
 
@@ -311,7 +328,7 @@ class BpmnDiagramGraphExport(object):
         """
         Creates a new XML element (depends on node type) for given node parameters and adds it to 'process' element.
 
-        :param bpmn_diagram: BPMNDiagramGraph class instantion representing a BPMN process diagram,
+        :param bpmn_diagram: BPMNDiagramGraph class instance representing a BPMN process diagram,
         :param process_id: string representing ID of given flow node,
         :param params: dictionary with node parameters,
         :param process: object of Element class, representing BPMN XML 'process' element (root for nodes).
@@ -420,7 +437,7 @@ class BpmnDiagramGraphExport(object):
 
         :param directory: string representing output directory,
         :param filename: string representing output file name,
-        :param bpmn_diagram: BPMNDiagramGraph class instantion representing a BPMN process diagram.
+        :param bpmn_diagram: BPMNDiagramGraph class instance representing a BPMN process diagram.
         """
         diagram_attributes = bpmn_diagram.diagram_attributes
         plane_attributes = bpmn_diagram.plane_attributes

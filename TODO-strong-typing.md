@@ -45,4 +45,4 @@ TODOs:
 - [x] **attached_to_ref** in import
 - [x] **import_lane_element**
 - [ ] **consts.Consts.width** ? in diagram_layouter ?
-- [ ] 
+- [ ] **complex_gateway_default** complex gateway does not have default flow, so it should not be set in the diagram

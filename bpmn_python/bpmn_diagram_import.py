@@ -521,10 +521,11 @@ class BpmnDiagramGraphImport(BaseModel):
         element_id = element.getAttribute(consts.Consts.id)
         BpmnDiagramGraphImport.import_gateway_to_graph(diagram_graph, process_id, element)
 
-        node = diagram_graph.nodes[element_id]
-        if isinstance(node, ComplexGateway):
-            node.default_target_id = element.getAttribute(consts.Consts.default) \
-                if element.hasAttribute(consts.Consts.default) else None
+        # node = diagram_graph.nodes[element_id]
+        # if isinstance(node, ComplexGateway):
+            # TODO complex_gateway_default
+            # node.default_target_id = element.getAttribute(consts.Consts.default) \
+            #     if element.hasAttribute(consts.Consts.default) else None
         # diagram_graph.nodes[element_id][consts.Consts.default] = element.getAttribute(consts.Consts.default) \
         #     if element.hasAttribute(consts.Consts.default) else None
 
