@@ -3,7 +3,7 @@
 Class used for representing tProcess of BPMN 2.0 graph
 """
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from pydantic import Field
 
@@ -20,7 +20,8 @@ class Process(CallableElement):
     process_type: "ProcessType" = Field(default="None", description="Type of process")
     is_closed: bool = Field(default=False, description="Indicates if the process is closed")
     is_executable: bool = Field(default=False, description="Indicates if the process is executable")
-    lane_set_list: List[LaneSet] = Field(default_factory=list, description="List of LaneSet objects")
+    lane_set: Optional[LaneSet] = Field(default=None,
+                                        description="Optional LaneSet object representing lanes in the process")
     flow_element_list: List[FlowElement] = Field(default_factory=list, description="List of FlowElement objects")
 
 

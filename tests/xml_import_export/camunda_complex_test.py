@@ -5,10 +5,10 @@ Test unit, using more complex graph made in bpmn.io editor for import/export ope
 import os
 import unittest
 
-from loguru import logger
-
-import bpmn_python.bpmn_diagram_visualizer as visualizer
 import bpmn_python.bpmn_diagram_rep as diagram
+import bpmn_python.bpmn_diagram_visualizer as visualizer
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
+
 
 def _check_colon_quotes(s):
     # A quick helper function to check if a string has a colon in it
@@ -36,8 +36,8 @@ class CamundaComplexTests(unittest.TestCase):
         """
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_path))
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
-        bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
+        BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
 
     def test_loadCamundaComplexDiagramAndVisualize(self):
         """
@@ -50,8 +50,8 @@ class CamundaComplexTests(unittest.TestCase):
         # visualizer.visualize_diagram(bpmn_graph)
 
         visualizer.bpmn_diagram_to_png(bpmn_graph, self.output_directory + self.output_png_file)
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
-        bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
+        BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
 
 if __name__ == '__main__':
     unittest.main()

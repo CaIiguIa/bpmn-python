@@ -41,8 +41,10 @@ TODOs:
 - [x] **node_type** property for FlowNode class?
 - [x] **event_definitions**? look up consts.Consts.event_definitions
 - [x] **node_creator** for all gateway types
-- [ ] **create_new_diagram_graph** make sure that it initializes new diagram properly
+- [x] **create_new_diagram_graph** make sure that it initializes new diagram properly
 - [x] **attached_to_ref** in import
 - [x] **import_lane_element**
-- [ ] **consts.Consts.width** ? in diagram_layouter ?
+- [x] **consts.Consts.width** ? in diagram_layouter ?
 - [ ] **complex_gateway_default** complex gateway does not have default flow, so it should not be set in the diagram
+- [ ] task import does not preserve the node type
+- [ ]

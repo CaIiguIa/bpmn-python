@@ -21,7 +21,6 @@ from bpmn_python.graph.classes.events.end_event import EndEvent
 from bpmn_python.graph.classes.events.intermediate_catch_event import IntermediateCatchEvent
 from bpmn_python.graph.classes.events.intermediate_throw_event import IntermediateThrowEvent
 from bpmn_python.graph.classes.events.start_event import StartEvent
-from bpmn_python.graph.classes.gateways.complex_gateway import ComplexGateway
 from bpmn_python.graph.classes.gateways.event_based_gateway import EventBasedGateway, EventBasedGatewayType
 from bpmn_python.graph.classes.gateways.exclusive_gateway import ExclusiveGateway
 from bpmn_python.graph.classes.gateways.gateway import Gateway, GatewayDirection
@@ -237,7 +236,7 @@ class BpmnDiagramGraphImport(BaseModel):
                     lanes_dict[lane_id] = lane
 
         lane_set = LaneSet(id=lane_set_id, lanes=lanes_dict)
-        process.lane_set_list.append(lane_set)
+        process.lane_set = lane_set
 
     @staticmethod
     def import_child_lane_set_element(child_lane_set_element, plane_element) -> LaneSet:
@@ -523,9 +522,9 @@ class BpmnDiagramGraphImport(BaseModel):
 
         # node = diagram_graph.nodes[element_id]
         # if isinstance(node, ComplexGateway):
-            # TODO complex_gateway_default
-            # node.default_target_id = element.getAttribute(consts.Consts.default) \
-            #     if element.hasAttribute(consts.Consts.default) else None
+        # TODO complex_gateway_default
+        # node.default_target_id = element.getAttribute(consts.Consts.default) \
+        #     if element.hasAttribute(consts.Consts.default) else None
         # diagram_graph.nodes[element_id][consts.Consts.default] = element.getAttribute(consts.Consts.default) \
         #     if element.hasAttribute(consts.Consts.default) else None
 

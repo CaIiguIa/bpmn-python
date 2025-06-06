@@ -90,6 +90,7 @@ class Consts(object):
     outgoing_flow_list = "outgoing_flow_list"
     waypoint = "waypoint"
     waypoints = "waypoints"
+    bpmndi_namespace = "bpmndi:"
 
     # Additional parameter names
     type = "type"
