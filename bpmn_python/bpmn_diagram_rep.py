@@ -223,7 +223,7 @@ class BpmnDiagramGraph(BaseModel):
 
         return flows
 
-    def get_flow_by_id(self, flow_id: str) -> tuple[str, str, SequenceFlow] | None:
+    def get_flow_by_id(self, flow_id: str) -> tuple[str, str, SequenceFlow] | tuple[str, str, MessageFlow] | None:
         """
         Returns an edge (flow) with requested ID.
 
@@ -233,11 +233,15 @@ class BpmnDiagramGraph(BaseModel):
         Returns:
             tuple: first value is Source Node ID, second value is Target Node ID, third - a SequenceFlow Object.
         """
-        if flow_id not in self.sequence_flows:
-            return None
+        if flow_id in self.message_flows:
+            message_flow = self.message_flows[flow_id]
+            return message_flow.source_ref, message_flow.target_ref, message_flow
 
-        flow = self.sequence_flows[flow_id]
-        return flow.source_ref_id, flow.target_ref_id, flow
+        if flow_id in self.sequence_flows:
+            flow = self.sequence_flows[flow_id]
+            return flow.source_ref_id, flow.target_ref_id, flow
+
+        return None
 
     def get_flows_list_by_process_id(
         self, process_id: str
