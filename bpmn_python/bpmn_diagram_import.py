@@ -522,9 +522,6 @@ class BpmnDiagramGraphImport(BaseModel):
 
         # node = diagram_graph.nodes[element_id]
         # if isinstance(node, ComplexGateway):
-        # TODO complex_gateway_default
-        # node.default_target_id = element.getAttribute(consts.Consts.default) \
-        #     if element.hasAttribute(consts.Consts.default) else None
         # diagram_graph.nodes[element_id][consts.Consts.default] = element.getAttribute(consts.Consts.default) \
         #     if element.hasAttribute(consts.Consts.default) else None
 

@@ -98,9 +98,6 @@ class BpmnDiagramGraphExport(BaseModel):
         :param output_element: object representing BPMN XML 'complexGateway' element.
         """
         output_element.set(consts.Consts.gateway_direction, gateway.gateway_direction.value)
-        # TODO complex_gateway_default
-        # if gateway.default_target_id is not None:
-        #     output_element.set(consts.Consts.default, gateway.default_target_id)
 
     @staticmethod
     def export_event_based_gateway_info(gateway: EventBasedGateway, output_element: Element):
@@ -559,7 +556,7 @@ class BpmnDiagramGraphExport(BaseModel):
                 BpmnDiagramGraphExport.export_node_data(bpmn_diagram, node_id, node, process)
 
             # for each edge in graph add sequence flow element, its attributes and BPMNEdge element
-            flows = bpmn_diagram.sequence_flows  # TODO: message_flows ?
+            flows = bpmn_diagram.sequence_flows
             for flow in flows.values():
                 BpmnDiagramGraphExport.export_flow_process_data(flow, process)
 
