@@ -153,7 +153,7 @@ class BpmnDiagramGraphExport(BaseModel):
             definition_id = definition.id
             definition_type = definition.definition_type
             output_definition = eTree.SubElement(output_element, definition_type.value)
-            if definition_id != "":
+            if definition_id is not None and definition_id != "":
                 output_definition.set(consts.Consts.id, definition_id)
 
     @staticmethod
@@ -171,7 +171,7 @@ class BpmnDiagramGraphExport(BaseModel):
             definition_id = definition.id
             definition_type = definition.definition_type.value
             output_definition = eTree.SubElement(output_element, definition_type)
-            if definition_id != "":
+            if definition_id is not None and definition_id != "":
                 output_definition.set(consts.Consts.id, definition_id)
 
     @staticmethod
@@ -187,7 +187,7 @@ class BpmnDiagramGraphExport(BaseModel):
             definition_id = definition.id
             definition_type = definition.definition_type
             output_definition = eTree.SubElement(output_element, definition_type.value)
-            if definition_id != "":
+            if definition_id is not None and definition_id != "":
                 output_definition.set(consts.Consts.id, definition_id)
 
     @staticmethod
@@ -200,13 +200,14 @@ class BpmnDiagramGraphExport(BaseModel):
         """
         output_element.set(consts.Consts.parallel_multiple, str(event.parallel_multiple).lower())
         output_element.set(consts.Consts.cancel_activity, str(event.cancel_activity).lower())
-        output_element.set(consts.Consts.attached_to_ref, event.attached_to_ref)
+        if event.attached_to_ref is not None:
+            output_element.set(consts.Consts.attached_to_ref, event.attached_to_ref)
         definitions = event.event_definition_list
         for definition in definitions:
             definition_id = definition.id
             definition_type = definition.definition_type
             output_definition = eTree.SubElement(output_element, definition_type.value)
-            if definition_id != "":
+            if definition_id is not None and definition_id != "":
                 output_definition.set(consts.Consts.id, definition_id)
 
     @staticmethod
@@ -285,7 +286,8 @@ class BpmnDiagramGraphExport(BaseModel):
         """
         lane_xml = eTree.SubElement(parent_xml_element, consts.Consts.lane)
         lane_xml.set(consts.Consts.id, lane_id)
-        lane_xml.set(consts.Consts.name, lane.name)
+        if lane.name is not None:
+            lane_xml.set(consts.Consts.name, lane.name)
         if lane.child_lane_set is not None and len(lane.child_lane_set.lanes) > 0:
             child_lane_set = lane.child_lane_set
             BpmnDiagramGraphExport.export_child_lane_set(lane_xml, child_lane_set, plane_element)
@@ -339,7 +341,8 @@ class BpmnDiagramGraphExport(BaseModel):
         node_type = node.node_type
         output_element = eTree.SubElement(process, node_type.value)
         output_element.set(consts.Consts.id, process_id)
-        output_element.set(consts.Consts.name, node.name)
+        if node.name is not None:
+            output_element.set(consts.Consts.name, node.name)
 
         for incoming in node.incoming:
             incoming_element = eTree.SubElement(output_element, consts.Consts.incoming_flow)
@@ -401,14 +404,17 @@ class BpmnDiagramGraphExport(BaseModel):
         :param process: object of Element class, representing BPMN XML 'process' element (root for sequence flows)
         """
         output_flow = eTree.SubElement(process, consts.Consts.sequence_flow)
-        output_flow.set(consts.Consts.id, flow.id)
-        output_flow.set(consts.Consts.name, flow.name)
+        if flow.id is not None:
+            output_flow.set(consts.Consts.id, flow.id)
+        if flow.name is not None:
+            output_flow.set(consts.Consts.name, flow.name)
         output_flow.set(consts.Consts.source_ref, flow.source_ref_id)
         output_flow.set(consts.Consts.target_ref, flow.target_ref_id)
         if flow.condition_expression is not None:
             condition_expression_params = flow.condition_expression
             condition_expression = eTree.SubElement(output_flow, consts.Consts.condition_expression)
-            condition_expression.set(consts.Consts.id, condition_expression_params.id)
+            if condition_expression_params.id is not None:
+                condition_expression.set(consts.Consts.id, condition_expression_params.id)
             condition_expression.text = condition_expression_params.condition
             output_flow.set(consts.Consts.name, condition_expression_params.condition)
 
@@ -422,12 +428,13 @@ class BpmnDiagramGraphExport(BaseModel):
         """
         output_flow = eTree.SubElement(plane, consts.Consts.bpmndi_namespace + consts.Consts.bpmn_edge)
         output_flow.set(consts.Consts.id, flow.id + "_gui")
-        output_flow.set(consts.Consts.bpmn_element, flow.id)
+        if flow.id is not None:
+            output_flow.set(consts.Consts.bpmn_element, flow.id)
         waypoints = flow.waypoints
         for waypoint in waypoints:
             waypoint_element = eTree.SubElement(output_flow, "omgdi:waypoint")
-            waypoint_element.set(consts.Consts.x, waypoint[0])
-            waypoint_element.set(consts.Consts.y, waypoint[1])
+            waypoint_element.set(consts.Consts.x, str(waypoint[0]))
+            waypoint_element.set(consts.Consts.y, str(waypoint[1]))
 
     @staticmethod
     def export_xml_file(directory: str, filename: str, bpmn_diagram: BpmnDiagramGraph):
@@ -450,12 +457,14 @@ class BpmnDiagramGraphExport(BaseModel):
 
         # Add collaboration
         collaboration_xml = eTree.SubElement(definitions, consts.Consts.collaboration)
-        collaboration_xml.set(consts.Consts.id, bpmn_diagram.collaboration_id)
+        if bpmn_diagram.collaboration_id is not None:
+            collaboration_xml.set(consts.Consts.id, bpmn_diagram.collaboration_id)
 
         for message_flow_id, message_flow in message_flows.items():
             message_flow_xml = eTree.SubElement(collaboration_xml, consts.Consts.message_flow)
             message_flow_xml.set(consts.Consts.id, message_flow_id)
-            message_flow_xml.set(consts.Consts.name, message_flow.name)
+            if message_flow.name is not None:
+                message_flow_xml.set(consts.Consts.name, message_flow.name)
             message_flow_xml.set(consts.Consts.source_ref, message_flow.source_ref)
             message_flow_xml.set(consts.Consts.target_ref, message_flow.target_ref)
 
@@ -466,14 +475,16 @@ class BpmnDiagramGraphExport(BaseModel):
             waypoints = message_flow_params.waypoints
             for waypoint in waypoints:
                 waypoint_element = eTree.SubElement(output_flow, "omgdi:waypoint")
-                waypoint_element.set(consts.Consts.x, waypoint[0])
-                waypoint_element.set(consts.Consts.y, waypoint[1])
+                waypoint_element.set(consts.Consts.x, str(waypoint[0]))
+                waypoint_element.set(consts.Consts.y, str(waypoint[1]))
 
         for participant_id, participant in participants.items():
             participant_xml = eTree.SubElement(collaboration_xml, consts.Consts.participant)
             participant_xml.set(consts.Consts.id, participant_id)
-            participant_xml.set(consts.Consts.name, participant.name)
-            participant_xml.set(consts.Consts.process_ref, participant.process_ref)
+            if participant.name is not None:
+                participant_xml.set(consts.Consts.name, participant.name)
+            if participant.process_ref is not None:
+                participant_xml.set(consts.Consts.process_ref, participant.process_ref)
 
             output_element_di = eTree.SubElement(plane, consts.Consts.bpmndi_namespace +
                                                  consts.Consts.bpmn_shape)
