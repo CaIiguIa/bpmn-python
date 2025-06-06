@@ -838,7 +838,7 @@ class BpmnDiagramGraphImport(BaseModel):
         name = flow_element.getAttribute(consts.Consts.name) if flow_element.hasAttribute(consts.Consts.name) else ""
         source_ref = flow_element.getAttribute(consts.Consts.source_ref)
         target_ref = flow_element.getAttribute(consts.Consts.target_ref)
-        message_flows[flow_id] = MessageFlow(id=flow_id, name=name, source_ref=source_ref, target_ref=target_ref)
+        message_flows[flow_id] = MessageFlow(id=flow_id, name=name, source_ref_id=source_ref, target_ref_id=target_ref)
 
         # diagram_graph.add_edge(source_ref, target_ref)
         # diagram_graph[source_ref][target_ref][consts.Consts.id] = flow_id

@@ -9,8 +9,6 @@ import networkx as nx
 from pydantic import BaseModel, Field
 
 import bpmn_python.bpmn_diagram_exception as bpmn_exception
-import bpmn_python.bpmn_process_csv_export as bpmn_csv_export
-import bpmn_python.bpmn_process_csv_import as bpmn_csv_import
 import bpmn_python.bpmn_python_consts as consts
 from bpmn_python.bpmn_python_consts import Consts
 from bpmn_python.graph.classes.activities.subprocess import SubProcess
@@ -98,29 +96,6 @@ class BpmnDiagramGraph(BaseModel):
         from bpmn_python.bpmn_diagram_import import BpmnDiagramGraphImport
 
         BpmnDiagramGraphImport.load_diagram_from_xml(filepath, self)
-
-    def load_diagram_from_csv_file(self, filepath: str) -> None:
-        """
-        Reads an CSV file from given filepath and maps it into inner representation of BPMN diagram.
-        Returns an instance of BPMNDiagramGraph class.
-
-        Args:
-            filepath (str): CSV filepath.
-        """
-
-        bpmn_csv_import.BpmnDiagramGraphCSVImport.load_diagram_from_csv(filepath, self)
-
-    def export_csv_file(self, directory: str, filename: str) -> None:
-        """
-        Exports diagram inner graph to BPMN 2.0 XML file (with Diagram Interchange data).
-
-        Args:
-            directory (str): output directory,
-            filename (str): output file name.
-        """
-        bpmn_csv_export.BpmnDiagramGraphCsvExport.export_process_to_csv(
-            self, directory, filename
-        )
 
     # Querying methods
     def get_nodes(self, node_type: str = "") -> list[FlowNode]:
@@ -235,7 +210,7 @@ class BpmnDiagramGraph(BaseModel):
         """
         if flow_id in self.message_flows:
             message_flow = self.message_flows[flow_id]
-            return message_flow.source_ref, message_flow.target_ref, message_flow
+            return message_flow.source_ref_id, message_flow.target_ref_id, message_flow
 
         if flow_id in self.sequence_flows:
             flow = self.sequence_flows[flow_id]
@@ -812,11 +787,11 @@ class BpmnDiagramGraph(BaseModel):
 
         for message_flow_id, message_flow in self.message_flows.items():
             G.add_edge(
-                message_flow.source_ref,
-                message_flow.target_ref,
+                message_flow.source_ref_id,
+                message_flow.target_ref_id,
                 **{
-                    consts.Consts.source_ref: message_flow.source_ref,
-                    consts.Consts.target_ref: message_flow.target_ref,
+                    consts.Consts.source_ref: message_flow.source_ref_id,
+                    consts.Consts.target_ref: message_flow.target_ref_id,
                     consts.Consts.name: message_flow.name,
                     consts.Consts.id: message_flow_id,
                     consts.Consts.message_flow: message_flow,

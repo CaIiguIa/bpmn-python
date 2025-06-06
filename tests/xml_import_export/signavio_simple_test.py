@@ -23,7 +23,7 @@ class SignavioSimpleTests(unittest.TestCase):
     output_dot_file = "signavio-example"
     output_png_file = "signavio-example"
 
-    def test_loadSignavioSimpleDiagram(self):
+    def test_loadSignavioSimpleDiagram(self) -> None:
         """
         Test for importing a simple Signavio diagram example (as BPMN 2.0 XML) into inner representation
         and later exporting it to XML file
@@ -33,7 +33,7 @@ class SignavioSimpleTests(unittest.TestCase):
         BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
         BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
 
-    def test_loadSignavioSimpleDiagramAndVisualize(self):
+    def test_loadSignavioSimpleDiagramAndVisualize(self) -> None:
         """
         Test for importing a simple Signavio diagram example (as BPMN 2.0 XML) into inner representation
         and later exporting it to XML file. Includes test for visualization functionality.

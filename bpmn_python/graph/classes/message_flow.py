@@ -19,8 +19,8 @@ class MessageFlow(BaseElement):
     - message_ref: optional string (ID of referenced message element)
     """
     name: Optional[str] = Field(default=None, description="Optional name of the message flow")
-    source_ref: str = Field(..., description="ID of source node")
-    target_ref: str = Field(..., description="ID of target node")
+    source_ref_id: str = Field(..., description="ID of source node")
+    target_ref_id: str = Field(..., description="ID of target node")
     message_ref: Optional[str] = Field(default=None, description="ID of referenced message element")
     waypoints: Optional[list[tuple[float, float]]] = Field(
         default=None,
