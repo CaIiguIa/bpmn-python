@@ -6,6 +6,7 @@ import os
 import unittest
 
 import bpmn_python.bpmn_diagram_rep as diagram
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
 
 
 class DefaultConditionalFlowTests(unittest.TestCase):
@@ -23,7 +24,7 @@ class DefaultConditionalFlowTests(unittest.TestCase):
         """
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_path))
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file, bpmn_graph)
 
 if __name__ == '__main__':
     unittest.main()

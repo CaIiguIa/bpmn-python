@@ -2,7 +2,7 @@
 """
 Class used for representing tSubProcess of BPMN 2.0 graph
 """
-from typing import List, ClassVar
+from typing import List, ClassVar, Optional
 
 from pydantic import Field
 
@@ -16,13 +16,14 @@ class SubProcess(Activity):
     """
     Class used for representing tSubProcess of BPMN 2.0 graph
     Fields (except inherited):
-    - lane_set_list: a list of LaneSet objects.
+    - lane_set: an Optional LaneSet object.
     - flow_element_list: a list of FlowElement objects.
     - triggered_by_event: a boolean value.
     - is_expanded: a boolean value indicating if the subprocess is expanded (default is True).
     """
     triggered_by_event: bool = Field(default=False, description="Indicates if subprocess is triggered by event")
-    lane_set_list: List[LaneSet] = Field(default_factory=list, description="List of LaneSet objects")
+    lane_set: Optional[LaneSet] = Field(default=None,
+                                        description="Optional LaneSet object representing lanes in the subprocess")
     flow_element_list: List[FlowElement] = Field(default_factory=list, description="List of FlowElement objects")
     is_expanded: bool = Field(default=True, description="Indicates if the subprocess is expanded (default is True)")
     node_type: ClassVar[NodeType] = NodeType.SUB_PROCESS

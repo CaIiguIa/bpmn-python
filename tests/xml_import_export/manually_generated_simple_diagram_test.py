@@ -7,6 +7,9 @@ import unittest
 import bpmn_python.bpmn_diagram_layouter as layouter
 import bpmn_python.bpmn_diagram_rep as diagram
 import bpmn_python.bpmn_diagram_visualizer as visualizer
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
+from bpmn_python.graph.classes.flow_node import NodeType
+from bpmn_python.graph.classes.root_element.event_definition import EventDefinitionType
 
 
 class ManualGenerationSimpleTests(unittest.TestCase):
@@ -25,18 +28,18 @@ class ManualGenerationSimpleTests(unittest.TestCase):
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_modify_start_event_to_diagram(process_id,
                                                                      start_event_name="start_event",
-                                                                     start_event_definition=diagram.StartEventDefinitionTypes.TIMER)
+                                                                     start_event_definition=EventDefinitionType.TIMER)
         [task1_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task1")
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, start_id, task1_id, "start_to_one")
 
         [exclusive_gate_fork_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                         gateway_name="exclusive_gate_fork",
-                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
+                                                                               gateway_type=NodeType.EXCLUSIVE)
         [task1_ex_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task1_ex")
         [task2_ex_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task2_ex")
         [exclusive_gate_join_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                         gateway_name="exclusive_gate_join",
-                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
+                                                                               gateway_type=NodeType.EXCLUSIVE)
 
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, task1_id, exclusive_gate_fork_id, "one_to_ex_fork")
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, exclusive_gate_fork_id, task1_ex_id, "ex_fork_to_ex_one")
@@ -46,14 +49,14 @@ class ManualGenerationSimpleTests(unittest.TestCase):
 
         [task2_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task2")
         [end_id, _] = bpmn_graph.add_modify_end_event_to_diagram(process_id, end_event_name="end_event",
-                                                                 end_event_definition=diagram.EndEventDefinitionTypes.MESSAGE)
+                                                                 end_event_definition=EventDefinitionType.MESSAGE)
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, exclusive_gate_join_id, task2_id, "ex_join_to_two")
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, task2_id, end_id, "two_to_end")
 
         layouter.generate_layout(bpmn_graph)
 
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
-        bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
+        BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
         # Uncomment line below to get a simple view of created diagram
         # visualizer.visualize_diagram(bpmn_graph)
         # visualizer.bpmn_diagram_to_dot_file(bpmn_graph, self.output_directory + self.output_dot_file)

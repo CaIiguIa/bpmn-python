@@ -7,6 +7,9 @@ import os
 import unittest
 
 import bpmn_python.bpmn_diagram_rep as diagram
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
+from bpmn_python.graph.classes.flow_node import NodeType
+from bpmn_python.graph.classes.root_element.event_definition import EventDefinitionType
 
 
 class CsvExportTests(unittest.TestCase):
@@ -54,13 +57,13 @@ class CsvExportTests(unittest.TestCase):
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_modify_start_event_to_diagram(process_id, start_event_name="Start event",
-                                                                     start_event_definition=diagram.StartEventDefinitionTypes.TIMER)
+                                                                     start_event_definition=EventDefinitionType.TIMER)
         [task1_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 1")
         [subprocess1_id, _] = bpmn_graph.add_subprocess_to_diagram(process_id, subprocess_name="Subprocess 1")
         [subprocess2_id, _] = bpmn_graph.add_subprocess_to_diagram(process_id, subprocess_name="Subprocess 2")
         [task2_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 2")
         [end_id, _] = bpmn_graph.add_modify_end_event_to_diagram(process_id, end_event_name="End event",
-                                                                 end_event_definition=diagram.EndEventDefinitionTypes.MESSAGE)
+                                                                 end_event_definition=EventDefinitionType.MESSAGE)
 
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, start_id, task1_id,
                                                 sequence_flow_name="start_to_task_one")
@@ -74,37 +77,37 @@ class CsvExportTests(unittest.TestCase):
                                                 sequence_flow_name="task_two_to_end")
 
         bpmn_graph.export_csv_file(self.output_directory, "simple_diagram.csv")
-        bpmn_graph.export_xml_file(self.output_directory, "simple_diagram.bpmn")
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, "simple_diagram.bpmn", bpmn_graph)
 
     def test_csv_export_diagram_with_exclusive_parallel_gateway(self):
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_modify_start_event_to_diagram(process_id, start_event_name="Start event",
-                                                                     start_event_definition=diagram.StartEventDefinitionTypes.TIMER)
+                                                                     start_event_definition=EventDefinitionType.TIMER)
         [task1_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 1")
 
         [exclusive_gate_fork_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                         gateway_name="Exclusive gate fork",
-                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
+                                                                               gateway_type=NodeType.EXCLUSIVE)
         [task2_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 2")
         [task3_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 3")
         [task6_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 6")
         [exclusive_gate_join_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                         gateway_name="Exclusive gate join",
-                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
+                                                                               gateway_type=NodeType.EXCLUSIVE)
 
         [parallel_gate_fork_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                        gateway_name="Parallel gateway fork",
-                                                                       gateway_type=diagram.GatewayType.PARALLEL)
+                                                                              gateway_type=NodeType.PARALLEL)
         [task4_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 4")
         [task5_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 5")
         [parallel_gate_join_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                        gateway_name="Parallel gateway join",
-                                                                       gateway_type=diagram.GatewayType.PARALLEL)
+                                                                              gateway_type=NodeType.PARALLEL)
 
         [end_id, _] = bpmn_graph.add_modify_end_event_to_diagram(process_id, end_event_name="End event",
-                                                                 end_event_definition=diagram.EndEventDefinitionTypes.MESSAGE)
+                                                                 end_event_definition=EventDefinitionType.MESSAGE)
 
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, start_id, task1_id,
                                                 sequence_flow_name="Start to one")
@@ -134,37 +137,38 @@ class CsvExportTests(unittest.TestCase):
                                                 sequence_flow_name="Exclusive join to end event")
 
         bpmn_graph.export_csv_file(self.output_directory, "exclusive_parallel_gateways_diagram.csv")
-        bpmn_graph.export_xml_file(self.output_directory, "exclusive_parallel_gateways_diagram.bpmn")
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, "exclusive_parallel_gateways_diagram.bpmn",
+                                               bpmn_graph)
 
     def test_csv_export_diagram_with_inclusive_parallel_gateway(self):
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
         [start_id, _] = bpmn_graph.add_modify_start_event_to_diagram(process_id, start_event_name="Start event",
-                                                                     start_event_definition=diagram.StartEventDefinitionTypes.TIMER)
+                                                                     start_event_definition=EventDefinitionType.TIMER)
         [task1_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 1")
 
         [exclusive_gate_fork_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                         gateway_name="Inclusive gate fork",
-                                                                        gateway_type=diagram.GatewayType.INCLUSIVE)
+                                                                               gateway_type=NodeType.INCLUSIVE)
         [task2_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 2")
         [task3_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 3")
         [task6_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 6")
         [exclusive_gate_join_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                         gateway_name="Inclusive gate join",
-                                                                        gateway_type=diagram.GatewayType.INCLUSIVE)
+                                                                               gateway_type=NodeType.INCLUSIVE)
 
         [parallel_gate_fork_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                        gateway_name="Parallel gateway fork",
-                                                                       gateway_type=diagram.GatewayType.PARALLEL)
+                                                                              gateway_type=NodeType.PARALLEL)
         [task4_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 4")
         [task5_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="Task 5")
         [parallel_gate_join_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                        gateway_name="Parallel gateway join",
-                                                                       gateway_type=diagram.GatewayType.PARALLEL)
+                                                                              gateway_type=NodeType.PARALLEL)
 
         [end_id, _] = bpmn_graph.add_modify_end_event_to_diagram(process_id, end_event_name="End event",
-                                                                 end_event_definition=diagram.EndEventDefinitionTypes.MESSAGE)
+                                                                 end_event_definition=EventDefinitionType.MESSAGE)
 
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, start_id, task1_id,
                                                 sequence_flow_name="Start to one")
@@ -194,7 +198,8 @@ class CsvExportTests(unittest.TestCase):
                                                 sequence_flow_name="Exclusive join to end event")
 
         bpmn_graph.export_csv_file(self.output_directory, "inclusive_parallel_gateways_diagram.csv")
-        bpmn_graph.export_xml_file(self.output_directory, "inclusive_parallel_gateways_diagram.bpmn")
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, "inclusive_parallel_gateways_diagram.bpmn",
+                                               bpmn_graph)
 
 
 if __name__ == '__main__':

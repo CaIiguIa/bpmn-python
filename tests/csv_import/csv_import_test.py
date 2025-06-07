@@ -8,6 +8,7 @@ import os
 import unittest
 
 import bpmn_python.bpmn_diagram_rep as diagram
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
 
 
 class CsvExportTests(unittest.TestCase):
@@ -26,7 +27,7 @@ class CsvExportTests(unittest.TestCase):
             bpmn_graph.export_csv_file(self.output_directory, process + ".csv")
             cmp_result = filecmp.cmp(self.input_directory + process + ".csv", self.output_directory, process + ".csv")
             # unittest.TestCase.assertTrue(self, cmp_result) # unfortunatelly csv export has bugs
-            bpmn_graph.export_xml_file_no_di(self.output_directory, process + ".bpmn")
+            BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, process + ".bpmn", bpmn_graph)
 
 
 if __name__ == '__main__':

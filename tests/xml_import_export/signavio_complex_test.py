@@ -5,8 +5,9 @@ Test unit, using more complex graph made in Signavio editor for import/export op
 import os
 import unittest
 
-import bpmn_python.bpmn_diagram_visualizer as visualizer
 import bpmn_python.bpmn_diagram_rep as diagram
+import bpmn_python.bpmn_diagram_visualizer as visualizer
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
 
 
 class SignavioComplexTests(unittest.TestCase):
@@ -28,8 +29,8 @@ class SignavioComplexTests(unittest.TestCase):
         """
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_path))
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
-        bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
+        BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
 
     def test_loadSignavioComplexDiagramAndVisualize(self):
         """
@@ -41,8 +42,8 @@ class SignavioComplexTests(unittest.TestCase):
         # Uncomment line below to get a simple view of created diagram
         # visualizer.visualize_diagram(bpmn_graph)
         visualizer.bpmn_diagram_to_png(bpmn_graph, self.output_directory + self.output_png_file)
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
-        bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
+        BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
 
 if __name__ == '__main__':
     unittest.main()

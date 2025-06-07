@@ -6,6 +6,7 @@ import unittest
 
 import bpmn_python.bpmn_diagram_layouter as layouter
 import bpmn_python.bpmn_diagram_rep as diagram
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
 from bpmn_python.graph.classes.flow_node import NodeType
 
 
@@ -34,7 +35,7 @@ class BPMNEditorTests(unittest.TestCase):
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, task2_id, end_id, "two_to_end")
 
         layouter.generate_layout(bpmn_graph)
-        bpmn_graph.export_xml_file(self.output_directory, output_file)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, output_file, bpmn_graph)
 
     def test_layouter_manually_created_diagram_split_join_case(self) -> None:
         """
@@ -70,7 +71,7 @@ class BPMNEditorTests(unittest.TestCase):
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, task2_id, end_id, "two_to_end")
 
         layouter.generate_layout(bpmn_graph)
-        bpmn_graph.export_xml_file(self.output_directory, output_file)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, output_file, bpmn_graph)
 
     def test_layouter_manually_created_diagram_cycle_case(self) -> None:
         """
@@ -106,7 +107,7 @@ class BPMNEditorTests(unittest.TestCase):
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, task2_id, end_id, "two_to_end")
 
         layouter.generate_layout(bpmn_graph)
-        bpmn_graph.export_xml_file(self.output_directory, output_file)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, output_file, bpmn_graph)
 
 
 if __name__ == '__main__':

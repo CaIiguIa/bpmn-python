@@ -474,7 +474,7 @@ def set_flows_waypoints(bpmn_graph: BpmnDiagramGraph):
         target_type = target_node.node_type
         if source_type == NodeType.PARALLEL or source_type == NodeType.INCLUSIVE or source_type == NodeType.EXCLUSIVE:
             flow.waypoints = [(source_node.x + 50, source_node.y + 50),
-                              (source_node.x + 50), (target_node.y + 50),
+                              (source_node.x + 50, target_node.y + 50),
                               (target_node.x, target_node.y + 50)]
         elif source_node.y == target_node.y:
             flow.waypoints = [(source_node.x + 50, source_node.y + 50),

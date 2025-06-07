@@ -7,6 +7,7 @@ import unittest
 
 import bpmn_python.bpmn_diagram_rep as diagram
 import bpmn_python.bpmn_diagram_visualizer as visualizer
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
 
 
 class SignavioSimpleTests(unittest.TestCase):
@@ -29,8 +30,8 @@ class SignavioSimpleTests(unittest.TestCase):
         """
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_path))
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
-        bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
+        BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
 
     def test_loadSignavioSimpleDiagramAndVisualize(self):
         """
@@ -47,8 +48,8 @@ class SignavioSimpleTests(unittest.TestCase):
         visualizer.bpmn_diagram_to_png(
             bpmn_graph, self.output_directory + self.output_png_file, auto_layout=True
         )
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
-        bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
+        BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
 
 
 if __name__ == "__main__":

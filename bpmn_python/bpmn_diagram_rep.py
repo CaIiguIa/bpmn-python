@@ -9,7 +9,6 @@ import networkx as nx
 from pydantic import BaseModel, Field
 
 import bpmn_python.bpmn_diagram_exception as bpmn_exception
-import bpmn_python.bpmn_diagram_export as bpmn_export
 import bpmn_python.bpmn_process_csv_export as bpmn_csv_export
 import bpmn_python.bpmn_process_csv_import as bpmn_csv_import
 import bpmn_python.bpmn_python_consts as consts
@@ -99,28 +98,6 @@ class BpmnDiagramGraph(BaseModel):
         from bpmn_python.bpmn_diagram_import import BpmnDiagramGraphImport
 
         BpmnDiagramGraphImport.load_diagram_from_xml(filepath, self)
-
-    def export_xml_file(self, directory: str, filename: str) -> None:
-        """
-        Exports diagram inner graph to BPMN 2.0 XML file (with Diagram Interchange data).
-
-        Args:
-            directory (str): output directory,
-            filename (str): output file name.
-        """
-        bpmn_export.BpmnDiagramGraphExport.export_xml_file(directory, filename, self)
-
-    def export_xml_file_no_di(self, directory: str, filename: str):
-        """
-        Exports diagram inner graph to BPMN 2.0 XML file (without Diagram Interchange data).
-
-        Args:
-            directory (str): output directory,
-            filename (str): output file name.
-        """
-        bpmn_export.BpmnDiagramGraphExport.export_xml_file_no_di(
-            directory, filename, self
-        )
 
     def load_diagram_from_csv_file(self, filepath: str) -> None:
         """
@@ -246,7 +223,7 @@ class BpmnDiagramGraph(BaseModel):
 
         return flows
 
-    def get_flow_by_id(self, flow_id: str) -> tuple[str, str, SequenceFlow] | None:
+    def get_flow_by_id(self, flow_id: str) -> tuple[str, str, SequenceFlow] | tuple[str, str, MessageFlow] | None:
         """
         Returns an edge (flow) with requested ID.
 
@@ -256,11 +233,15 @@ class BpmnDiagramGraph(BaseModel):
         Returns:
             tuple: first value is Source Node ID, second value is Target Node ID, third - a SequenceFlow Object.
         """
-        if flow_id not in self.sequence_flows:
-            return None
+        if flow_id in self.message_flows:
+            message_flow = self.message_flows[flow_id]
+            return message_flow.source_ref, message_flow.target_ref, message_flow
 
-        flow = self.sequence_flows[flow_id]
-        return flow.source_ref_id, flow.target_ref_id, flow
+        if flow_id in self.sequence_flows:
+            flow = self.sequence_flows[flow_id]
+            return flow.source_ref_id, flow.target_ref_id, flow
+
+        return None
 
     def get_flows_list_by_process_id(
         self, process_id: str
@@ -352,7 +333,6 @@ class BpmnDiagramGraph(BaseModel):
             process_type=process_type,
             is_closed=process_is_closed,
             is_executable=process_is_executable,
-            lane_set_list=[],
             flow_element_list=[],
         )
 
