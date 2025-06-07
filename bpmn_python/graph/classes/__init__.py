@@ -2,6 +2,6 @@
 """
 Package init file
 """
-__all__ = ["activities", "events", "gateways", "root_element", "base_element_type", "condition_expression_type",
-           "flow_element_type", "flow_node_type", "lane_set_type", "lane_type", "message_flow_type", "participant_type",
-           "sequence_flow_type"]
+__all__ = ["activities", "events", "gateways", "root_element", "base_element.py", "condition_expression.py",
+           "flow_element.py", "flow_node.py", "lane_set.py", "lane.py", "message_flow.py", "participant.py",
+           "sequence_flow.py"]

@@ -7,7 +7,7 @@ process
 
 class GridCell(object):
     """
-    Helper class used for Grid cell representation. Contains cell coordinates (row and column) and reference to fow node
+    Helper class used for Grid cell representation. Contains cell coordinates (row and column) and reference to flow node
     """
 
     def __init__(self, row, col, node_id):

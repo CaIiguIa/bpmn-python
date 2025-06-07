@@ -6,17 +6,20 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pydotplus
 import bpmn_python.bpmn_python_consts as consts
-
+from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
 from networkx.drawing.nx_pydot import write_dot
 
+from bpmn_python.graph.classes.activities.task import Task
+from bpmn_python.graph.classes.gateways.exclusive_gateway import ExclusiveGateway
 
-def visualize_diagram(bpmn_diagram):
+
+def visualize_diagram(bpmn_diagram: BpmnDiagramGraph):
     """
     Shows a simple visualization of diagram
 
     :param bpmn_diagram: an instance of BPMNDiagramGraph class.
     """
-    g = bpmn_diagram.diagram_graph
+    g = bpmn_diagram.get_diagram_graph()
     pos = bpmn_diagram.get_nodes_positions()
     nx.draw_networkx_nodes(g, pos, node_shape='s', node_color='white',
                            nodelist=bpmn_diagram.get_nodes_id_list_by_type(consts.Consts.task))
@@ -42,21 +45,21 @@ def visualize_diagram(bpmn_diagram):
                            nodelist=bpmn_diagram.get_nodes_id_list_by_type(consts.Consts.intermediate_throw_event))
 
     node_labels = {}
-    for node in g.nodes(data=True):
-        node_labels[node[0]] = node[1].get(consts.Consts.node_name)
+    for node in bpmn_diagram.get_nodes():
+        node_labels[node.id] = node.name
     nx.draw_networkx_labels(g, pos, node_labels)
 
     nx.draw_networkx_edges(g, pos)
 
     edge_labels = {}
-    for edge in g.edges(data=True):
-        edge_labels[(edge[0], edge[1])] = edge[2].get(consts.Consts.name)
+    for _, _, edge in bpmn_diagram.get_flows():
+        edge_labels[(edge.source_ref_id, edge.target_ref_id)] = edge.name
     nx.draw_networkx_edge_labels(g, pos, edge_labels)
 
     plt.show()
 
 
-def bpmn_diagram_to_dot_file(bpmn_diagram, file_name, auto_layout=False):
+def bpmn_diagram_to_dot_file(bpmn_diagram: BpmnDiagramGraph, file_name: str, auto_layout=False):
     """
     Convert diagram graph to dot file
 
@@ -68,10 +71,11 @@ def bpmn_diagram_to_dot_file(bpmn_diagram, file_name, auto_layout=False):
         graph = _auto_layout_diagram(bpmn_diagram)
         graph.write(file_name + ".dot", format='dot')
     else:
-        g = bpmn_diagram.diagram_graph
+        g = bpmn_diagram.get_diagram_graph()
         write_dot(g, file_name + ".dot")
 
-def bpmn_diagram_to_png(bpmn_diagram, file_name, auto_layout=False):
+
+def bpmn_diagram_to_png(bpmn_diagram: BpmnDiagramGraph, file_name: str, auto_layout=False):
     """
     Create a png picture for given diagram
 
@@ -83,29 +87,29 @@ def bpmn_diagram_to_png(bpmn_diagram, file_name, auto_layout=False):
         graph = _auto_layout_diagram(bpmn_diagram)
         graph.write(file_name + ".png", format='png')
     else:
-        g = bpmn_diagram.diagram_graph
+        g = bpmn_diagram.get_diagram_graph()
         nx.draw(g, with_labels=True)
         plt.savefig(file_name + ".png")
         plt.clf()
 
-def _auto_layout_diagram(bpmn_diagram):
-    g = bpmn_diagram.diagram_graph
+
+def _auto_layout_diagram(bpmn_diagram: BpmnDiagramGraph):
     graph = pydotplus.Dot()
 
-    for node in g.nodes(data=True):
+    for node in bpmn_diagram.get_nodes():
 
-        if node[1].get(consts.Consts.type) == consts.Consts.task:
-            n = pydotplus.Node(name=node[0], shape="box", style="rounded", label=node[1].get(consts.Consts.id))
-        elif node[1].get(consts.Consts.type) == consts.Consts.exclusive_gateway:
-            n = pydotplus.Node(name=node[0], shape="diamond", label=node[1].get(consts.Consts.id))
+        if isinstance(node, Task):
+            n = pydotplus.Node(name=node.id, shape="box", style="rounded", label=node.name or node.id)
+        elif isinstance(node, ExclusiveGateway):
+            n = pydotplus.Node(name=node.id, shape="diamond", label=node.name or node.id)
         else:
-            n = pydotplus.Node(name=node[0], label=node[1].get(consts.Consts.id))
+            n = pydotplus.Node(name=node.id, label=node.name or node.id)
         graph.add_node(n)
 
-    for edge in g.edges(data=True):
-        e = pydotplus.Edge(src=edge[2].get(consts.Consts.source_ref),
-                           dst=edge[2].get(consts.Consts.target_ref),
-                           label=edge[2].get(consts.Consts.name))
+    for _, _, edge in bpmn_diagram.get_flows():
+        e = pydotplus.Edge(src=edge.source_ref_id,
+                           dst=edge.target_ref_id,
+                           label=edge.name)
         graph.add_edge(e)
 
     return graph

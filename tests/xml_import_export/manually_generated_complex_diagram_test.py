@@ -5,8 +5,10 @@ Test unit, creates a more complex graph using functions provided by package and 
 import unittest
 
 import bpmn_python.bpmn_diagram_layouter as layouter
-import bpmn_python.bpmn_diagram_visualizer as visualizer
 import bpmn_python.bpmn_diagram_rep as diagram
+import bpmn_python.bpmn_diagram_visualizer as visualizer
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
+from bpmn_python.graph.classes.flow_node import NodeType
 
 
 class ManualGenerationComplexTests(unittest.TestCase):
@@ -19,7 +21,7 @@ class ManualGenerationComplexTests(unittest.TestCase):
     output_dot_file = "manually-generated-example"
     output_png_file = "manually-generated-example"
 
-    def test_create_diagram_manually(self):
+    def test_create_diagram_manually(self) -> None:
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
@@ -32,12 +34,12 @@ class ManualGenerationComplexTests(unittest.TestCase):
 
         [parallel_gate_fork_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                        gateway_name="parallel_gate_fork",
-                                                                       gateway_type=diagram.GatewayType.PARALLEL)
+                                                                              gateway_type=NodeType.PARALLEL)
         [task1_par_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task1_par")
         [task2_par_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task2_par")
         [parallel_gate_join_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                        gateway_name="parallel_gate_join",
-                                                                       gateway_type=diagram.GatewayType.PARALLEL)
+                                                                              gateway_type=NodeType.PARALLEL)
 
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, subprocess1_id, parallel_gate_fork_id)
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, parallel_gate_fork_id, task1_par_id)
@@ -47,12 +49,12 @@ class ManualGenerationComplexTests(unittest.TestCase):
 
         [exclusive_gate_fork_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                         gateway_name="exclusive_gate_fork",
-                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
+                                                                               gateway_type=NodeType.EXCLUSIVE)
         [task1_ex_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task1_ex")
         [task2_ex_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task2_ex")
         [exclusive_gate_join_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                         gateway_name="exclusive_gate_join",
-                                                                        gateway_type=diagram.GatewayType.EXCLUSIVE)
+                                                                               gateway_type=NodeType.EXCLUSIVE)
 
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, parallel_gate_join_id, exclusive_gate_fork_id)
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, exclusive_gate_fork_id, task1_ex_id)
@@ -62,12 +64,12 @@ class ManualGenerationComplexTests(unittest.TestCase):
 
         [inclusive_gate_fork_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                         gateway_name="inclusive_gate_fork",
-                                                                        gateway_type=diagram.GatewayType.INCLUSIVE)
+                                                                               gateway_type=NodeType.INCLUSIVE)
         [task1_in_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task1_in")
         [task2_in_id, _] = bpmn_graph.add_modify_task_to_diagram(process_id, task_name="task2_in")
         [inclusive_gate_join_id, _] = bpmn_graph.add_modify_gateway_to_diagram(process_id,
                                                                         gateway_name="inclusive_gate_join",
-                                                                        gateway_type=diagram.GatewayType.INCLUSIVE)
+                                                                               gateway_type=NodeType.INCLUSIVE)
 
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, exclusive_gate_join_id, inclusive_gate_fork_id)
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, inclusive_gate_fork_id, task1_in_id)
@@ -80,8 +82,8 @@ class ManualGenerationComplexTests(unittest.TestCase):
 
         layouter.generate_layout(bpmn_graph)
 
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
-        bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
+        BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
         # Uncomment line below to get a simple view of created diagram
         # visualizer.visualize_diagram(bpmn_graph)
         visualizer.bpmn_diagram_to_dot_file(bpmn_graph, self.output_directory + self.output_dot_file)

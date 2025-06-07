@@ -3,7 +3,6 @@
 Package used to unify the different constant values used in entire project
 """
 
-
 class Consts(object):
     """
     Class used to unify the different constant values used in entire project
@@ -91,6 +90,7 @@ class Consts(object):
     outgoing_flow_list = "outgoing_flow_list"
     waypoint = "waypoint"
     waypoints = "waypoints"
+    bpmndi_namespace = "bpmndi:"
 
     # Additional parameter names
     type = "type"
@@ -99,3 +99,11 @@ class Consts(object):
     definition_type = "definition_type"
 
     grid_column_width = 2
+    default_element_x_position = 100.0
+    default_element_y_position = 100.0
+    default_element_width = 100.0
+    default_element_height = 100.0
+    default_is_horizontal = True
+    default_event_gateway_type = "Exclusive"
+
+    id_prefix = "id"

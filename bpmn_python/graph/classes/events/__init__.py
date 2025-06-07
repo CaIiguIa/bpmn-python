@@ -2,5 +2,5 @@
 """
 Package init file
 """
-__all__ = ["catch_event_type", "end_event_type", "event_type", "intermediate_catch_event_type",
-           "intermediate_throw_event_type", "start_event_type", "throw_event_type"]
+__all__ = ["catch_event.py", "end_event.py", "event.py", "intermediate_catch_event.py",
+           "intermediate_throw_event.py", "start_event.py", "throw_event.py"]

@@ -5,8 +5,9 @@ Test unit, using simple graph made in Signavio editor for import/export operatio
 import os
 import unittest
 
-import bpmn_python.bpmn_diagram_visualizer as visualizer
 import bpmn_python.bpmn_diagram_rep as diagram
+import bpmn_python.bpmn_diagram_visualizer as visualizer
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
 
 
 class SignavioSimpleTests(unittest.TestCase):
@@ -14,6 +15,7 @@ class SignavioSimpleTests(unittest.TestCase):
     This class contains test for bpmn-python package functionality using a simple example of BPMN diagram
     created in Signavio Editor.
     """
+
     output_directory = "./output/test-signavio/simple/"
     example_path = "../examples/xml_import_export/signavio_simple_example.bpmn"
     output_file_with_di = "signavio-example-output.xml"
@@ -21,17 +23,17 @@ class SignavioSimpleTests(unittest.TestCase):
     output_dot_file = "signavio-example"
     output_png_file = "signavio-example"
 
-    def test_loadSignavioSimpleDiagram(self):
+    def test_loadSignavioSimpleDiagram(self) -> None:
         """
         Test for importing a simple Signavio diagram example (as BPMN 2.0 XML) into inner representation
         and later exporting it to XML file
         """
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_path))
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
-        bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
+        BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
 
-    def test_loadSignavioSimpleDiagramAndVisualize(self):
+    def test_loadSignavioSimpleDiagramAndVisualize(self) -> None:
         """
         Test for importing a simple Signavio diagram example (as BPMN 2.0 XML) into inner representation
         and later exporting it to XML file. Includes test for visualization functionality.
@@ -40,10 +42,15 @@ class SignavioSimpleTests(unittest.TestCase):
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_path))
         # Uncomment line below to get a simple view of created diagram
         # visualizer.visualize_diagram(bpmn_graph)
-        visualizer.bpmn_diagram_to_dot_file(bpmn_graph, self.output_directory + self.output_dot_file)
-        visualizer.bpmn_diagram_to_png(bpmn_graph, self.output_directory + self.output_png_file)
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file_with_di)
-        bpmn_graph.export_xml_file_no_di(self.output_directory, self.output_file_no_di)
+        visualizer.bpmn_diagram_to_dot_file(
+            bpmn_graph, self.output_directory + self.output_dot_file
+        )
+        visualizer.bpmn_diagram_to_png(
+            bpmn_graph, self.output_directory + self.output_png_file, auto_layout=True
+        )
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
+        BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

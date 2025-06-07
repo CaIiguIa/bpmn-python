@@ -6,6 +6,7 @@ import os
 import unittest
 
 import bpmn_python.bpmn_diagram_rep as diagram
+from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
 
 
 class DefaultConditionalFlowTests(unittest.TestCase):
@@ -16,14 +17,14 @@ class DefaultConditionalFlowTests(unittest.TestCase):
     example_path = "../examples/xml_import_export/default-conditional-flow-example.bpmn"
     output_file = "default-conditional-flow-example.bpmn"
 
-    def test_loadBPMNEditorDiagramAndVisualize(self):
+    def test_loadBPMNEditorDiagramAndVisualize(self) -> None:
         """
         Test for importing a simple BPMNEditor diagram example (as BPMN 2.0 XML) into inner representation
         and later exporting it to XML file. Includes test for visualization functionality.
         """
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_path))
-        bpmn_graph.export_xml_file(self.output_directory, self.output_file)
+        BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file, bpmn_graph)
 
 if __name__ == '__main__':
     unittest.main()
