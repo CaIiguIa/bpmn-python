@@ -49,7 +49,7 @@ def get_node_type(order: str, csv_line_dict: dict[str, str]) -> NodeType:
 
 
 def add_node_info_to_diagram_graph(order: str,
-                                   node_type: NodeType,
+                                   node_type: NodeType | None,
                                    activity: str,
                                    process_id: str,
                                    bpmn_diagram: BpmnDiagramGraph
@@ -130,7 +130,7 @@ def get_possible_sequence_continuation_successor(node_id: str) -> list[str]:
         return []
 
 
-def get_possible_split_continuation_successor(node_id):
+def get_possible_split_continuation_successor(node_id: str) -> list[str]:
     """
     Determines potential successors in the case of a split, based on a numbering pattern.
 
@@ -148,7 +148,7 @@ def get_possible_split_continuation_successor(node_id):
         return []
 
 
-def get_possible_merge_continuation_successors(node_id_arg):
+def get_possible_merge_continuation_successors(node_id_arg: str) -> list[str]:
     """
     Determines potential successors in the case of a merge, based on a numbering and letter pattern.
 
@@ -215,7 +215,7 @@ def get_possible_successor_present_in_node_ids_or_raise_excp(possible_successors
         return possible_successor_set.pop()
 
 
-def get_all_split_successors(node_id, nodes_ids):
+def get_all_split_successors(node_id: str, nodes_ids: list[str]) -> list[str]:
     """
     Identifies all possible successors of a node in the case of a split, based on a specific pattern.
 
@@ -251,7 +251,7 @@ def is_there_sequence_continuation(node_id: str, nodes_ids: list[str]) -> bool:
     return is_any_possible_successor_present_in_node_ids(possible_seq_succ, nodes_ids)
 
 
-def is_there_split_continuation(node_id, nodes_ids):
+def is_there_split_continuation(node_id: str, nodes_ids: list[str]) -> bool:
     """
     Checks if there is a split continuation for the given node identifier.
 
@@ -263,7 +263,7 @@ def is_there_split_continuation(node_id, nodes_ids):
     return is_any_possible_successor_present_in_node_ids(possible_split_succ, nodes_ids)
 
 
-def is_there_merge_continuation(node_id, nodes_ids):
+def is_there_merge_continuation(node_id: str, nodes_ids: list[str]) -> bool:
     """
     Determines if there is a merge continuation for the given node identifier.
 
@@ -381,7 +381,7 @@ def add_connection(from_node_id: str,
     add_edge(from_node_id, to_node_id, process_dict, bpmn_diagram, sequence_flows)
 
 
-def get_node_conditions(split_successors, process_dict):
+def get_node_conditions(split_successors: list[str], process_dict: dict[str, dict[str, str]]):
     """
     Retrieves the conditions for the given split successors from the process dictionary.
 
@@ -395,7 +395,7 @@ def get_node_conditions(split_successors, process_dict):
     return conditions
 
 
-def yes_no_conditions(node_conditions):
+def yes_no_conditions(node_conditions: list[str]) -> bool:
     """
     Checks if the given node conditions are exactly "yes" and "no".
 
@@ -405,7 +405,7 @@ def yes_no_conditions(node_conditions):
     return set(node_conditions) == {"yes", "no"}
 
 
-def sth_else_conditions(node_conditions):
+def sth_else_conditions(node_conditions: list[str]):
     """
     Checks if the given node conditions contain "else".
 
@@ -415,7 +415,7 @@ def sth_else_conditions(node_conditions):
     return "else" in node_conditions
 
 
-def no_conditions(node_conditions):
+def no_conditions(node_conditions: list[str]) -> bool:
     """
     Checks if the given node conditions are empty or contain only empty strings.
 
@@ -428,7 +428,7 @@ def no_conditions(node_conditions):
     return True
 
 
-def get_gateway_type(node_id_to_add_after, nodes_ids, process_dict):
+def get_gateway_type(node_id_to_add_after: str, nodes_ids: list[str], process_dict: dict[str, dict[str, str]]) -> NodeType:
     """
     Determines the type of gateway to be added after the given node based on its successors' conditions.
 
@@ -441,31 +441,35 @@ def get_gateway_type(node_id_to_add_after, nodes_ids, process_dict):
     successors_conditions = get_node_conditions(split_successors, process_dict)
     if len(split_successors) == 2:
         if yes_no_conditions(successors_conditions) or sth_else_conditions(successors_conditions):
-            return consts.Consts.exclusive_gateway
+            return NodeType.EXCLUSIVE
     if no_conditions(successors_conditions):
-        return consts.Consts.parallel_gateway
-    return consts.Consts.inclusive_gateway
+        return NodeType.PARALLEL
+    return NodeType.INCLUSIVE
 
 
-def add_split_gateway(node_id_to_add_after, nodes_ids, process_dict, diagram_graph):
+def add_split_gateway(node_id_to_add_after: str,
+                      nodes_ids: list[str],
+                      process_dict: dict[str, dict[str, str]],
+                      bpmn_diagram: BpmnDiagramGraph
+                      ) -> str:
     """
     Adds a split gateway after the given node in the BPMN diagram.
 
     :param node_id_to_add_after: The identifier of the node to add the gateway after.
     :param nodes_ids: A list of existing node identifiers.
     :param process_dict: A dictionary containing process information.
-    :param diagram_graph: An instance of the BPMNDiagramGraph class representing the BPMN diagram.
+    :param bpmn_diagram: An instance of the BPMNDiagramGraph class representing the BPMN diagram.
     :return: The identifier of the added split gateway.
     """
     split_gateway_id = node_id_to_add_after + "_split"
     process_id = default_process_id
     gateway_type = get_gateway_type(node_id_to_add_after, nodes_ids, process_dict)
     activity = ""
-    add_node_info_to_diagram_graph(split_gateway_id, gateway_type, activity, process_id, diagram_graph)
+    add_node_info_to_diagram_graph(split_gateway_id, gateway_type, activity, process_id, bpmn_diagram)
     return split_gateway_id
 
 
-def get_merge_node_type(merge_successor_id, bpmn_diagram):
+def get_merge_node_type(merge_successor_id: str, bpmn_diagram: BpmnDiagramGraph) -> NodeType | None:
     """
     Determines the type of merge node based on the given merge successor ID.
 
@@ -481,14 +485,14 @@ def get_merge_node_type(merge_successor_id, bpmn_diagram):
             raise bpmn_exception.BpmnPythonError("Something wrong in csv file syntax - look for " + merge_successor_id)
         prefix = result.group(1)
         split_node_id = prefix + str(prev_prev_number) + "_split"
-        if bool(bpmn_diagram.diagram_graph.has_node(split_node_id)):
-            node_type = bpmn_diagram.diagram_graph.nodes[split_node_id][consts.Consts.type]
-            if bool(node_type):
+        if split_node_id in bpmn_diagram.nodes:
+            node_type = bpmn_diagram.nodes[split_node_id].node_type
+            if node_type != NodeType.BASE:
                 return node_type
-        return consts.Consts.inclusive_gateway
+        return NodeType.INCLUSIVE
 
 
-def add_merge_gateway_if_not_exists(merge_successor_id, bpmn_diagram):
+def add_merge_gateway_if_not_exists(merge_successor_id: str, bpmn_diagram: BpmnDiagramGraph) -> tuple[str, bool]:
     """
     Adds a merge gateway if it does not already exist in the BPMN diagram.
 
@@ -497,7 +501,7 @@ def add_merge_gateway_if_not_exists(merge_successor_id, bpmn_diagram):
     :return: A tuple containing the merge gateway ID and a boolean indicating if it was just created.
     """
     merge_gateway_id = merge_successor_id + "_join"
-    if bpmn_diagram.diagram_graph.has_node(merge_gateway_id):
+    if merge_gateway_id in bpmn_diagram.nodes:
         just_created = False
         return merge_gateway_id, just_created
     else:
@@ -549,7 +553,10 @@ def fill_graph_connections(process_dict: dict[str, dict[str, str]],
             raise bpmn_exception.BpmnPythonError("Something wrong in csv file syntax - look for " + node_id)
 
 
-def remove_outgoing_connection(base_node, bpmn_diagram, sequence_flows):
+def remove_outgoing_connection(base_node: str,
+                               bpmn_diagram: BpmnDiagramGraph,
+                               sequence_flows: dict[str, SequenceFlow]
+                               ) -> str:
     """
     Removes the outgoing connection from the given base node in the BPMN diagram.
 
@@ -558,15 +565,16 @@ def remove_outgoing_connection(base_node, bpmn_diagram, sequence_flows):
     :param sequence_flows: A dictionary to store sequence flow information.
     :return: The identifier of the neighbor node that was connected to the base node.
     """
-    outgoing_flow_id = bpmn_diagram.diagram_graph.nodes[base_node][consts.Consts.outgoing_flow][0]
-    neighbour_node = sequence_flows[outgoing_flow_id][consts.Consts.target_ref]
-    bpmn_diagram.diagram_graph.nodes[neighbour_node][consts.Consts.incoming_flow].remove(outgoing_flow_id)
+    outgoing_flow_id = bpmn_diagram.nodes[base_node].outgoing[0]
+    neighbour_node = sequence_flows[outgoing_flow_id].target_ref_id
+    bpmn_diagram.nodes[neighbour_node].incoming.remove(outgoing_flow_id)
     del sequence_flows[outgoing_flow_id]
-    bpmn_diagram.diagram_graph.remove_edge(base_node, neighbour_node)
     return neighbour_node
 
 
-def remove_incoming_connection(base_node, bpmn_diagram, sequence_flows):
+def remove_incoming_connection(base_node: str,
+                               bpmn_diagram: BpmnDiagramGraph,
+                               sequence_flows: dict[str, SequenceFlow]) -> str:
     """
     Removes the incoming connection to the given base node in the BPMN diagram.
 
@@ -575,15 +583,19 @@ def remove_incoming_connection(base_node, bpmn_diagram, sequence_flows):
     :param sequence_flows: A dictionary to store sequence flow information.
     :return: The identifier of the neighbor node that was connected to the base node.
     """
-    incoming_flow_id = bpmn_diagram.diagram_graph.nodes[base_node][consts.Consts.incoming_flow][0]
-    neighbour_node = sequence_flows[incoming_flow_id][consts.Consts.source_ref]
-    bpmn_diagram.diagram_graph.nodes[neighbour_node][consts.Consts.outgoing_flow].remove(incoming_flow_id)
+    incoming_flow_id = bpmn_diagram.nodes[base_node].incoming[0]
+    neighbour_node = sequence_flows[incoming_flow_id].source_ref_id
+    bpmn_diagram.nodes[neighbour_node].outgoing.remove(incoming_flow_id)
     del sequence_flows[incoming_flow_id]
-    bpmn_diagram.diagram_graph.remove_edge(neighbour_node, base_node)
+    # todo: make sure sequence flow is removed from the diagram graph
     return neighbour_node
 
 
-def remove_node(node_id_to_remove, process_dict, bpmn_diagram, sequence_flows):
+def remove_node(node_id_to_remove: str,
+                process_dict: dict[str, dict[str, str]],
+                bpmn_diagram: BpmnDiagramGraph,
+                sequence_flows: dict[str, SequenceFlow]
+                ) -> tuple[str, str]:
     """
     Removes the given node from the BPMN diagram and updates the process dictionary and sequence flows.
 
@@ -595,13 +607,16 @@ def remove_node(node_id_to_remove, process_dict, bpmn_diagram, sequence_flows):
     """
     new_source_node = remove_incoming_connection(node_id_to_remove, bpmn_diagram, sequence_flows)
     new_target_node = remove_outgoing_connection(node_id_to_remove, bpmn_diagram, sequence_flows)
-    bpmn_diagram.diagram_graph.remove_node(node_id_to_remove)
+    del bpmn_diagram.nodes[node_id_to_remove]
     process_dict.pop(node_id_to_remove, None)
     # add new connection
     return new_source_node, new_target_node
 
 
-def remove_unnecessary_merge_gateways(process_dict, bpmn_diagram, sequence_flows):
+def remove_unnecessary_merge_gateways(process_dict: dict[str, dict[str, str]],
+                                      bpmn_diagram: BpmnDiagramGraph,
+                                      sequence_flows: dict[str, SequenceFlow]
+                                      ):
     """
     Removes unnecessary merge gateways from the BPMN diagram.
 
@@ -609,29 +624,30 @@ def remove_unnecessary_merge_gateways(process_dict, bpmn_diagram, sequence_flows
     :param bpmn_diagram: An instance of the BPMNDiagramGraph class representing the BPMN diagram.
     :param sequence_flows: A dictionary to store sequence flow information.
     """
-    for node in list(bpmn_diagram.get_nodes()):
-        gateway_type = node[1].get(consts.Consts.type)
-        if gateway_type in [consts.Consts.inclusive_gateway, consts.Consts.exclusive_gateway,
-                            consts.Consts.parallel_gateway]:
-            if len(node[1].get(consts.Consts.incoming_flow)) < 2 \
-                    and len(node[1].get(consts.Consts.outgoing_flow)) < 2:
-                new_source_node, new_target_node = remove_node(node[0], process_dict, bpmn_diagram, sequence_flows)
+    for node in bpmn_diagram.get_nodes():
+        gateway_type = node.node_type
+        if gateway_type in [NodeType.INCLUSIVE, NodeType.EXCLUSIVE, NodeType.PARALLEL]:
+            if len(node.incoming) < 2 and len(node.outgoing) < 2:
+                new_source_node, new_target_node = remove_node(node.id, process_dict, bpmn_diagram, sequence_flows)
                 add_connection(new_source_node, new_target_node, process_dict, bpmn_diagram, sequence_flows)
 
 
-def remove_goto_nodes(process_dict, diagram_graph, sequence_flows):
+def remove_goto_nodes(process_dict: dict[str, dict[str, str]],
+                      bpmn_diagram: BpmnDiagramGraph,
+                      sequence_flows: dict[str, SequenceFlow]
+                      ):
     """
     Removes "goto" nodes from the BPMN diagram and updates the process dictionary and sequence flows.
 
     :param process_dict: A dictionary containing process information.
-    :param diagram_graph: An instance of the BPMNDiagramGraph class representing the BPMN diagram.
+    :param bpmn_diagram: An instance of the BPMNDiagramGraph class representing the BPMN diagram.
     :param sequence_flows: A dictionary to store sequence flow information.
     """
     for order, csv_line_dict in copy.deepcopy(process_dict).items():
         if csv_line_dict[consts.Consts.csv_activity].lower().startswith("goto"):
-            source_node, _ = remove_node(order, process_dict, diagram_graph, sequence_flows)
+            source_node, _ = remove_node(order, process_dict, bpmn_diagram, sequence_flows)
             target_node = csv_line_dict[consts.Consts.csv_activity].strip().split()[1]
-            add_connection(source_node, target_node, process_dict, diagram_graph, sequence_flows)
+            add_connection(source_node, target_node, process_dict, bpmn_diagram, sequence_flows)
 
 
 class BpmnDiagramGraphCSVImport(object):
@@ -686,11 +702,10 @@ class BpmnDiagramGraphCSVImport(object):
         return csv_df.loc[csv_df[consts.Consts.csv_order] == order_val].iloc[0].to_dict()
 
     @staticmethod
-    def import_nodes(
-            process_dict: dict[str, dict[str, str]],
-            bpmn_diagram: BpmnDiagramGraph,
-            sequence_flows: dict[str, SequenceFlow]
-    ):
+    def import_nodes(process_dict: dict[str, dict[str, str]],
+                     bpmn_diagram: BpmnDiagramGraph,
+                     sequence_flows: dict[str, SequenceFlow]
+                     ):
         """
         Imports nodes into the BPMN diagram based on the process dictionary.
 
@@ -735,29 +750,16 @@ class BpmnDiagramGraphCSVImport(object):
         plane_elements_dict[consts.Consts.bpmn_element] = default_process_id
 
     @staticmethod
-    def legacy_adjustment(bpmn_diagram):
-        """
-        Performs legacy adjustments on the BPMN diagram.
-
-        :param bpmn_diagram: An instance of the BPMNDiagramGraph class representing the BPMN diagram.
-        """
-        for node in bpmn_diagram.get_nodes():
-            if node[1].get(consts.Consts.incoming_flow) is None:
-                node[1][consts.Consts.incoming_flow] = []
-            if node[1].get(consts.Consts.outgoing_flow) is None:
-                node[1][consts.Consts.outgoing_flow] = []
-            if node[1].get(consts.Consts.event_definitions) is None:
-                node[1][consts.Consts.event_definitions] = []
-
-    @staticmethod
-    def representation_adjustment(process_dict, diagram_graph, sequence_flows):
+    def representation_adjustment(process_dict: dict[str, dict[str, str]],
+                                  bpmn_diagram: BpmnDiagramGraph,
+                                  sequence_flows: dict[str, SequenceFlow]
+                                  ):
         """
         Adjusts the representation of the BPMN diagram.
 
         :param process_dict: A dictionary containing process information.
-        :param diagram_graph: An instance of the BPMNDiagramGraph class representing the BPMN diagram.
+        :param bpmn_diagram: An instance of the BPMNDiagramGraph class representing the BPMN diagram.
         :param sequence_flows: A dictionary to store sequence flow information.
         """
-        BpmnDiagramGraphCSVImport.legacy_adjustment(diagram_graph)
-        remove_goto_nodes(process_dict, diagram_graph, sequence_flows)
-        remove_unnecessary_merge_gateways(process_dict, diagram_graph, sequence_flows)
+        remove_goto_nodes(process_dict, bpmn_diagram, sequence_flows)
+        remove_unnecessary_merge_gateways(process_dict, bpmn_diagram, sequence_flows)

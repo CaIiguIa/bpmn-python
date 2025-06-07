@@ -11,7 +11,6 @@ import os
 import string
 from typing import TextIO
 
-import bpmn_python.bpmn_python_consts as consts
 import bpmn_python.bpmn_diagram_exception as bpmn_exception
 import bpmn_python.bpmn_import_utils as utils
 from bpmn_python.bpmn_diagram_layouter import NodeClassification
@@ -24,7 +23,6 @@ from bpmn_python.graph.classes.events.start_event import StartEvent
 from bpmn_python.graph.classes.flow_node import FlowNode, NodeType
 from bpmn_python.graph.classes.gateways.exclusive_gateway import ExclusiveGateway
 from bpmn_python.graph.classes.gateways.inclusive_gateway import InclusiveGateway
-from bpmn_python.graph.classes.gateways.parallel_gateway import ParallelGateway
 from bpmn_python.graph.classes.root_element.event_definition import EventDefinitionType
 
 
@@ -176,10 +174,10 @@ class BpmnDiagramGraphCsvExport(object):
                 return outgoing_node
         else:
             if node_type == NodeType.TASK:
-                export_elements.append({"Order": prefix + str(order), "Activity": node.name,
+                export_elements.append({"Order": prefix + str(order), "Activity": node.name or "",
                                         "Condition": condition, "Who": who, "Subprocess": "", "Terminated": ""})
             elif node_type == NodeType.SUB_PROCESS:
-                export_elements.append({"Order": prefix + str(order), "Activity": node.name,
+                export_elements.append({"Order": prefix + str(order), "Activity": node.name or "",
                                         "Condition": condition, "Who": who, "Subprocess": "yes", "Terminated": ""})
 
         if BpmnDiagramGraphCsvExport.classification_split in node_classification.classification:
@@ -264,12 +262,14 @@ class BpmnDiagramGraphCsvExport(object):
         else:
             event_definition = None
 
-        if event_definition.definition_type == EventDefinitionType.MESSAGE:
+        if event_definition is not None and event_definition.definition_type == EventDefinitionType.MESSAGE:
             activity = "message " + node.name
-        elif event_definition.definition_type == EventDefinitionType.TIMER:
+        elif event_definition is not None and event_definition.definition_type == EventDefinitionType.TIMER:
             activity = "timer " + node.name
-        else:
+        elif node.name is not None:
             activity = node.name
+        else:
+            activity = ""
 
         export_elements.append({"Order": prefix + str(order), "Activity": activity, "Condition": condition,
                                 "Who": who, "Subprocess": "", "Terminated": ""})
@@ -309,10 +309,12 @@ class BpmnDiagramGraphCsvExport(object):
         else:
             event_definition = None
 
-        if event_definition.definition_type == EventDefinitionType.MESSAGE:
+        if event_definition is not None and event_definition.definition_type == EventDefinitionType.MESSAGE:
             activity = "message " + node.name
-        else:
+        elif node.name is not None:
             activity = node.name
+        else:
+            activity = ""
 
         export_elements.append({"Order": prefix + str(order), "Activity": activity, "Condition": condition, "Who": who,
                                 "Subprocess": "", "Terminated": "yes"})
@@ -330,6 +332,7 @@ class BpmnDiagramGraphCsvExport(object):
         """
         for export_element in export_elements:
             # Order,Activity,Condition,Who,Subprocess,Terminated
+            print(export_element)
             file_object.write(
                 export_element["Order"] + "," + export_element["Activity"] + "," + export_element["Condition"] + "," +
                 export_element["Who"] + "," + export_element["Subprocess"] + "," + export_element["Terminated"] + "\n")
