@@ -350,23 +350,10 @@ class BpmnDiagramGraph(BaseModel):
             self.nodes[node_id] = new_node
             self.process_elements[process_id].flow_element_list.append(new_node)
 
-            # self.diagram_graph.add_node(node_id)
-            # self.diagram_graph.nodes[node_id][consts.Consts.id] = node_id
-            # self.diagram_graph.nodes[node_id][consts.Consts.incoming_flow] = []
-            # self.diagram_graph.nodes[node_id][consts.Consts.outgoing_flow] = []
-            # self.diagram_graph.nodes[node_id][consts.Consts.type] = node_type
-
         node = self.nodes[node_id]
         node.name = name
         node.process_id = process_id
 
-
-        # self.diagram_graph.nodes[node_id][consts.Consts.process] = process_id
-        # self.diagram_graph.nodes[node_id][consts.Consts.node_name] = name
-        # self.diagram_graph.nodes[node_id][consts.Consts.width] = "100"
-        # self.diagram_graph.nodes[node_id][consts.Consts.height] = "100"
-        # self.diagram_graph.nodes[node_id][consts.Consts.x] = "100"
-        # self.diagram_graph.nodes[node_id][consts.Consts.y] = "100"
         return node_id, node
 
     def add_modify_task_to_diagram(
@@ -436,8 +423,6 @@ class BpmnDiagramGraph(BaseModel):
         subprocess.is_expanded = is_expanded
         subprocess.triggered_by_event = triggered_by_event
 
-        # self.diagram_graph.nodes[subprocess_id][consts.Consts.is_expanded] = str(is_expanded).lower()
-        # self.diagram_graph.nodes[subprocess_id][consts.Consts.triggered_by_event] = str(triggered_by_event).lower()
         return subprocess_id, subprocess
 
     def add_modify_start_event_to_diagram(
@@ -490,9 +475,6 @@ class BpmnDiagramGraph(BaseModel):
         start_event.parallel_multiple = parallel_multiple
         start_event.is_interrupting = is_interrupting
 
-        # self.diagram_graph.nodes[start_event_id][consts.Consts.parallel_multiple] = str(parallel_multiple).lower()
-        # self.diagram_graph.nodes[start_event_id][consts.Consts.is_interrupting] = str(is_interrupting).lower()
-
         event_def_list = []
         if start_event_definition:
             event_def_id = Consts.id_prefix + str(uuid.uuid4())
@@ -502,7 +484,6 @@ class BpmnDiagramGraph(BaseModel):
             event_def_list.append(event_def)
 
         start_event.event_definition_list = event_def_list
-        # self.diagram_graph.nodes[start_event_id][consts.Consts.event_definitions] = event_def_list
 
         return start_event_id, start_event
 
@@ -558,7 +539,6 @@ class BpmnDiagramGraph(BaseModel):
             event_def_list.append(event_def)
 
         end_event.event_definition_list = event_def_list
-        # self.diagram_graph.nodes[end_event_id][consts.Consts.event_definitions] = event_def_list
         return end_event_id, end_event
 
     def add_modify_gateway_to_diagram(
@@ -614,10 +594,6 @@ class BpmnDiagramGraph(BaseModel):
         if default_target_id:
             gateway.default_target_id = default_target_id
 
-        # self.diagram_graph.nodes[gateway_id][consts.Consts.gateway_direction] = gateway_direction.value
-        # if default_target_id:
-        #     self.diagram_graph.nodes[gateway_id][consts.Consts.default] = default_target_id
-
         return gateway_id, gateway
 
     def add_modify_sequence_flow_to_diagram(
@@ -668,24 +644,6 @@ class BpmnDiagramGraph(BaseModel):
         source_node.outgoing += [sequence_flow_id]
         target_node.incoming += [sequence_flow_id]
 
-        # flow = self.diagram_graph[source_ref_id][target_ref_id]
-        # flow[consts.Consts.id] = sequence_flow_id
-        # flow[consts.Consts.name] = sequence_flow_name
-        # flow[consts.Consts.process] = process_id
-        # flow[consts.Consts.source_ref] = source_ref_id
-        # flow[consts.Consts.target_ref] = target_ref_id
-        # source_node = self.diagram_graph.nodes[source_ref_id]
-        # target_node = self.diagram_graph.nodes[target_ref_id]
-
-        # flow[consts.Consts.waypoints] = \
-        #     [(source_node[consts.Consts.x], source_node[consts.Consts.y]),
-        #      (target_node[consts.Consts.x], target_node[consts.Consts.y])]
-
-        # add target node (target_ref_id) as outgoing node from source node (source_ref_id)
-        # source_node[consts.Consts.outgoing_flow].append(sequence_flow_id)
-
-        # add source node (source_ref_id) as incoming node to target node (target_ref_id)
-        # target_node[consts.Consts.incoming_flow].append(sequence_flow_id)
         return sequence_flow_id, new_flow
 
     def delete_sequence_flow(self, sequence_flow_id: str) -> None:
@@ -708,11 +666,6 @@ class BpmnDiagramGraph(BaseModel):
         self.sequence_flows.pop(sequence_flow_id)
         source_node.outgoing.remove(flow.id)
         target_node.incoming.remove(flow.id)
-
-        # Remove the sequence flow from the nodes' incoming and outgoing flow lists
-        # self.diagram_graph.remove_edge(source_node, target_node)
-        # source_node[consts.Consts.outgoing_flow].remove(sequence_flow_id)
-        # target_node[consts.Consts.incoming_flow].remove(sequence_flow_id)
 
     def delete_node(
         self, node_id: str, force_remove_sequence_flows: bool = False
@@ -754,13 +707,11 @@ class BpmnDiagramGraph(BaseModel):
         """
         G = nx.DiGraph()
 
-        # Add BPMN nodes as graph nodes (id as node, FlowNode as attribute)
         for node_id, node in self.nodes.items():
             G.add_node(
-                node_id,
-                # flow_node=node,  # Store the FlowNode object as an attribute
+                node.name or node_id,
                 **{
-                    # consts.Consts.name: node.name,
+                    # consts.Consts.name: node.name or "",
                     consts.Consts.process: node.process_id,
                     consts.Consts.type: node.node_type.value,
                     consts.Consts.id: node.id,
