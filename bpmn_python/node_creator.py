@@ -1,5 +1,8 @@
+from bpmn_python.graph.classes.activities.manual_task import ManualTask
+from bpmn_python.graph.classes.activities.service_task import ServiceTask
 from bpmn_python.graph.classes.activities.subprocess import SubProcess
 from bpmn_python.graph.classes.activities.task import Task
+from bpmn_python.graph.classes.activities.user_task import UserTask
 from bpmn_python.graph.classes.data_object import DataObject
 from bpmn_python.graph.classes.events.boundary_event import BoundaryEvent
 from bpmn_python.graph.classes.events.end_event import EndEvent
@@ -46,6 +49,12 @@ def create_node(node_type: NodeType, node_id: str, process_id: str) -> FlowNode:
             node = EventBasedGateway(id=node_id, process_id=process_id)
         case NodeType.TASK:
             node = Task(id=node_id, process_id=process_id)
+        case NodeType.SERVICE_TASK:
+            node = ServiceTask(id=node_id, process_id=process_id)
+        case NodeType.MANUAL_TASK:
+            node = ManualTask(id=node_id, process_id=process_id)
+        case NodeType.USER_TASK:
+            node = UserTask(id=node_id, process_id=process_id)
         case NodeType.SUB_PROCESS:
             node = SubProcess(id=node_id, process_id=process_id)
         case NodeType.DATA_OBJECT:
