@@ -587,7 +587,6 @@ def remove_incoming_connection(base_node: str,
     neighbour_node = sequence_flows[incoming_flow_id].source_ref_id
     bpmn_diagram.nodes[neighbour_node].outgoing.remove(incoming_flow_id)
     del sequence_flows[incoming_flow_id]
-    # todo: make sure sequence flow is removed from the diagram graph
     return neighbour_node
 
 
@@ -736,7 +735,6 @@ class BpmnDiagramGraphCSVImport(object):
         process_id = default_process_id
         process = Process(id=default_process_id, name="", is_closed=False, is_executable=False,
                           process_type=ProcessType.NONE)
-        # TODO: add nodes to process.flow_element_list
         process_elements_dict[process_id] = process
 
     @staticmethod
