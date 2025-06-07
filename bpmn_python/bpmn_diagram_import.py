@@ -893,11 +893,11 @@ class BpmnDiagramGraphImport(BaseModel):
         if element_id in participants:
             # BPMNShape is either connected with FlowNode or Participant
             participant = participants[element_id]
-            participant.is_horizontal = shape_element.getAttribute(consts.Consts.is_horizontal)
-            participant.width = bounds.getAttribute(consts.Consts.width)
-            participant.height = bounds.getAttribute(consts.Consts.height)
-            participant.x = bounds.getAttribute(consts.Consts.x)
-            participant.y = bounds.getAttribute(consts.Consts.y)
+            participant.is_horizontal = BpmnImportUtils.convert_str_to_bool(shape_element.getAttribute(consts.Consts.is_horizontal))
+            participant.width = BpmnImportUtils.convert_str_to_float(bounds.getAttribute(consts.Consts.width))
+            participant.height = BpmnImportUtils.convert_str_to_float(bounds.getAttribute(consts.Consts.height))
+            participant.x = BpmnImportUtils.convert_str_to_float(bounds.getAttribute(consts.Consts.x))
+            participant.y = BpmnImportUtils.convert_str_to_float(bounds.getAttribute(consts.Consts.y))
 
     @staticmethod
     def import_flow_di(diagram_graph: BpmnDiagramGraph, flow_element: minidom.Element):

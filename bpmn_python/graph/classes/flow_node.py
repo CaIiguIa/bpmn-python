@@ -14,8 +14,11 @@ class NodeType(Enum):
     BASE = ""
 
 #   Activities
-    TASK = "task"
     SUB_PROCESS = "subProcess"
+    TASK = "task"
+    SERVICE_TASK = "serviceTask"
+    MANUAL_TASK = "manualTask"
+    USER_TASK = "userTask"
 
 #   Events
     START = "startEvent"

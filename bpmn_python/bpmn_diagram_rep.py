@@ -348,6 +348,7 @@ class BpmnDiagramGraph(BaseModel):
         if not modify:
             new_node = create_node(node_type, node_id, process_id)
             self.nodes[node_id] = new_node
+            self.process_elements[process_id].flow_element_list.append(new_node)
 
             # self.diagram_graph.add_node(node_id)
             # self.diagram_graph.nodes[node_id][consts.Consts.id] = node_id
@@ -358,6 +359,7 @@ class BpmnDiagramGraph(BaseModel):
         node = self.nodes[node_id]
         node.name = name
         node.process_id = process_id
+
 
         # self.diagram_graph.nodes[node_id][consts.Consts.process] = process_id
         # self.diagram_graph.nodes[node_id][consts.Consts.node_name] = name
@@ -739,6 +741,7 @@ class BpmnDiagramGraph(BaseModel):
             self.delete_sequence_flow(flow_id)
 
         self.nodes.pop(node_id)
+        self.process_elements[node.process_id].flow_element_list.remove(node)
 
     def get_diagram_graph(self) -> nx.DiGraph:
         """

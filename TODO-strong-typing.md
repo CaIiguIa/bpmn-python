@@ -46,5 +46,5 @@ TODOs:
 - [x] **import_lane_element**
 - [x] **consts.Consts.width** ? in diagram_layouter ?
 - [x] **complex_gateway_default** complex gateway does not have default flow, so it should not be set in the diagram
-- [ ] task import does not preserve the node type
+- [x] task import does not preserve the node type
 - [ ]
