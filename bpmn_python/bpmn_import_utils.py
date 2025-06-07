@@ -7,6 +7,9 @@ from xml.dom import minidom
 from xml.dom.minidom import Element
 
 import bpmn_python.bpmn_python_consts as consts
+from bpmn_python.bpmn_diagram_layouter import NodeClassification
+from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
+from bpmn_python.graph.classes.flow_node import FlowNode
 
 
 class BpmnImportUtils(object):
@@ -39,7 +42,7 @@ class BpmnImportUtils(object):
             element = element.nextSibling
 
     @staticmethod
-    def generate_nodes_clasification(bpmn_diagram):
+    def generate_nodes_clasification(bpmn_diagram: BpmnDiagramGraph) -> dict[str, NodeClassification]:
         """
         Diagram elements classification. Implementation based on article "A Simple Algorithm for Automatic Layout of
         BPMN Processes".
@@ -117,7 +120,8 @@ class BpmnImportUtils(object):
         return nodes_classification
 
     @staticmethod
-    def split_join_classification(element, classification_labels, nodes_classification):
+    def split_join_classification(element: FlowNode, classification_labels: list[str],
+                                  nodes_classification: dict[str, NodeClassification]):
         """
         Add the "Split", "Join" classification, if the element qualifies for.
 
@@ -127,11 +131,11 @@ class BpmnImportUtils(object):
         """
         classification_join = "Join"
         classification_split = "Split"
-        if len(element[1][consts.Consts.incoming_flow]) >= 2:
+        if len(element.incoming) >= 2:
             classification_labels.append(classification_join)
-        if len(element[1][consts.Consts.outgoing_flow]) >= 2:
+        if len(element.outgoing) >= 2:
             classification_labels.append(classification_split)
-        nodes_classification[element[0]] = classification_labels
+        nodes_classification[element.id] = NodeClassification(node=element, classification=classification_labels)
 
     @staticmethod
     def convert_str_to_bool(value: str | bool) -> bool:

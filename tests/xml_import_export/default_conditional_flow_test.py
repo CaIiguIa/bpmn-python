@@ -17,7 +17,7 @@ class DefaultConditionalFlowTests(unittest.TestCase):
     example_path = "../examples/xml_import_export/default-conditional-flow-example.bpmn"
     output_file = "default-conditional-flow-example.bpmn"
 
-    def test_loadBPMNEditorDiagramAndVisualize(self):
+    def test_loadBPMNEditorDiagramAndVisualize(self) -> None:
         """
         Test for importing a simple BPMNEditor diagram example (as BPMN 2.0 XML) into inner representation
         and later exporting it to XML file. Includes test for visualization functionality.

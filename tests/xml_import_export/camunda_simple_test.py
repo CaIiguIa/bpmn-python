@@ -22,7 +22,7 @@ class CamundaSimpleTests(unittest.TestCase):
     output_dot_file = "camunda-example"
     output_png_file = "camunda-example"
 
-    def test_loadCamundaSimpleDiagram(self):
+    def test_loadCamundaSimpleDiagram(self) -> None:
         """
         Test for importing a simple Camunda diagram example (as BPMN 2.0 XML) into inner representation
         and later exporting it to XML file
@@ -32,7 +32,7 @@ class CamundaSimpleTests(unittest.TestCase):
         BpmnDiagramGraphExport.export_xml_file(self.output_directory, self.output_file_with_di, bpmn_graph)
         BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, self.output_file_no_di, bpmn_graph)
 
-    def test_loadCamundaSimpleDiagramAndVisualize(self):
+    def test_loadCamundaSimpleDiagramAndVisualize(self) -> None:
         """
         Test for importing a simple Camunda diagram example (as BPMN 2.0 XML) into inner representation
         and later exporting it to XML file. Includes test for visualization functionality.

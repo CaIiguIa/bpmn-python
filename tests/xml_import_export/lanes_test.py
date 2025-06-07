@@ -19,7 +19,7 @@ class BPMNEditorTests(unittest.TestCase):
     output_file_with_di = "lanes-example-output.xml"
     output_file_no_di = "lanes-example-output-no-di.xml"
 
-    def test_load_lanes_example(self):
+    def test_load_lanes_example(self) -> None:
         """
         Test for importing a simple BPMNEditor diagram example (as BPMN 2.0 XML) into inner representation
         and later exporting it to XML file

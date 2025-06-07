@@ -8,6 +8,7 @@ import unittest
 
 import bpmn_python.bpmn_diagram_rep as diagram
 from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
+from bpmn_python.bpmn_process_csv_export import BpmnDiagramGraphCsvExport
 from bpmn_python.graph.classes.flow_node import NodeType
 from bpmn_python.graph.classes.root_element.event_definition import EventDefinitionType
 
@@ -19,40 +20,40 @@ class CsvExportTests(unittest.TestCase):
     output_directory = "./output/test-csv-export/"
     example_directory = "../examples/csv_export/"
 
-    def test_csv_export_bank_account_example(self):
+    def test_csv_export_bank_account_example(self) -> None:
         # TODO not working correctly, problem with nested splits
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_directory + "bank-account-process.bpmn"))
-        bpmn_graph.export_csv_file(self.output_directory, "bank-account-process.csv")
+        BpmnDiagramGraphCsvExport.export_process_to_csv(bpmn_graph, self.output_directory, "bank-account-process.csv")
 
-    def test_csv_export_checkin_process_example(self):
+    def test_csv_export_checkin_process_example(self) -> None:
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_directory + "checkin-process.bpmn"))
-        bpmn_graph.export_csv_file(self.output_directory, "checkin-process.csv")
+        BpmnDiagramGraphCsvExport.export_process_to_csv(bpmn_graph, self.output_directory, "checkin-process.csv")
 
-    def test_csv_export_credit_process_example(self):
+    def test_csv_export_credit_process_example(self) -> None:
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_directory + "credit-process.bpmn"))
-        bpmn_graph.export_csv_file(self.output_directory, "credit-process.csv")
+        BpmnDiagramGraphCsvExport.export_process_to_csv(bpmn_graph, self.output_directory, "credit-process.csv")
 
-    def test_csv_export_order_processing_example(self):
+    def test_csv_export_order_processing_example(self) -> None:
         # TODO not working correctly, problem with nested splits
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_directory + "order-processing.bpmn"))
-        bpmn_graph.export_csv_file(self.output_directory, "order-processing.csv")
+        BpmnDiagramGraphCsvExport.export_process_to_csv(bpmn_graph, self.output_directory, "order-processing.csv")
 
-    def test_csv_export_pizza_order_example(self):
+    def test_csv_export_pizza_order_example(self) -> None:
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_directory + "pizza-order.bpmn"))
-        bpmn_graph.export_csv_file(self.output_directory, "pizza-order.csv")
+        BpmnDiagramGraphCsvExport.export_process_to_csv(bpmn_graph, self.output_directory, "pizza-order.csv")
 
-    def test_csv_export_tram_process_example(self):
+    def test_csv_export_tram_process_example(self) -> None:
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.load_diagram_from_xml_file(os.path.abspath(self.example_directory + "tram-process.bpmn"))
         # TODO Problem with the loops
-        #bpmn_graph.export_csv_file(self.output_directory, "tram-process.csv")
+        #BpmnDiagramGraphCsvExport.export_process_to_csv(bpmn_graph, self.output_directory, "tram-process.csv")
 
-    def test_csv_export_manual_simple_diagram(self):
+    def test_csv_export_manual_simple_diagram(self) -> None:
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
@@ -76,10 +77,10 @@ class CsvExportTests(unittest.TestCase):
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, task2_id, end_id,
                                                 sequence_flow_name="task_two_to_end")
 
-        bpmn_graph.export_csv_file(self.output_directory, "simple_diagram.csv")
+        BpmnDiagramGraphCsvExport.export_process_to_csv(bpmn_graph, self.output_directory, "simple_diagram.csv")
         BpmnDiagramGraphExport.export_xml_file(self.output_directory, "simple_diagram.bpmn", bpmn_graph)
 
-    def test_csv_export_diagram_with_exclusive_parallel_gateway(self):
+    def test_csv_export_diagram_with_exclusive_parallel_gateway(self) -> None:
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
@@ -136,11 +137,11 @@ class CsvExportTests(unittest.TestCase):
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, exclusive_gate_join_id, end_id,
                                                 sequence_flow_name="Exclusive join to end event")
 
-        bpmn_graph.export_csv_file(self.output_directory, "exclusive_parallel_gateways_diagram.csv")
+        BpmnDiagramGraphCsvExport.export_process_to_csv(bpmn_graph, self.output_directory, "exclusive_parallel_gateways_diagram.csv")
         BpmnDiagramGraphExport.export_xml_file(self.output_directory, "exclusive_parallel_gateways_diagram.bpmn",
                                                bpmn_graph)
 
-    def test_csv_export_diagram_with_inclusive_parallel_gateway(self):
+    def test_csv_export_diagram_with_inclusive_parallel_gateway(self) -> None:
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()
@@ -197,7 +198,7 @@ class CsvExportTests(unittest.TestCase):
         bpmn_graph.add_modify_sequence_flow_to_diagram(process_id, exclusive_gate_join_id, end_id,
                                                 sequence_flow_name="Exclusive join to end event")
 
-        bpmn_graph.export_csv_file(self.output_directory, "inclusive_parallel_gateways_diagram.csv")
+        BpmnDiagramGraphCsvExport.export_process_to_csv(bpmn_graph, self.output_directory, "inclusive_parallel_gateways_diagram.csv")
         BpmnDiagramGraphExport.export_xml_file(self.output_directory, "inclusive_parallel_gateways_diagram.bpmn",
                                                bpmn_graph)
 

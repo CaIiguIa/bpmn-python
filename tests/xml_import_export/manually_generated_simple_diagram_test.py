@@ -22,7 +22,7 @@ class ManualGenerationSimpleTests(unittest.TestCase):
     output_dot_file = "manually-generated-example"
     output_png_file = "manually-generated-example"
 
-    def test_create_diagram_manually(self):
+    def test_create_diagram_manually(self) -> None:
         bpmn_graph = diagram.BpmnDiagramGraph()
         bpmn_graph.create_new_diagram_graph(diagram_name="diagram1")
         process_id = bpmn_graph.add_process_to_diagram()

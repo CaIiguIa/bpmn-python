@@ -11,7 +11,7 @@ from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
 
 class BPMNComplexityMetricsTests(unittest.TestCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
 
         self.models = {name: BpmnDiagramGraph()
                        for name in ['SIMPLE', 'COMPLEX', 'WITH_CYCLES', 'WITH_CROSSING_POINT']
@@ -26,301 +26,301 @@ class BPMNComplexityMetricsTests(unittest.TestCase):
         self.models['WITH_CROSSING_POINT'].load_diagram_from_xml_file(
             os.path.abspath("../examples/metrics/crossing_point_test.bpmn")),
 
-    def testTNSEMetricForSimpleModel(self):
+    def testTNSEMetricForSimpleModel(self) -> None:
 
         self.assertEqual(
             metrics.TNSE_metric(self.models['SIMPLE']), 1
         )
 
-    def testTNSEMetricForComplexModel(self):
+    def testTNSEMetricForComplexModel(self) -> None:
 
         self.assertEqual(
             metrics.TNSE_metric(self.models['COMPLEX']), 1
         )
 
-    def testTNSEForModelWithCycles(self):
+    def testTNSEForModelWithCycles(self) -> None:
 
         self.assertEqual(
             metrics.TNSE_metric(self.models['WITH_CYCLES']), 1
         )
 
-    def testTNSEForModelWithCrossingPoint(self):
+    def testTNSEForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.TNSE_metric(self.models['WITH_CROSSING_POINT']), 1
         )
 
-    def testTNIEMetricForSimpleModel(self):
+    def testTNIEMetricForSimpleModel(self) -> None:
 
         self.assertEqual(
             metrics.TNIE_metric(self.models['SIMPLE']), 0
         )
 
-    def testTNIEMetricForComplexModel(self):
+    def testTNIEMetricForComplexModel(self) -> None:
 
         self.assertEqual(
             metrics.TNIE_metric(self.models['COMPLEX']), 2
         )
 
-    def testTNIEForModelWithCycles(self):
+    def testTNIEForModelWithCycles(self) -> None:
 
         self.assertEqual(
             metrics.TNIE_metric(self.models['WITH_CYCLES']), 0
         )
 
-    def testTNIEForModelWithCrossingPoint(self):
+    def testTNIEForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.TNIE_metric(self.models['WITH_CROSSING_POINT']), 0
         )
 
-    def testTNEEMetricForSimpleModel(self):
+    def testTNEEMetricForSimpleModel(self) -> None:
 
         self.assertEqual(
             metrics.TNEE_metric(self.models['SIMPLE']), 1
         )
 
-    def testTNEEMetricForComplexModel(self):
+    def testTNEEMetricForComplexModel(self) -> None:
 
         self.assertEqual(
             metrics.TNEE_metric(self.models['COMPLEX']), 1
         )
 
-    def testTNEEForModelWithCycles(self):
+    def testTNEEForModelWithCycles(self) -> None:
 
         self.assertEqual(
             metrics.TNEE_metric(self.models['WITH_CYCLES']), 2
         )
 
-    def testTNEEForModelWithCrossingPoint(self):
+    def testTNEEForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.TNEE_metric(self.models['WITH_CROSSING_POINT']), 1
         )
 
-    def testTNEMetricForSimpleModel(self):
+    def testTNEMetricForSimpleModel(self) -> None:
 
         self.assertEqual(
             metrics.TNE_metric(self.models['SIMPLE']), 2
         )
 
-    def testTNEMetricForComplexModel(self):
+    def testTNEMetricForComplexModel(self) -> None:
 
         self.assertEqual(
             metrics.TNE_metric(self.models['COMPLEX']), 4
         )
 
-    def testTNEForModelWithCycles(self):
+    def testTNEForModelWithCycles(self) -> None:
 
         self.assertEqual(
             metrics.TNE_metric(self.models['WITH_CYCLES']), 3
         )
 
-    def testTNEForModelWithCrossingPoint(self):
+    def testTNEForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.TNE_metric(self.models['WITH_CROSSING_POINT']), 2
         )
 
-    def testNOAMetricForSimpleModel(self):
+    def testNOAMetricForSimpleModel(self) -> None:
 
         self.assertEqual(
             metrics.NOA_metric(self.models['SIMPLE']), 4
         )
 
-    def testNOAMetricForComplexModel(self):
+    def testNOAMetricForComplexModel(self) -> None:
 
         self.assertEqual(
             metrics.NOA_metric(self.models['COMPLEX']), 9
         )
 
-    def testNOAMetricForModelWithCycles(self):
+    def testNOAMetricForModelWithCycles(self) -> None:
         self.assertEqual(
             metrics.NOA_metric(self.models['WITH_CYCLES']), 11
         )
 
-    def testNOAMetricForModelWithCrossingPoint(self):
+    def testNOAMetricForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.NOA_metric(self.models['WITH_CROSSING_POINT']), 3
         )
 
-    def testNOACMetricForSimpleModel(self):
+    def testNOACMetricForSimpleModel(self) -> None:
         self.assertEqual(
             metrics.NOAC_metric(self.models['SIMPLE']), 8
         )
 
-    def testNOACMetricForComplexModel(self):
+    def testNOACMetricForComplexModel(self) -> None:
         self.assertEqual(
             metrics.NOAC_metric(self.models['COMPLEX']), 21
         )
 
-    def testNOACMetricForModelWithCycles(self):
+    def testNOACMetricForModelWithCycles(self) -> None:
         self.assertEqual(
             metrics.NOAC_metric(self.models['WITH_CYCLES']), 16
         )
 
-    def testNOACMetricForModelWithCrossingPoint(self):
+    def testNOACMetricForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.NOAC_metric(self.models['WITH_CROSSING_POINT']), 7
         )
 
-    def testNOAJSMetricForSimpleModel(self):
+    def testNOAJSMetricForSimpleModel(self) -> None:
         self.assertEqual(
             metrics.NOAJS_metric(self.models['SIMPLE']), 6
         )
 
-    def testNOAJSMetricForComplexModel(self):
+    def testNOAJSMetricForComplexModel(self) -> None:
         self.assertEqual(
             metrics.NOAJS_metric(self.models['COMPLEX']), 17
         )
 
-    def testNOAJSMetricForModelWithCycles(self):
+    def testNOAJSMetricForModelWithCycles(self) -> None:
         self.assertEqual(
             metrics.NOAJS_metric(self.models['WITH_CYCLES']), 13
         )
 
-    def testNOAJSMetricForModelWithCrossingPoint(self):
+    def testNOAJSMetricForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.NOAJS_metric(self.models['WITH_CROSSING_POINT']), 5
         )
 
-    def testNumberOfNodesForSimpleModel(self):
+    def testNumberOfNodesForSimpleModel(self) -> None:
 
         self.assertEqual(
             metrics.NumberOfNodes_metric(self.models['SIMPLE']), 8
         )
 
-    def testNumberOfNodesForComplexModel(self):
+    def testNumberOfNodesForComplexModel(self) -> None:
 
         self.assertEqual(
             metrics.NumberOfNodes_metric(self.models['COMPLEX']), 21
         )
 
-    def testNumberOfNodesForModelWithCycles(self):
+    def testNumberOfNodesForModelWithCycles(self) -> None:
         self.assertEqual(
             metrics.NumberOfNodes_metric(self.models['WITH_CYCLES']), 16
         )
 
-    def testNumberOfNodesForModelWithCrossingPoint(self):
+    def testNumberOfNodesForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.NumberOfNodes_metric(self.models['WITH_CROSSING_POINT']), 7
         )
 
-    def testGatewayHeterogenityMetricForSimpleModel(self):
+    def testGatewayHeterogenityMetricForSimpleModel(self) -> None:
 
         self.assertEqual(
             metrics.GatewayHeterogenity_metric(self.models['SIMPLE']), 1
         )
 
-    def testGatewayHeterogenityMetricForComplexModel(self):
+    def testGatewayHeterogenityMetricForComplexModel(self) -> None:
 
         self.assertEqual(
             metrics.GatewayHeterogenity_metric(self.models['COMPLEX']), 4
         )
 
-    def testGatewayHeterogenityMetricForModelWithCycles(self):
+    def testGatewayHeterogenityMetricForModelWithCycles(self) -> None:
         self.assertEqual(
             metrics.GatewayHeterogenity_metric(self.models['WITH_CYCLES']), 1
         )
 
-    def testGatewayHeterogenityMetricForModelWithCrossingPoint(self):
+    def testGatewayHeterogenityMetricForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.GatewayHeterogenity_metric(self.models['WITH_CROSSING_POINT']), 1
         )
 
-    def testCoefficientOfNetworkComplexityMetricForSimpleModel(self):
+    def testCoefficientOfNetworkComplexityMetricForSimpleModel(self) -> None:
 
         self.assertAlmostEqual(
             metrics.CoefficientOfNetworkComplexity_metric(self.models['SIMPLE']), 1.0,
             places=3
         )
 
-    def testCoefficientOfNetworkComplexityMetricForComplexModel(self):
+    def testCoefficientOfNetworkComplexityMetricForComplexModel(self) -> None:
 
         self.assertAlmostEqual(
             metrics.CoefficientOfNetworkComplexity_metric(self.models['COMPLEX']), 1.143,
             places=3
         )
 
-    def testCoefficientOfNetworkComplexityMetricForModelWithCycles(self):
+    def testCoefficientOfNetworkComplexityMetricForModelWithCycles(self) -> None:
         self.assertAlmostEqual(
             metrics.CoefficientOfNetworkComplexity_metric(self.models['WITH_CYCLES']), 1.0,
             places=3
         )
 
-    def testCoefficientOfNetworkComplexityMetricForModelWithCrossingPoint(self):
+    def testCoefficientOfNetworkComplexityMetricForModelWithCrossingPoint(self) -> None:
         self.assertAlmostEqual(
             metrics.CoefficientOfNetworkComplexity_metric(self.models['WITH_CROSSING_POINT']), 1.0
         )
 
-    def testAverageGatewayDegreeMetricForSimpleModel(self):
+    def testAverageGatewayDegreeMetricForSimpleModel(self) -> None:
 
         self.assertAlmostEqual(
             metrics.AverageGatewayDegree_metric(self.models['SIMPLE']), 3.0,
             places=3
         )
 
-    def testAverageGatewayDegreeMetricForComplexModel(self):
+    def testAverageGatewayDegreeMetricForComplexModel(self) -> None:
 
         self.assertAlmostEqual(
             metrics.AverageGatewayDegree_metric(self.models['COMPLEX']), 3.0,
             places=3
         )
 
-    def testAverageGatewayDegreeForModelWithCycles(self):
+    def testAverageGatewayDegreeForModelWithCycles(self) -> None:
         self.assertAlmostEqual(
             metrics.AverageGatewayDegree_metric(self.models['WITH_CYCLES']), 3.5,
             places=3
         )
 
-    def testAverageGatewayDegreeForModelWithCrossingPoint(self):
+    def testAverageGatewayDegreeForModelWithCrossingPoint(self) -> None:
         self.assertAlmostEqual(
             metrics.AverageGatewayDegree_metric(self.models['WITH_CROSSING_POINT']), 3.0
         )
 
-    def testDurfeeSquareMetricForSimpleModel(self):
+    def testDurfeeSquareMetricForSimpleModel(self) -> None:
 
         self.assertEqual(
             metrics.DurfeeSquare_metric(self.models['SIMPLE']), 2
         )
 
-    def testDurfeeSquareMetricForComplexModel(self):
+    def testDurfeeSquareMetricForComplexModel(self) -> None:
 
         self.assertEqual(
             metrics.DurfeeSquare_metric(self.models['COMPLEX']), 2
         )
 
-    def testDurfeeSquareForModelWithCycles(self):
+    def testDurfeeSquareForModelWithCycles(self) -> None:
 
         self.assertEqual(
             metrics.DurfeeSquare_metric(self.models['WITH_CYCLES']), 2
         )
 
-    def testDurfeeSquareForModelWithCrossingPoint(self):
+    def testDurfeeSquareForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.DurfeeSquare_metric(self.models['WITH_CROSSING_POINT']), 2
         )
 
-    def testPerfectSquareMetricForSimpleModel(self):
+    def testPerfectSquareMetricForSimpleModel(self) -> None:
 
         self.assertEqual(
             metrics.PerfectSquare_metric(self.models['SIMPLE']), 2
         )
 
-    def testPerfectSquareMetricForComplexModel(self):
+    def testPerfectSquareMetricForComplexModel(self) -> None:
 
         self.assertEqual(
             metrics.PerfectSquare_metric(self.models['COMPLEX']), 3
         )
 
-    def testPerfectSquareForModelWithCycles(self):
+    def testPerfectSquareForModelWithCycles(self) -> None:
 
         self.assertEqual(
             metrics.PerfectSquare_metric(self.models['WITH_CYCLES']), 4
         )
 
-    def testPerfectSquareForModelWithCrossingPoint(self):
+    def testPerfectSquareForModelWithCrossingPoint(self) -> None:
         self.assertEqual(
             metrics.PerfectSquare_metric(self.models['WITH_CROSSING_POINT']), 2
         )
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
 

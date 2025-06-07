@@ -9,6 +9,8 @@ import unittest
 
 import bpmn_python.bpmn_diagram_rep as diagram
 from bpmn_python.bpmn_diagram_export import BpmnDiagramGraphExport
+from bpmn_python.bpmn_process_csv_export import BpmnDiagramGraphCsvExport
+from bpmn_python.bpmn_process_csv_import import BpmnDiagramGraphCSVImport
 
 
 class CsvExportTests(unittest.TestCase):
@@ -18,13 +20,13 @@ class CsvExportTests(unittest.TestCase):
     output_directory = "./output/"
     input_directory = "./input/"
 
-    def test_csv_import_csv_export(self):
+    def test_csv_import_csv_export(self) -> None:
         processes = ["pizza-order", "airline-checkin", "order-processing"]
 
         for process in processes:
             bpmn_graph = diagram.BpmnDiagramGraph()
-            bpmn_graph.load_diagram_from_csv_file(os.path.abspath(self.input_directory + process + ".csv"))
-            bpmn_graph.export_csv_file(self.output_directory, process + ".csv")
+            BpmnDiagramGraphCSVImport.load_diagram_from_csv(os.path.abspath(self.input_directory + process + ".csv"), bpmn_graph)
+            BpmnDiagramGraphCsvExport.export_process_to_csv(bpmn_graph, self.output_directory, process + ".csv")
             cmp_result = filecmp.cmp(self.input_directory + process + ".csv", self.output_directory, process + ".csv")
             # unittest.TestCase.assertTrue(self, cmp_result) # unfortunatelly csv export has bugs
             BpmnDiagramGraphExport.export_xml_file_no_di(self.output_directory, process + ".bpmn", bpmn_graph)

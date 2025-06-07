@@ -462,8 +462,8 @@ class BpmnDiagramGraphExport(BaseModel):
             message_flow_xml.set(consts.Consts.id, message_flow_id)
             if message_flow.name is not None:
                 message_flow_xml.set(consts.Consts.name, message_flow.name)
-            message_flow_xml.set(consts.Consts.source_ref, message_flow.source_ref)
-            message_flow_xml.set(consts.Consts.target_ref, message_flow.target_ref)
+            message_flow_xml.set(consts.Consts.source_ref, message_flow.source_ref_id)
+            message_flow_xml.set(consts.Consts.target_ref, message_flow.target_ref_id)
 
             message_flow_params = bpmn_diagram.get_flow_by_id(message_flow_id)[2]
             output_flow = eTree.SubElement(plane, consts.Consts.bpmndi_namespace + consts.Consts.bpmn_edge)
