@@ -696,22 +696,21 @@ class BpmnDiagramGraph(BaseModel):
         self.nodes.pop(node_id)
         self.process_elements[node.process_id].flow_element_list.remove(node)
 
-    def get_diagram_graph(self) -> nx.DiGraph:
+    def get_diagram_graph(self) -> nx.Graph:
         """
-        Returns the NetworkX DiGraph representing the BPMN diagram.
+        Returns the NetworkX Graph representing the BPMN diagram.
         Nodes are node ids, and each node is a FlowNode object with its attributes.
         Edges are sequence flows (source->target), with flow id as attribute.
 
         Returns:
-            nx.DiGraph: The BPMN diagram as a directed graph.
+            nx.Graph: The BPMN diagram as a directed graph.
         """
-        G = nx.DiGraph()
+        G = nx.Graph()
 
         for node_id, node in self.nodes.items():
             G.add_node(
                 node.name or node_id,
                 **{
-                    # consts.Consts.name: node.name or "",
                     consts.Consts.process: node.process_id,
                     consts.Consts.type: node.node_type.value,
                     consts.Consts.id: node.id,
